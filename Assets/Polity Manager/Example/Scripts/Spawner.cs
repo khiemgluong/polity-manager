@@ -1,17 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
+using static KL.PolityManager;
 
 namespace KL
 {
     public class Spawner : MonoBehaviour
     {
-        [SerializeField] GameObject[] npcPrefabs;
-        [SerializeField] GameObject cursor;
+        [SerializeField] GameObject dummy, cursor;
         [SerializeField] PolityReader polityReader;
         private HashSet<Transform> usedSpawnPoints = new HashSet<Transform>(); // Hash set to track used spawn points
 
+        void Awake()
+        {
+            foreach (Polity polity in PM.polities)
+            {
+                // PolityRelation relation = PM.CheckPolityRelation(member, allyEnemyTarget);
+                Debug.LogError(polity.name);
+            }
+        }
         void Start()
         {
+            return;
             // Collect all child GameObjects as spawn points
             List<Transform> spawnPoints = new List<Transform>();
             for (int i = 0; i < transform.childCount; i++)
@@ -31,21 +40,18 @@ namespace KL
             }
 
             // Spawn each NPC prefab at a random spawn point from the collected spawn points
-            foreach (var prefab in npcPrefabs)
+            foreach (var spawnPoint in spawnPoints)
             {
-                foreach (var spawnPoint in spawnPoints)
+                // Check if spawn point has already been used
+                if (!usedSpawnPoints.Contains(spawnPoint))
                 {
-                    // Check if spawn point has already been used
-                    if (!usedSpawnPoints.Contains(spawnPoint))
-                    {
-                        // Instantiate the prefab at the spawn point
-                        SpawnNPC(prefab, spawnPoint.position);
-                        // Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
+                    // Instantiate the prefab at the spawn point
+                    SpawnNPC(dummy, spawnPoint.position);
+                    // Instantiate(prefab, spawnPoint.position, spawnPoint.rotation);
 
-                        // Add the spawn point to the used set to avoid reusing it
-                        usedSpawnPoints.Add(spawnPoint);
-                        break; // Break out of the inner loop once a spawn point is used
-                    }
+                    // Add the spawn point to the used set to avoid reusing it
+                    usedSpawnPoints.Add(spawnPoint);
+                    break; // Break out of the inner loop once a spawn point is used
                 }
             }
         }
@@ -76,7 +82,7 @@ namespace KL
                 if (Input.GetMouseButtonDown(0))
                 {
                     Debug.Log(hit.point);
-                    SpawnNPC(npcPrefabs[Random.Range(0, npcPrefabs.Length)], hit.point);
+                    SpawnNPC(dummy, hit.point);
                 }
 
             }

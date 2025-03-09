@@ -6,6 +6,7 @@ namespace KL
     using static KL.PolityManager;
     public class NPC : MonoBehaviour
     {
+        [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         PolityMember member;
         NavMeshAgent agent;
         Vector3 spawnPos;
@@ -14,11 +15,11 @@ namespace KL
         /// <summary>
         /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
         /// </summary>
-        public Transform targetArrow;
+        // public Transform targetArrow;
         void Awake()
         {
-            targetArrow = transform.Find("TargetArrow");
-            targetArrow.gameObject.SetActive(false);
+            // targetArrow = transform.Find("TargetArrow");
+            // targetArrow.gameObject.SetActive(false);
             member = GetComponent<PolityMember>();
             agent = GetComponent<NavMeshAgent>();
             agent.avoidancePriority = Random.Range(1, 99);
@@ -34,30 +35,30 @@ namespace KL
             if (allyEnemyTarget != null)
             {
                 MoveTowardsPolityMemberTarget(allyEnemyTarget);
-                RotateArrowTowardsTarget(allyEnemyTarget.transform);
+                // RotateArrowTowardsTarget(allyEnemyTarget.transform);
             }
             else if (enemyTarget != null)
             {
                 MoveTowardsPolityMemberTarget(enemyTarget);
-                RotateArrowTowardsTarget(enemyTarget.transform);
+                // RotateArrowTowardsTarget(enemyTarget.transform);
             }
         }
 
-        void RotateArrowTowardsTarget(Transform target)
-        {
-            float originalXRotation = targetArrow.eulerAngles.x;
-            float originalZRotation = targetArrow.eulerAngles.z;
+        // void RotateArrowTowardsTarget(Transform target)
+        // {
+        //     float originalXRotation = targetArrow.eulerAngles.x;
+        //     float originalZRotation = targetArrow.eulerAngles.z;
 
-            targetArrow.LookAt(target);
+        //     targetArrow.LookAt(target);
 
-            Quaternion additionalRotation = Quaternion.Euler(0, -90, 0);
-            targetArrow.rotation *= additionalRotation;
+        //     Quaternion additionalRotation = Quaternion.Euler(0, -90, 0);
+        //     targetArrow.rotation *= additionalRotation;
 
-            Vector3 currentEulerAngles = targetArrow.eulerAngles;
-            currentEulerAngles.x = originalXRotation;
-            currentEulerAngles.z = originalZRotation;
-            targetArrow.eulerAngles = currentEulerAngles;
-        }
+        //     Vector3 currentEulerAngles = targetArrow.eulerAngles;
+        //     currentEulerAngles.x = originalXRotation;
+        //     currentEulerAngles.z = originalZRotation;
+        //     targetArrow.eulerAngles = currentEulerAngles;
+        // }
         void MoveTowardsPolityMemberTarget(PolityMember polityMember)
         {
             agent.SetDestination(polityMember.transform.position);
@@ -78,12 +79,12 @@ namespace KL
                     case PolityRelation.Allies:
                         enemyTarget = null;
                         agent.SetDestination(spawnPos);
-                        targetArrow.gameObject.SetActive(false);
+                        // targetArrow.gameObject.SetActive(false);
                         break;
                     case PolityRelation.Neutral:
                         allyEnemyTarget = null;
                         SearchForPolityMembers();
-                        targetArrow.gameObject.SetActive(false);
+                        // targetArrow.gameObject.SetActive(false);
                         break;
                 }
             }
@@ -94,7 +95,7 @@ namespace KL
                 {
                     enemyTarget = null;
                     agent.SetDestination(spawnPos);
-                    targetArrow.gameObject.SetActive(false);
+                    // targetArrow.gameObject.SetActive(false);
                 }
                 else SearchForPolityMembers();
             }
@@ -117,14 +118,14 @@ namespace KL
                                     if (allyNPC.enemyTarget != null)
                                     {
                                         allyEnemyTarget = allyNPC.enemyTarget;
-                                        targetArrow.gameObject.SetActive(true);
+                                        // targetArrow.gameObject.SetActive(true);
                                     }
                                 break;
                             case PolityRelation.Enemies:
                                 allyEnemyTarget = null;
                                 enemyTarget = polityMember;
                                 agent.updateRotation = false;
-                                targetArrow.gameObject.SetActive(true);
+                                // targetArrow.gameObject.SetActive(true);
                                 break;
                         }
                     }

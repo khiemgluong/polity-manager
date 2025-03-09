@@ -81,7 +81,7 @@ namespace KL
             /* -------------------------------------------------------------------------- */
 
             if (!Application.isPlaying) if (GUILayout.Button("Member Family Graph"))
-                    EditorWindow.GetWindow<PolityMemberGraph>("Polity Manager");
+                    EditorWindow.GetWindow<PolityFamilyGraph>("Polity Manager");
 
             // Save changes
             if (GUI.changed)

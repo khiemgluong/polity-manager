@@ -240,9 +240,15 @@ namespace KhiemLuong
         /// <param name="theirPolityName">The string of the polity name that is selected.</param>
         /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
         public void ChangePolityRelation(string thisPolityName, string theirPolityName, PolityRelation newRelation)
+        public void ChangePolityRelation(string thisPolityName, string theirPolityName, PolityRelation newRelation)
         {
             int thisIndex = Array.FindIndex(polities, p => p.name == thisPolityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
+            if (thisPolityName.Equals(theirPolityName))
+            {
+                Debug.LogWarning($"Cannot change identical polities {thisPolityName}.");
+                return;
+            }
             if (thisPolityName.Equals(theirPolityName))
             {
                 Debug.LogWarning($"Cannot change identical polities {thisPolityName}.");
@@ -253,6 +259,8 @@ namespace KhiemLuong
                 Debug.LogError("One or both polity names not found.");
                 return;
             }
+            PolityRelationMatrix[thisIndex, theirIndex] = newRelation;
+            PolityRelationMatrix[theirIndex, thisIndex] = newRelation;
             PolityRelationMatrix[thisIndex, theirIndex] = newRelation;
             PolityRelationMatrix[theirIndex, thisIndex] = newRelation;
             OnRelationChange?.Invoke();

@@ -6,7 +6,7 @@ namespace KL
     [Serializable]
     public class PolityReader
     {
-        [SerializeField] PolityStruct polityStruct;
+        [SerializeField] PolityStruct polityStruct = new();
         [SerializeField] int polityIndex, classIndex, factionIndex;
         [SerializeField] bool isPolityLeader, isClassLeader, isFactionLeader;
         public System.Collections.Generic.List<PolityMember> parents, partners, children;
@@ -23,21 +23,23 @@ namespace KL
         // { get => factionName; private set => factionName = value; }
         #endregion
         #region  Get Polity
-        public PolityStruct GetPolity()
-        {
-            return polityStruct;
-        }
+        // public PolityStruct GetPolity()
+        // {
+        //     return polityStruct;
+        // }
         #endregion
 
 
         #region Set Polity
         public void SetPolity(PolityStruct _struct)
         {
+            // polityStruct = new();
             polityStruct = _struct;
         }
 
         public void SetPolity(PolityReader _polityReader)
         {
+            // polityStruct = new();
             polityStruct = _polityReader.Struct;
         }
         #endregion

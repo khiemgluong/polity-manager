@@ -9,7 +9,7 @@ namespace KL
     [DisallowMultipleComponent]
     public class PolityMember : MonoBehaviour
     {
-        public PolityReader reader;
+        public PolityReader reader = new();
         public List<PolityMember> parents, partners, children;
 
         /* --------------------------------- EVENTS --------------------------------- */
@@ -17,7 +17,7 @@ namespace KL
 
         void OnEnable() => OnFactionChange += OnFactionChanged;
         void OnDisable() => OnFactionChange -= OnFactionChanged;
-        void Awake() => CleanupFamily();
+        // void Awake() => CleanupFamily();
 
         void OnFactionChanged()
         {
@@ -94,7 +94,7 @@ namespace KL
                 children = children.ToArray(),
             }; return familyStruct;
         }
-     
+
 
         /* -------------------------------------------------------------------------- */
         /*                                FAMILYSTRUCT                                */

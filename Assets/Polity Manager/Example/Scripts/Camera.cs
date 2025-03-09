@@ -85,7 +85,7 @@ namespace KL
                 {
                     memberName.text = polityMember.name;
 
-                    PolityStruct polityStruct = polityMember.reader.GetPolity();
+                    PolityStruct polityStruct = polityMember.reader.Struct;
                     memberPolity.text = polityStruct.polityName;
                     //Get the emblem of just the polity if available
                     PolityStruct emblemStruct = new()
@@ -118,34 +118,34 @@ namespace KL
                     }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 
-                    FamilyStruct familyStruct = polityMember.GetMemberFamily();
-                    if (familyStruct.parents.Length == 0)
-                        parentName.gameObject.SetActive(false);
-                    else
-                    {
-                        parentName.gameObject.SetActive(true);
-                        if (familyStruct.parents.Length > 1)
-                            parentName.text = "Parents: " + familyStruct.parents.Length;
-                        else parentName.text = "Parent: " + familyStruct.parents[0].name;
-                    }
-                    if (familyStruct.partners.Length == 0)
-                        partnerName.gameObject.SetActive(false);
-                    else
-                    {
-                        partnerName.gameObject.SetActive(true);
-                        if (familyStruct.partners.Length > 1)
-                            partnerName.text = "Partners: " + familyStruct.partners.Length;
-                        else partnerName.text = "Partner: " + familyStruct.partners[0].name;
-                    }
-                    if (familyStruct.children.Length == 0)
-                        childrenName.gameObject.SetActive(false);
-                    else
-                    {
-                        childrenName.gameObject.SetActive(true);
-                        if (familyStruct.children.Length > 1)
-                            childrenName.text = "Children: " + familyStruct.children.Length;
-                        else childrenName.text = "Child: " + familyStruct.children[0].name;
-                    }
+                    // FamilyStruct familyStruct = polityMember.GetMemberFamily();
+                    // if (familyStruct.parents.Length == 0)
+                    //     parentName.gameObject.SetActive(false);
+                    // else
+                    // {
+                    //     parentName.gameObject.SetActive(true);
+                    //     if (familyStruct.parents.Length > 1)
+                    //         parentName.text = "Parents: " + familyStruct.parents.Length;
+                    //     else parentName.text = "Parent: " + familyStruct.parents[0].name;
+                    // }
+                    // if (familyStruct.partners.Length == 0)
+                    //     partnerName.gameObject.SetActive(false);
+                    // else
+                    // {
+                    //     partnerName.gameObject.SetActive(true);
+                    //     if (familyStruct.partners.Length > 1)
+                    //         partnerName.text = "Partners: " + familyStruct.partners.Length;
+                    //     else partnerName.text = "Partner: " + familyStruct.partners[0].name;
+                    // }
+                    // if (familyStruct.children.Length == 0)
+                    //     childrenName.gameObject.SetActive(false);
+                    // else
+                    // {
+                    //     childrenName.gameObject.SetActive(true);
+                    //     if (familyStruct.children.Length > 1)
+                    //         childrenName.text = "Children: " + familyStruct.children.Length;
+                    //     else childrenName.text = "Child: " + familyStruct.children[0].name;
+                    // }
 
                 }
                 else

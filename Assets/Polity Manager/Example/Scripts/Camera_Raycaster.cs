@@ -10,11 +10,13 @@ namespace KhiemLuong
     {
         public Image targetImage;
         public RectTransform panel;
+        public Button quitButton;
         RawImage emblem;
         CanvasGroup canvasGroup;
         TextMeshProUGUI memberName, memberPolity, memberClass, memberFaction;
         TextMeshProUGUI parentName, partnerName, childrenName;
         bool isPaused;
+
         void Start()
         {
             canvasGroup = targetImage.GetComponent<CanvasGroup>();
@@ -30,6 +32,18 @@ namespace KhiemLuong
             childrenName = t.Find("Children").GetComponent<TextMeshProUGUI>();
 
             panel.gameObject.SetActive(false);
+            if (quitButton != null)
+                quitButton.onClick.AddListener(OnQuitButtonClicked); // Add listener
+        }
+
+        void OnQuitButtonClicked()
+        {
+            Debug.Log("Quit button clicked!");
+            Application.Quit();
+
+            #if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+            #endif
         }
         void Update()
         {
@@ -71,7 +85,7 @@ namespace KhiemLuong
                 {
                     memberName.text = polityMember.name;
 
-                    PolityStruct polityStruct = polityMember.GetMemberPolity();
+                    PolityStruct polityStruct = polityMember.reader.GetPolity();
                     memberPolity.text = polityStruct.polityName;
                     //Get the emblem of just the polity if available
                     PolityStruct emblemStruct = new()

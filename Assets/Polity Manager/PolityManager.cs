@@ -240,7 +240,6 @@ namespace KhiemLuong
         /// <param name="theirPolityName">The string of the polity name that is selected.</param>
         /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
         public void ChangePolityRelation(string thisPolityName, string theirPolityName, PolityRelation newRelation)
-        public void ChangePolityRelation(string thisPolityName, string theirPolityName, PolityRelation newRelation)
         {
             int thisIndex = Array.FindIndex(polities, p => p.name == thisPolityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);

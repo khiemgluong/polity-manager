@@ -1,13 +1,11 @@
 using System;
 using UnityEngine;
-using static KhiemLuong.PolityManager;
-namespace KhiemLuong
+using static KL.PolityManager;
+namespace KL
 {
     [Serializable]
     public class PolityReader
     {
-        // [SerializedDictionary("Scene Name", "Polity")]
-        // [SerializeField] SerializedDictionary<string, PolityStruct> polities = new();
         [SerializeField] PolityStruct polityStruct;
         [SerializeField] int polityIndex, classIndex, factionIndex;
         [SerializeField] bool isPolityLeader, isClassLeader, isFactionLeader;
@@ -33,9 +31,14 @@ namespace KhiemLuong
 
 
         #region Set Polity
-        public void SetPolity(ref PolityStruct _struct)
+        public void SetPolity(PolityStruct _struct)
         {
             polityStruct = _struct;
+        }
+
+        public void SetPolity(PolityReader _polityReader)
+        {
+            polityStruct = _polityReader.Struct;
         }
         #endregion
         public override bool Equals(object obj)

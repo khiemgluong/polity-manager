@@ -3,7 +3,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace KhiemLuong
+namespace KL
 {
     public class PolityMemberGraph : EditorWindow
     {

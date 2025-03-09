@@ -6,7 +6,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 
-namespace KhiemLuong
+namespace KL
 {
     public class PolityManager : MonoBehaviour
     {

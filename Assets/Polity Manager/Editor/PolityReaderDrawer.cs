@@ -2,7 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace KhiemLuong
+namespace KL
 {
     using static PolityManager;
 

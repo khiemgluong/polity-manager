@@ -2,11 +2,11 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace KhiemLuong
+namespace KL
 {
-    using static KhiemLuong.PolityManager;
-    using static KhiemLuong.PolityMember;
-    public class CameraRaycaster : MonoBehaviour
+    using static KL.PolityManager;
+    using static KL.PolityMember;
+    public class Camera : MonoBehaviour
     {
         public Image targetImage;
         public RectTransform panel;
@@ -72,11 +72,11 @@ namespace KhiemLuong
 
             if (scroll != 0)
             {
-                Camera.main.fieldOfView -= scroll * 15f;
-                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView, 40, 100);
+                UnityEngine.Camera.main.fieldOfView -= scroll * 15f;
+                UnityEngine.Camera.main.fieldOfView = Mathf.Clamp(UnityEngine.Camera.main.fieldOfView, 40, 100);
             }
 
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
 
             if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {

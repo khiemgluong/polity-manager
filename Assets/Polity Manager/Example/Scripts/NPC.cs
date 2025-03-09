@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace KhiemLuong
+namespace KL
 {
-    using static KhiemLuong.PolityManager;
-    public class NPC_Driver : MonoBehaviour
+    using static KL.PolityManager;
+    public class NPC : MonoBehaviour
     {
         PolityMember member;
         NavMeshAgent agent;
@@ -27,7 +27,7 @@ namespace KhiemLuong
             OnRelationChange += OnPolityStateChanged;
         }
 
-        void Start() => SearchForPolityMembers();
+        // void Start() => SearchForPolityMembers();
 
         void Update()
         {
@@ -112,7 +112,7 @@ namespace KhiemLuong
                         switch (relation)
                         {
                             case PolityRelation.Allies:
-                                NPC_Driver allyNPC = polityMember.GetComponent<NPC_Driver>();
+                                NPC allyNPC = polityMember.GetComponent<NPC>();
                                 if (allyNPC.enemyTarget != null)
                                     if (allyNPC.enemyTarget != null)
                                     {

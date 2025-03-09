@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace KhiemLuong
+namespace KL
 {
-    public class PlayerController : MonoBehaviour
+    public class Player : MonoBehaviour
     {
         public float speed = 4.0f; // Movement speed
         private CharacterController controller;

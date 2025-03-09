@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace KhiemLuong
+namespace KL
 {
     using static PolityManager;
     [CustomEditor(typeof(PolityManager))]

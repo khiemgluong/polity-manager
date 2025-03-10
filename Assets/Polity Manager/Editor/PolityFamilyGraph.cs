@@ -39,6 +39,9 @@ namespace KL
         SerializedObject serializedObject;
         GUIStyle parentNode, partnerNode, childNode;
         List<Rect> nodes = new();
+        List<Rect> parentNodes = new();
+        List<Rect> partnerNodes = new();
+
         Vector2 nodeSize = new(140, 65);
         /// <summary>
         /// This nodeId is referenced only in a node which is a child of the root node
@@ -98,8 +101,7 @@ namespace KL
             EditorGUILayout.BeginHorizontal();
             if (GUILayout.Button("Add Node", GUILayout.ExpandWidth(false)))
             {
-                if (polityMembers[0] != null)
-                    nodes.Add(new Rect(nodes[0].x, nodes[0].y - 100, nodeSize.x, nodeSize.y));
+                if (polityMembers[0] != null) nodes.Add(CreateNode(nodes[0].x, nodes[0].y - 100));
                 else Debug.LogWarning("You must assign a root PolityMember first");
             }
             EditorGUILayout.EndHorizontal();
@@ -113,7 +115,7 @@ namespace KL
             float mainPanelWidth = position.width;
             float mainPanelHeight = position.height - topBarHeight;
             GUILayout.BeginArea(new Rect(0, topBarHeight, mainPanelWidth, mainPanelHeight), "", GUI.skin.window);
-            Rect groupRect = new Rect(panX, panY, 5000, 5000);
+            Rect groupRect = new(panX, panY, 5000, 5000);
             GUI.BeginGroup(groupRect);
             BeginWindows();
 
@@ -131,7 +133,7 @@ namespace KL
                             nodes[i] = new Rect(nodes[0].x, nodes[0].y, nodeSize.x, 110);
                         else nodes[i] = new Rect(nodes[0].x, nodes[0].y, nodeSize.x, 90);
                     }
-                    nodes[i] = GUI.Window(i, nodes[i], DrawNodeWindow, "Root " + i);
+                    nodes[i] = GUI.Window(i, nodes[i], DrawNode, "Root " + i);
                 }
                 else
                 {
@@ -140,10 +142,10 @@ namespace KL
                         switch (linkedRelationType[i])
                         {
                             case RelationType.Parents:
-                                nodes[i] = GUI.Window(i, nodes[i], DrawNodeWindow, "Parent " + i, parentNode);
+                                nodes[i] = GUI.Window(i, nodes[i], DrawNode, "Parent " + i, parentNode);
                                 break;
                             case RelationType.Partners:
-                                nodes[i] = GUI.Window(i, nodes[i], DrawNodeWindow, "Partner " + i, partnerNode);
+                                nodes[i] = GUI.Window(i, nodes[i], DrawNode, "Partner " + i, partnerNode);
                                 break;
                             case RelationType.Children:
                                 if (polityMembers[i] != null)
@@ -152,12 +154,19 @@ namespace KL
                                         nodes[i] = new Rect(nodes[i].x, nodes[i].y, nodeSize.x, 90);
                                     else nodes[i] = new Rect(nodes[i].x, nodes[i].y, nodeSize.x, 65);
                                 }
-                                nodes[i] = GUI.Window(i, nodes[i], DrawNodeWindow, "Child " + i, childNode);
+                                nodes[i] = GUI.Window(i, nodes[i], DrawNode, "Child " + i, childNode);
                                 break;
                         }
                     }
-                    else nodes[i] = GUI.Window(i, nodes[i], DrawNodeWindow, "Node " + i);
+                    else nodes[i] = GUI.Window(i, nodes[i], DrawNode, "Node " + i);
                 }
+            }
+            for (int i = 0; i < parentNodes.Count; i++)
+            {
+                DrawNodeCurve(nodes[0], parentNodes[i], NodeAnchor.Bottom, NodeAnchor.Top);
+                // parentNodes[0] = new Rect(nodes[0].x - nodeSize.x, nodes[0].y - nodeSize.y * 2f, nodeSize.x, nodeSize.y);
+
+                // parentNodes[i] = GUI.Window(i, parentNodes[i], DrawNode, "Parent " + i, parentNode);
             }
             EndWindows();
             GUI.EndGroup();
@@ -190,7 +199,36 @@ namespace KL
                 }
             }
         }
-        void DrawNodeWindow(int id)
+        Rect CreateNode(float x, float y)
+        {
+            return new Rect(x, y, nodeSize.x, nodeSize.y);
+        }
+        Rect MoveNode(Rect node, float x, float y)
+        {
+            return new Rect(x, y, node.width, node.height);
+        }
+        void AddParentNode()
+        {
+            if (polityMembers[0].family.parents.Count < 2 &&
+                parentNodes.Count < 2)
+            {
+                relationType = RelationType.Parents;
+                switch (parentNodes.Count)
+                {
+                    case 0:
+                        parentNodes.Add(CreateNode(nodes[0].x, nodes[0].y - nodeSize.y * 2f));
+                        Debug.LogError("first ParentNode " + parentNodes[0]);
+                        break;
+                    case 1:
+                        parentNodes[0] = MoveNode(parentNodes[0], nodes[0].x - nodeSize.x, nodes[0].y - nodeSize.y * 2f);
+                        Debug.LogError("2nd ParentNode " + parentNodes[0]);
+                        parentNodes.Add(CreateNode(nodes[0].x + nodeSize.x * 2,
+                                                nodes[0].y - nodeSize.y * 2f));
+                        break;
+                }
+            }
+        }
+        void DrawNode(int id)
         {
             while (polityMembers.Count <= id) polityMembers.Add(null);
             EditorGUI.BeginChangeCheck();
@@ -201,9 +239,8 @@ namespace KL
                 if (polityMembers[0] != null && PrefabUtility.IsPartOfPrefabAsset(polityMembers[0]))
                     if (!CheckForDuplicateNode(id))
                     {
-                        if (polityMembers[0].family.parents.Count < 2)
-                            if (GUILayout.Button(RelationType.Parents.ToString()))
-                                relationType = RelationType.Parents;
+                        if (GUILayout.Button(RelationType.Parents.ToString()))
+                            AddParentNode();
                         if (GUILayout.Button(RelationType.Partners.ToString()))
                             relationType = RelationType.Partners;
                         if (GUILayout.Button(RelationType.Children.ToString()))
@@ -292,39 +329,35 @@ namespace KL
 
             Rect rootNode = nodes[0];
             float currentXOffset;
+            #region Parents
             /* -------------------------- Building Parent Nodes ------------------------- */
             for (int i = 0; i < root.family.parents.Count; i++)
             {
                 currentXOffset = -nodeSize.x;
                 polityMembers.Add(root.family.parents[i]);
-                if (i == 0)
-                    nodes.Add(new Rect(rootNode.x + currentXOffset, rootNode.y - nodeSize.y * 2f, nodeSize.x, nodeSize.y));
-                else
-                {
-                    currentXOffset += nodeSize.x * 2f;
-                    nodes.Add(new Rect(rootNode.x + currentXOffset, rootNode.y - nodeSize.y * 2f, nodeSize.x, nodeSize.y));
-                }
+                if (i != 0) currentXOffset += nodeSize.x * 2f;
+                nodes.Add(CreateNode(rootNode.x + currentXOffset, rootNode.y - nodeSize.y * 2f));
+
                 relationType = RelationType.Parents;
                 AttachCurveToRootNode(i + 1);
             }
             currentXOffset = nodeSize.x * 2f;
+            #endregion
+
+            #region Partners
             /* ------------------------- Building Partner Nodes ------------------------- */
             List<int> partnersIds = new();
             for (int i = 0; i < root.family.partners.Count; i++)
             {
                 polityMembers.Add(root.family.partners[i].partner);
-                if (i == 0)
-                    nodes.Add(new Rect(rootNode.x + currentXOffset, rootNode.y * 1.05f, nodeSize.x, nodeSize.y));
-                else
-                {
-                    currentXOffset += nodeSize.x * 2f;
-                    nodes.Add(new Rect(rootNode.x + currentXOffset, rootNode.y * 1.05f, nodeSize.x, nodeSize.y));
-                }
+                if (i != 0) currentXOffset += nodeSize.x * 2f;
+                nodes.Add(CreateNode(rootNode.x + currentXOffset, rootNode.y * 1.05f));
                 relationType = RelationType.Partners;
                 AttachCurveToRootNode(polityMembers.Count - 1);
                 partnersIds.Add(polityMembers.Count - 1);
             }
             currentXOffset = nodeSize.x / 2;
+            #endregion
             /* ------------------------- Building Children Nodes ------------------------ */
             // for (int i = 0; i < root.children.Count; i++)
             // {

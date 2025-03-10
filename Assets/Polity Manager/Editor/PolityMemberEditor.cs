@@ -19,7 +19,8 @@ namespace KL
             { GUILayout.Label("No PolityManager found in the Scene.", EditorStyles.boldLabel); return; }
 
             serializedObject.Update();
-
+            SerializedProperty iD = serializedObject.FindProperty("iD");
+            EditorGUILayout.PropertyField(iD, true);
             SerializedProperty polityReader = serializedObject.FindProperty("reader");
             EditorGUILayout.PropertyField(polityReader, true);
             SerializedProperty family = serializedObject.FindProperty("family");

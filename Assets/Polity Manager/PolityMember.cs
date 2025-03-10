@@ -10,6 +10,7 @@ namespace KL
     [DisallowMultipleComponent]
     public class PolityMember : MonoBehaviour
     {
+        public string iD;
         public PolityReader reader = new();
         public FamilyStruct family = new();
         // public List<PolityMember> parents, partners, children;
@@ -20,7 +21,11 @@ namespace KL
         void OnEnable() => OnFactionChange += OnFactionChanged;
         void OnDisable() => OnFactionChange -= OnFactionChanged;
         // void Awake() => CleanupFamily();
-
+        [ContextMenu("Check Family")]
+        void GenerateGUID()
+        {
+            iD = Guid.NewGuid().ToString().ToUpper();
+        }
         void OnFactionChanged()
         {
             // bool isCurrentFactionStillAvailable = false;

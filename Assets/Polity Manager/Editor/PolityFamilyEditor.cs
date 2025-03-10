@@ -57,7 +57,7 @@ namespace KL
             //     EditorGUI.indentLevel--;
             // }
             if (!Application.isPlaying) if (GUILayout.Button("Member Family Graph"))
-                    EditorWindow.GetWindow<PolityFamilyGraph>("Polity Manager");
+                    EditorWindow.GetWindow<PolityFamilyGraph>("Family Graph");
             serializedObject.ApplyModifiedProperties();
         }
     }

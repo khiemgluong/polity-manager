@@ -30,30 +30,47 @@ namespace KL
         struct Node
         {
             public Rect Rect;
-            public int NodeId;
-            public NodeAnchor Point;
-            public Node(Rect rect, int nodeId, NodeAnchor point)
+            // public int NodeId;
+            public NodeAnchor Anchor;
+            public Node(Rect rect, NodeAnchor anchorPoint)
             {
                 Rect = rect;
-                NodeId = nodeId;
-                Point = point;
+                // NodeId = nodeId;
+                Anchor = anchorPoint;
             }
+        }
+        struct Link
+        {
+            public Rect Rect;
+            public RelationType Relation;
+            // public int NodeId;
+            public NodeAnchor Anchor;
+            public Link(Rect rect, RelationType relation, NodeAnchor anchorPoint)
+            {
+                Rect = rect;
+                Relation = relation;
+                // NodeId = nodeId;
+                Anchor = anchorPoint;
+            }
+            // public Curve(Rect rect, int nodeId, NodeAnchor anchorPoint)
+            // {
+            //     Rect = rect;
+            //     NodeId = nodeId;
+            //     Anchor = anchorPoint;
+            // }
         }
         SerializedObject serializedObject;
         GUIStyle parentNode, partnerNode, childNode;
-        // List<Rect> nodes = new();
+        List<Node> nodes2 = new();
         Dictionary<Rect, RelationType> nodes = new();
-
-        // List<Rect> parentNodes = new();
-        // List<Rect> partnerNodes = new();
-
+        Dictionary<Node, Node> links = new();
         Vector2 nodeSize = new(140, 65);
         /// <summary>
         /// This nodeId is referenced only in a node which is a child of the root node
         /// </summary>
         int childNodeId = -1;
         bool isRootGenerated;
-        Dictionary<Node, Node> linkedNodes = new(), linkedChildNodes = new();
+        // Dictionary<Curve, Curve> linkedNodes = new(), linkedChildNodes = new();
         Dictionary<int, RelationType> linkedRelationType = new();
 
         /* ------------------------------ PAN CONTROLS ------------------------------ */
@@ -75,7 +92,7 @@ namespace KL
 
             nodes.Clear();
             polityMembers.Clear();
-            linkedNodes.Clear();
+            // linkedNodes.Clear();
             linkedRelationType.Clear();
 
             // Calculate the center of the groupRect
@@ -124,10 +141,10 @@ namespace KL
             GUI.BeginGroup(groupRect);
             BeginWindows();
 
-            foreach (var pair in linkedNodes)
-                DrawNodeCurve(nodes.ElementAt(pair.Key.NodeId).Key, nodes.ElementAt(pair.Value.NodeId).Key, pair.Key.Point, pair.Value.Point);
-            foreach (var pair in linkedChildNodes)
-                DrawNodeCurve(nodes.ElementAt(pair.Value.NodeId).Key, nodes.ElementAt(pair.Key.NodeId).Key, pair.Value.Point, pair.Key.Point);
+            // foreach (var pair in linkedNodes)
+            //     DrawNodeCurve(nodeRects.ElementAt(pair.Key.NodeId).Key, nodeRects.ElementAt(pair.Value.NodeId).Key, pair.Key.Point, pair.Value.Point);
+            // foreach (var pair in linkedChildNodes)
+            //     DrawNodeCurve(nodeRects.ElementAt(pair.Value.NodeId).Key, nodeRects.ElementAt(pair.Key.NodeId).Key, pair.Value.Point, pair.Key.Point);
             int index = 0;
             foreach (var node in nodes)
             {
@@ -137,7 +154,7 @@ namespace KL
                     if (polityMembers.Any() && polityMembers[0] != null)
                     {
                         if (polityMembers[0].family.parents.Count < 2)
-                            nodeRect = new Rect(node.Key.x, node.Key.y, nodeSize.x, 110);
+                            nodeRect = new Rect(node.Key.x, node.Key.y, nodeSize.x, 115);
                         else nodeRect = new Rect(node.Key.x, node.Key.y, nodeSize.x, 90);
                     }
                     nodeRect = GUI.Window(index, node.Key, DrawNode, "Root " + index);
@@ -147,6 +164,7 @@ namespace KL
                     switch (node.Value)
                     {
                         case RelationType.Parent:
+                            DrawNodeCurve(nodes.ElementAt(0).Key, node.Key, NodeAnchor.Top, NodeAnchor.Bottom);
                             nodeRect = GUI.Window(index, node.Key, DrawNode, "Parent " + index, parentNode);
                             break;
                         case RelationType.Partner:
@@ -196,10 +214,10 @@ namespace KL
                 }
             }
         }
-        // Rect NewNode(float x, float y)
-        // {
-        //     return new Rect(x, y, nodeSize.x, nodeSize.y);
-        // }
+        void LinkNodes(Rect rect, NodeAnchor nodeAnchor)
+        {
+            // links.Add(nodes.ElementAt(0).Key, new(rect, nodeAnchor));
+        }
         void NewNode(float x, float y, RelationType type)
         {
             nodes.Add(new Rect(x, y, nodeSize.x, nodeSize.y), type);
@@ -403,7 +421,7 @@ namespace KL
         void AttachCurveToNode(int rootId, int id)
         {
             if (linkedRelationType.ContainsKey(id)) return;
-            Node root, target;
+            // Curve root, target;
             switch (relationType)
             {
                 case RelationType.Parent:
@@ -445,28 +463,28 @@ namespace KL
         /* -------------------------- Node Curve Detachment ------------------------- */
         void DeleteCurveToNode(int rootId, int id)
         {
-            List<Node> keysToRemove = new();
-            foreach (var pair in linkedNodes)
-                if (pair.Key.NodeId == id && pair.Value.NodeId == rootId)
-                    keysToRemove.Add(pair.Key);
+            // List<Curve> keysToRemove = new();
+            // foreach (var pair in linkedNodes)
+            //     if (pair.Key.NodeId == id && pair.Value.NodeId == rootId)
+            //         keysToRemove.Add(pair.Key);
 
-            foreach (var key in keysToRemove)
-                linkedNodes.Remove(key);
-            if (keysToRemove.Count > 0)
-                Debug.Log("Removed " + keysToRemove.Count + " connections with ID " + id);
+            // foreach (var key in keysToRemove)
+            //     linkedNodes.Remove(key);
+            // if (keysToRemove.Count > 0)
+            // Debug.Log("Removed " + keysToRemove.Count + " connections with ID " + id);
         }
         void DeleteCurveToRootNode(int id) => DeleteCurveToNode(0, id);
         void DeleteCurveToParentNode(int id)
         {
-            List<Node> keysToRemove = new();
-            foreach (var pair in linkedChildNodes)
-                if (pair.Key.NodeId == id && pair.Value.NodeId == childNodeId)
-                    keysToRemove.Add(pair.Key);
+            // List<Curve> keysToRemove = new();
+            // foreach (var pair in linkedChildNodes)
+            //     if (pair.Key.NodeId == id && pair.Value.NodeId == childNodeId)
+            //         keysToRemove.Add(pair.Key);
 
-            foreach (var key in keysToRemove)
-                linkedChildNodes.Remove(key);
-            if (keysToRemove.Count > 0)
-                Debug.Log("Removed " + keysToRemove.Count + " child connections with ID " + id);
+            // foreach (var key in keysToRemove)
+            //     linkedChildNodes.Remove(key);
+            // if (keysToRemove.Count > 0)
+            // Debug.Log("Removed " + keysToRemove.Count + " child connections with ID " + id);
         }
 
         /* ------------------------- Set Node Relation Type ------------------------- */

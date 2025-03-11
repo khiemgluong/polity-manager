@@ -324,6 +324,7 @@ namespace KL
                         {
                             DeleteLink(id);
                             bool moveParent = false;
+                            List<Node> partnersToMove = new();
                             foreach (var node in nodes)
                                 switch (node.Relation)
                                 {
@@ -331,7 +332,6 @@ namespace KL
                                         foreach (var pair in links)
                                             if (pair.Key.Node.Equals(node))
                                             {
-                                                Debug.LogError("Removed parent node " + id + " node ID " + nodes.IndexOf(node));
                                                 Debug.Log("Pair matched index " + pair.Key.Index);
                                                 if (pair.Key.Index > id)
                                                 {
@@ -345,20 +345,24 @@ namespace KL
                                         foreach (var pair in links)
                                             if (pair.Key.Node.Equals(node))
                                             {
-                                                Debug.LogError("Removed partner node " + id + " node ID " + nodes.IndexOf(node));
-                                                Debug.Log("Pair matched index " + pair.Key.Index);
                                                 if (pair.Key.Index > id)
                                                 {
-                                                    pair.Key.ChangeIndex(id);
-                                                    // moveParent = true;
+                                                    int pairDecremented = pair.Key.Index - 1;
+                                                    partnersToMove.Add(node);
+                                                    pair.Key.ChangeIndex(pairDecremented);
                                                 }
-                                                Debug.Log("Pair matched index after " + pair.Key.Index);
+                                                Debug.Log("partner matched index after " + pair.Key.Index);
                                             }
                                         break;
                                 }
                             if (moveParent)
                                 MoveNode(nodes[id], nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f);
-                            // }
+                            foreach (var partnerNode in partnersToMove)
+                            {
+                                int partnerIndex = nodes.IndexOf(partnerNode);
+                                float newX = partnerNode.Rect.x - nodeSize.x * 1.5f;
+                                MoveNode(partnerNode, newX, nodes[partnerIndex].Rect.y);
+                            }
                         }
                     }
                     EditorGUILayout.EndHorizontal();
@@ -486,7 +490,6 @@ namespace KL
 
             Rect rootRect = nodes[0].Rect;
             float currentXOffset = 0;
-            #region Parents
             /* -------------------------- Building Parent Nodes ------------------------- */
             for (int i = 0; i < root.family.parents.Count; i++)
             {
@@ -497,9 +500,6 @@ namespace KL
                 AddParentNode();
             }
             // currentXOffset = nodeSize.x * 2f;
-            #endregion
-
-            #region Partners
             /* ------------------------- Building Partner Nodes ------------------------- */
             for (int i = 0; i < root.family.partners.Count; i++)
             {
@@ -510,7 +510,6 @@ namespace KL
                 // CreateLink(partnerNode, nodes[0], CurveAnchor.Top);
             }
             currentXOffset = nodeSize.x / 2;
-            #endregion
             /* ------------------------- Building Children Nodes ------------------------ */
             // for (int i = 0; i < root.children.Count; i++)
             // {

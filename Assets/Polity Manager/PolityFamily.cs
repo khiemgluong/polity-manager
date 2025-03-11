@@ -22,7 +22,7 @@ namespace KL
             public struct PartnerStruct
             {
                 public PolityMember partner;
-                public PolityMember[] children;
+                public List<PolityMember> children;
             }
         }
 

@@ -36,23 +36,8 @@ namespace KL
                 Rect = rect;
                 Relation = relationType;
             }
-            // public override bool Equals(object obj)
-            // {
-            //     if (obj is Node other)
-            //     {
-            //         return Rect.Equals(other.Rect) && Relation == other.Relation;
-            //     }
-            //     return false;
-            // }
-            // public override int GetHashCode()
-            // {
-            //     int hashCode = 17;
-            //     hashCode = hashCode * 31 + Rect.GetHashCode();
-            //     hashCode = hashCode * 31 + Relation.GetHashCode();
-            //     return hashCode;
-            // }
         }
-        struct Link
+        class Link
         {
             public Node Node;
             public int Index;
@@ -63,6 +48,7 @@ namespace KL
                 Index = index;
                 Anchor = anchorPoint;
             }
+            public void ChangeIndex(int index) => Index = index;
 
         }
         SerializedObject serializedObject;
@@ -99,9 +85,8 @@ namespace KL
 
             // Calculate the center of the groupRect
             Vector2 windowCenter = new(position.width / 2, position.height / 2);
-            Rect rootNodeRect = new(windowCenter.x + nodeSize.x,
+            Rect rootNodeRect = new(windowCenter.x - nodeSize.x / 2,
                                     (windowCenter.y / 2) + nodeSize.y / 2, nodeSize.x, 110);
-            // nodes.Add(rootNodeRect, RelationType.Root);
             nodes.Add(new Node(rootNodeRect, RelationType.Root));
         }
 
@@ -115,6 +100,7 @@ namespace KL
             window.position = new Rect(windowPosition.x, windowPosition.y, windowSize.x * 3, windowSize.y);
             window.Show();
         }
+        #region  OnGUI
         void OnGUI()
         {
             /* -------------------------------------------------------------------------- */
@@ -199,6 +185,8 @@ namespace KL
                 }
             }
         }
+        #endregion
+
         #region Nodes
         Node NewNode(float x, float y, RelationType type)
         {
@@ -214,9 +202,9 @@ namespace KL
                 return;
             }
             Node oldNode = nodes[nodeIndex];
-            Rect newRect = new Rect(x, y, oldNode.Rect.width, oldNode.Rect.height);
-            Node newNode = new Node(newRect, oldNode.Relation);
-            nodes[nodeIndex] = new Node(newRect, oldNode.Relation);
+            Rect newRect = new(x, y, oldNode.Rect.width, oldNode.Rect.height);
+            Node newNode = new(newRect, oldNode.Relation);
+            nodes[nodeIndex] = new(newRect, oldNode.Relation);
 
             // Transfer the polityMembers reference if it exists
             if (nodeIndex < polityMembers.Count && polityMembers[nodeIndex] != null)
@@ -229,20 +217,19 @@ namespace KL
             polityMembers.RemoveAt(nodes.IndexOf(node));
             nodes.Remove(node);
         }
+        #endregion
+
         #region Parent
-        int GetParentNodeCount()
-        {
-            int count = 0;
-            foreach (var node in nodes)
-                if (node.Relation == RelationType.Parent)
-                    count++;
-            return count;
-        }
+
         void AddParentNode()
         {
-            int parentCount = GetParentNodeCount();
-            if (polityMembers[0].family.parents.Count < 2 &&
-                parentCount < 2)
+            int parentCount = 0;
+            foreach (var node in nodes)
+                if (node.Relation == RelationType.Parent)
+                    parentCount++;
+            Debug.LogError("parent node count " + parentCount);
+            // if (polityMembers[0].family.parents.Count < 2 &&
+            //     parentCount < 2)
             {
                 switch (parentCount)
                 {
@@ -288,6 +275,7 @@ namespace KL
             CreateLink(childNode, parentNode, CurveAnchor.Top);
         }
         #endregion
+        #region  DrawNode
         void DrawNode(int id)
         {
             while (polityMembers.Count <= id) polityMembers.Add(null);
@@ -325,19 +313,55 @@ namespace KL
                 // if (polityMembers[id] != null && PrefabUtility.IsPartOfPrefabAsset(polityMembers[id]))
                 {
                     // if (!CheckForDuplicateNode(id))
+                    EditorGUILayout.BeginHorizontal();
                     {
-                        EditorGUILayout.BeginHorizontal();
+                        if (nodes[id].Relation == RelationType.Partner)
                         {
-                            if (nodes[id].Relation == RelationType.Partner)
-                            {
-                                if (GUILayout.Button("Add Child", GUILayout.ExpandWidth(true)))
-                                    AddChildrenNode(nodes[id]);
-                            }
-                            if (GUILayout.Button("Remove", GUILayout.ExpandWidth(true)))
-                                DeleteLink(id);
+                            if (GUILayout.Button("Add Child", GUILayout.ExpandWidth(true)))
+                                AddChildrenNode(nodes[id]);
                         }
-                        EditorGUILayout.EndHorizontal();
+                        if (GUILayout.Button("Remove", GUILayout.ExpandWidth(true)))
+                        {
+                            DeleteLink(id);
+                            bool moveParent = false;
+                            foreach (var node in nodes)
+                                switch (node.Relation)
+                                {
+                                    case RelationType.Parent:
+                                        foreach (var pair in links)
+                                            if (pair.Key.Node.Equals(node))
+                                            {
+                                                Debug.LogError("Removed parent node " + id + " node ID " + nodes.IndexOf(node));
+                                                Debug.Log("Pair matched index " + pair.Key.Index);
+                                                if (pair.Key.Index > id)
+                                                {
+                                                    pair.Key.ChangeIndex(id);
+                                                    moveParent = true;
+                                                }
+                                                Debug.Log("Pair matched index after " + pair.Key.Index);
+                                            }
+                                        break;
+                                    case RelationType.Partner:
+                                        foreach (var pair in links)
+                                            if (pair.Key.Node.Equals(node))
+                                            {
+                                                Debug.LogError("Removed partner node " + id + " node ID " + nodes.IndexOf(node));
+                                                Debug.Log("Pair matched index " + pair.Key.Index);
+                                                if (pair.Key.Index > id)
+                                                {
+                                                    pair.Key.ChangeIndex(id);
+                                                    // moveParent = true;
+                                                }
+                                                Debug.Log("Pair matched index after " + pair.Key.Index);
+                                            }
+                                        break;
+                                }
+                            if (moveParent)
+                                MoveNode(nodes[id], nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f);
+                            // }
+                        }
                     }
+                    EditorGUILayout.EndHorizontal();
                 }
             }
             // GUI.DragWindow();
@@ -353,12 +377,7 @@ namespace KL
             links.Add(new(startNode, startIndex, anchor), new(endNode, endIndex, endAnchor));
             Debug.Log("start Index " + startIndex + " end Index " + endIndex);
 
-            foreach (var pair in links)
-            {
-                // DrawNodeCurve(pair.Key.Node.Rect, pair.Value.Node.Rect, pair.Key.Anchor, pair.Value.Anchor);
-                Debug.Log("link node " + pair.Key.Node.Rect.position + " to " + pair.Value.Node.Rect.position
-                 + " index " + pair.Key.Index + " to " + pair.Value.Index);
-            }
+
         }
 
         void MoveLink(int nodeIndex, Node newNode)
@@ -367,7 +386,7 @@ namespace KL
             foreach (var pair in links)
                 if (pair.Key.Index == nodeIndex)
                     keysToUpdate.Add(pair.Key);
-
+            Debug.Log("Keys to update " + keysToUpdate.Count);
             foreach (var key in keysToUpdate)
             {
                 Link value = links[key];
@@ -375,6 +394,7 @@ namespace KL
                 links.Add(new Link(newNode, key.Index, key.Anchor), value);
             }
         }
+
         void LinkFamily(int id)
         {
             PolityMember member = polityMembers[id];
@@ -398,26 +418,6 @@ namespace KL
                 switch (nodes[id].Relation)
                 {
                     case RelationType.Parent:
-                        bool partnerFound = false;
-                        // for (int i = 0; i < member.family.partners.Count; i++)
-                        // {
-                        //     if (member.family.partners[i].partner == valueMember)
-                        //     {
-                        //         if (!member.family.partners[i].children.Contains(valueMember))
-                        //             member.family.partners[i].children.Add(valueMember);
-                        //         partnerFound = true;
-                        //         break;
-                        //     }
-                        // }
-
-                        // if (!partnerFound)
-                        // {
-                        //     PolityFamily.FamilyStruct.PartnerStruct newPartner = new()
-                        //     {
-                        //         children = new List<PolityMember> { valueMember }
-                        //     };
-                        //     member.family.partners.Add(newPartner);
-                        // }
 
                         if (!valueMember.family.parents.Contains(member))
                             valueMember.family.parents.Add(member);
@@ -430,8 +430,8 @@ namespace KL
         }
         void DeleteLink(int id, bool deleteFamily = true)
         {
-            Link linkToRemoveKey = new();
-            Link linkToRemoveValue = new();
+            Link linkToRemoveKey = null;
+            Link linkToRemoveValue = null;
             foreach (var pair in links)
                 if (pair.Key.Index == id)
                 {
@@ -463,7 +463,9 @@ namespace KL
             // if (keysToRemove.Count > 0)
             // Debug.Log("Removed " + keysToRemove.Count + " connections with ID " + id);
         }
+        #endregion
 
+        #region Init
         /* -------------------------------------------------------------------------- */
         /*                             NODE INITIALIZATION                            */
         /* -------------------------------------------------------------------------- */
@@ -491,8 +493,8 @@ namespace KL
                 // if (i != 0) currentXOffset += nodeSize.x * 2f;
                 // Node parentNode = NewNode(rootRect.x + currentXOffset, rootRect.y - nodeSize.y * 2f, RelationType.Parent);
                 // CreateLink(parentNode, nodes[0], CurveAnchor.Bottom);
-                AddParentNode();
                 polityMembers.Add(root.family.parents[i]);
+                AddParentNode();
             }
             // currentXOffset = nodeSize.x * 2f;
             #endregion
@@ -533,7 +535,6 @@ namespace KL
             // }
             isRootGenerated = true;
         }
-
         #endregion
 
         bool CheckForDuplicateNode(int id)

@@ -23,7 +23,6 @@ namespace KL
             Partner,
             Children,
         }
-        RelationType relationType;
         List<PolityMember> polityMembers = new();
 
         /* ----------------------------- NODE RENDERERS ----------------------------- */
@@ -37,6 +36,21 @@ namespace KL
                 Rect = rect;
                 Relation = relationType;
             }
+            // public override bool Equals(object obj)
+            // {
+            //     if (obj is Node other)
+            //     {
+            //         return Rect.Equals(other.Rect) && Relation == other.Relation;
+            //     }
+            //     return false;
+            // }
+            // public override int GetHashCode()
+            // {
+            //     int hashCode = 17;
+            //     hashCode = hashCode * 31 + Rect.GetHashCode();
+            //     hashCode = hashCode * 31 + Relation.GetHashCode();
+            //     return hashCode;
+            // }
         }
         struct Link
         {
@@ -245,16 +259,15 @@ namespace KL
             }
         }
         #endregion
-        //         float xPos = nodes[0].Rect.x + nodeSize.x * (2 + partnerNodes.Count);
-        // float yPos = nodes[0].Rect.position.y;
+
         #region Partner
         void AddPartnerNode()
         {
-            List<Node> partnerNodes = new();
+            byte partnerCount = 0;
             foreach (var node in nodes)
                 if (node.Relation == RelationType.Partner)
-                    partnerNodes.Add(node);
-            float xPos = nodes[0].Rect.x + nodeSize.x * (1.5f + partnerNodes.Count * 1.5f);
+                    partnerCount++;
+            float xPos = nodes[0].Rect.x + nodeSize.x * (1.5f + partnerCount * 1.5f);
             float yPos = nodes[0].Rect.y + 45 / 2;
             Node partnerNode = NewNode(xPos, yPos, RelationType.Partner);
             CreateLink(partnerNode, nodes[0], CurveAnchor.Left);
@@ -262,16 +275,17 @@ namespace KL
         #endregion
 
         #region Children
-        void AddChildrenNode()
+        void AddChildrenNode(Node parentNode)
         {
-            List<Node> childNodes = new();
-            foreach (var node in nodes)
-                if (node.Relation == RelationType.Children)
-                    childNodes.Add(node);
-            float xPos = nodes[0].Rect.x;
-            float yPos = nodes[0].Rect.y + nodeSize.y * (2f + childNodes.Count * 2f);
+            byte linkCount = 0;
+            foreach (var pair in links)
+                if (pair.Value.Node.Equals(parentNode))
+                    linkCount++;
+
+            float xPos = parentNode.Rect.x;
+            float yPos = nodes[0].Rect.y + nodeSize.y * (2f + linkCount * 2f);
             Node childNode = NewNode(xPos, yPos, RelationType.Children);
-            CreateLink(childNode, nodes[0], CurveAnchor.Top);
+            CreateLink(childNode, parentNode, CurveAnchor.Top);
         }
         #endregion
         void DrawNode(int id)
@@ -294,7 +308,6 @@ namespace KL
                         foreach (var node in nodes)
                             if (node.Relation == RelationType.Parent)
                                 parentNodes.Add(node);
-                        Debug.LogError("partnerNodes count " + parentNodes.Count);
                         if (parentNodes.Count < 2)
                         {
                             if (GUILayout.Button(RelationType.Parent.ToString()))
@@ -303,7 +316,7 @@ namespace KL
                         if (GUILayout.Button(RelationType.Partner.ToString()))
                             AddPartnerNode();
                         if (GUILayout.Button(RelationType.Children.ToString()))
-                            AddChildrenNode();
+                            AddChildrenNode(nodes[0]);
                         if (!isRootGenerated) InitializeNodes();
                     }
             }
@@ -318,7 +331,7 @@ namespace KL
                             if (nodes[id].Relation == RelationType.Partner)
                             {
                                 if (GUILayout.Button("Add Child", GUILayout.ExpandWidth(true)))
-                                    relationType = RelationType.Children;
+                                    AddChildrenNode(nodes[id]);
                             }
                             if (GUILayout.Button("Remove", GUILayout.ExpandWidth(true)))
                                 DeleteLink(id);
@@ -434,11 +447,13 @@ namespace KL
                 PolityMember key = polityMembers[keyIndex];
                 int valueIndex = linkToRemoveValue.Index;
                 PolityMember value = polityMembers[valueIndex];
-
-                if (key.family.parents.Contains(value))
-                    key.family.parents.Remove(value);
-                if (value.family.parents.Contains(key))
-                    value.family.parents.Remove(key);
+                if (key != null && value != null)
+                {
+                    if (key.family.parents.Contains(value))
+                        key.family.parents.Remove(value);
+                    if (value.family.parents.Contains(key))
+                        value.family.parents.Remove(key);
+                }
 
             }
             links.Remove(linkToRemoveKey);

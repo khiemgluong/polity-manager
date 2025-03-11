@@ -55,7 +55,7 @@ namespace KL
         GUIStyle parentNode, partnerNode, childNode;
         List<Node> nodes = new();
         Dictionary<Link, Link> links = new();
-        Vector2 nodeSize = new(140, 65);
+        readonly Vector2 nodeSize = new(140, 65);
         /// <summary>
         /// This nodeId is referenced only in a node which is a child of the root node
         /// </summary>
@@ -86,7 +86,7 @@ namespace KL
             // Calculate the center of the groupRect
             Vector2 windowCenter = new(position.width / 2, position.height / 2);
             Rect rootNodeRect = new(windowCenter.x + nodeSize.x,
-                                    (windowCenter.y / 2) + nodeSize.y / 2, nodeSize.x, 105);
+                                    (windowCenter.y / 2) + nodeSize.y / 2, nodeSize.x, 110);
             // nodes.Add(rootNodeRect, RelationType.Root);
             nodes.Add(new Node(rootNodeRect, RelationType.Root));
         }
@@ -136,37 +136,21 @@ namespace KL
             foreach (var node in nodes)
             {
                 Rect nodeRect = node.Rect;
-                if (node.Relation == RelationType.Root)//Root node
+                switch (node.Relation)
                 {
-                    if (polityMembers.Any() && polityMembers[0] != null)
-                    {
-                        if (polityMembers[0].family.parents.Count < 2)
-                            nodeRect = new Rect(node.Rect.x, node.Rect.y, nodeSize.x, 115);
-                        else nodeRect = new Rect(node.Rect.x, node.Rect.y, nodeSize.x, 90);
-                    }
-                    nodeRect = GUI.Window(index, node.Rect, DrawNode, "Root " + index);
-                }
-                else
-                {
-                    switch (node.Relation)
-                    {
-                        case RelationType.Parent:
-                            // DrawNodeCurve(nodes2[0].Rect, node.Rect, NodeAnchor.Top, NodeAnchor.Bottom);
-                            nodeRect = GUI.Window(index, node.Rect, DrawNode, "Parent " + index, parentNode);
-                            break;
-                        case RelationType.Partner:
-                            nodeRect = GUI.Window(index, node.Rect, DrawNode, "Partner " + index, partnerNode);
-                            break;
-                        case RelationType.Children:
-                            if (polityMembers[index] != null)
-                            {
-                                if (polityMembers[index].family.parents.Count == 1)
-                                    nodeRect = new Rect(node.Rect.x, node.Rect.y, nodeSize.x, 90);
-                                else nodeRect = new Rect(node.Rect.x, node.Rect.y, nodeSize.x, 65);
-                            }
-                            nodeRect = GUI.Window(index, node.Rect, DrawNode, "Child " + index, childNode);
-                            break;
-                    }
+                    case RelationType.Root:
+                    default:
+                        nodeRect = GUI.Window(index, nodeRect, DrawNode, "Root");
+                        break;
+                    case RelationType.Parent:
+                        nodeRect = GUI.Window(index, nodeRect, DrawNode, "Parent " + index, parentNode);
+                        break;
+                    case RelationType.Partner:
+                        nodeRect = GUI.Window(index, nodeRect, DrawNode, "Partner " + index, partnerNode);
+                        break;
+                    case RelationType.Children:
+                        nodeRect = GUI.Window(index, nodeRect, DrawNode, "Child " + index, childNode);
+                        break;
                 }
                 index++;
             }
@@ -231,32 +215,65 @@ namespace KL
             polityMembers.RemoveAt(nodes.IndexOf(node));
             nodes.Remove(node);
         }
+        #region Parent
+        int GetParentNodeCount()
+        {
+            int count = 0;
+            foreach (var node in nodes)
+                if (node.Relation == RelationType.Parent)
+                    count++;
+            return count;
+        }
         void AddParentNode()
         {
-            List<Node> parentNodes = new();
-            foreach (var node in nodes)
-            {
-                if (node.Relation == RelationType.Parent)
-                    parentNodes.Add(node);
-            }
+            int parentCount = GetParentNodeCount();
             if (polityMembers[0].family.parents.Count < 2 &&
-                parentNodes.Count < 2)
+                parentCount < 2)
             {
-                switch (parentNodes.Count)
+                switch (parentCount)
                 {
                     case 0:
                         Node node = NewNode(nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f, RelationType.Parent);
                         CreateLink(node, nodes[0], CurveAnchor.Bottom);
                         break;
                     case 1:
-                        MoveNode(parentNodes[0], nodes[0].Rect.x - nodeSize.x, nodes[0].Rect.y - nodeSize.y * 2f);
-                        Node node1 = NewNode(nodes[0].Rect.x + nodeSize.x,
+                        Node node1 = NewNode(nodes[0].Rect.x + nodeSize.x * 1.5f,
                                  nodes[0].Rect.y - nodeSize.y * 2f, RelationType.Parent);
                         CreateLink(node1, nodes[0], CurveAnchor.Bottom);
                         break;
                 }
             }
         }
+        #endregion
+        //         float xPos = nodes[0].Rect.x + nodeSize.x * (2 + partnerNodes.Count);
+        // float yPos = nodes[0].Rect.position.y;
+        #region Partner
+        void AddPartnerNode()
+        {
+            List<Node> partnerNodes = new();
+            foreach (var node in nodes)
+                if (node.Relation == RelationType.Partner)
+                    partnerNodes.Add(node);
+            float xPos = nodes[0].Rect.x + nodeSize.x * (1.5f + partnerNodes.Count * 1.5f);
+            float yPos = nodes[0].Rect.y + 45 / 2;
+            Node partnerNode = NewNode(xPos, yPos, RelationType.Partner);
+            CreateLink(partnerNode, nodes[0], CurveAnchor.Left);
+        }
+        #endregion
+
+        #region Children
+        void AddChildrenNode()
+        {
+            List<Node> childNodes = new();
+            foreach (var node in nodes)
+                if (node.Relation == RelationType.Children)
+                    childNodes.Add(node);
+            float xPos = nodes[0].Rect.x;
+            float yPos = nodes[0].Rect.y + nodeSize.y * (2f + childNodes.Count * 2f);
+            Node childNode = NewNode(xPos, yPos, RelationType.Children);
+            CreateLink(childNode, nodes[0], CurveAnchor.Top);
+        }
+        #endregion
         void DrawNode(int id)
         {
             while (polityMembers.Count <= id) polityMembers.Add(null);
@@ -273,23 +290,36 @@ namespace KL
                 if (polityMembers[0] != null && PrefabUtility.IsPartOfPrefabAsset(polityMembers[0]))
                     if (!CheckForDuplicateNode(id))
                     {
-                        if (GUILayout.Button(RelationType.Parent.ToString()))
-                            AddParentNode();
+                        List<Node> parentNodes = new();
+                        foreach (var node in nodes)
+                            if (node.Relation == RelationType.Parent)
+                                parentNodes.Add(node);
+                        Debug.LogError("partnerNodes count " + parentNodes.Count);
+                        if (parentNodes.Count < 2)
+                        {
+                            if (GUILayout.Button(RelationType.Parent.ToString()))
+                                AddParentNode();
+                        }
                         if (GUILayout.Button(RelationType.Partner.ToString()))
-                            relationType = RelationType.Partner;
+                            AddPartnerNode();
                         if (GUILayout.Button(RelationType.Children.ToString()))
-                            relationType = RelationType.Children;
+                            AddChildrenNode();
                         if (!isRootGenerated) InitializeNodes();
                     }
             }
             else
             {
-                if (polityMembers[id] != null && PrefabUtility.IsPartOfPrefabAsset(polityMembers[id]))
+                // if (polityMembers[id] != null && PrefabUtility.IsPartOfPrefabAsset(polityMembers[id]))
                 {
-                    if (!CheckForDuplicateNode(id))
+                    // if (!CheckForDuplicateNode(id))
                     {
                         EditorGUILayout.BeginHorizontal();
                         {
+                            if (nodes[id].Relation == RelationType.Partner)
+                            {
+                                if (GUILayout.Button("Add Child", GUILayout.ExpandWidth(true)))
+                                    relationType = RelationType.Children;
+                            }
                             if (GUILayout.Button("Remove", GUILayout.ExpandWidth(true)))
                                 DeleteLink(id);
                         }
@@ -356,28 +386,30 @@ namespace KL
                 {
                     case RelationType.Parent:
                         bool partnerFound = false;
-                        for (int i = 0; i < member.family.partners.Count; i++)
-                        {
-                            if (member.family.partners[i].partner == valueMember)
-                            {
-                                if (!member.family.partners[i].children.Contains(valueMember))
-                                    member.family.partners[i].children.Add(valueMember);
-                                partnerFound = true;
-                                break;
-                            }
-                        }
+                        // for (int i = 0; i < member.family.partners.Count; i++)
+                        // {
+                        //     if (member.family.partners[i].partner == valueMember)
+                        //     {
+                        //         if (!member.family.partners[i].children.Contains(valueMember))
+                        //             member.family.partners[i].children.Add(valueMember);
+                        //         partnerFound = true;
+                        //         break;
+                        //     }
+                        // }
 
-                        if (!partnerFound)
-                        {
-                            PolityFamily.FamilyStruct.PartnerStruct newPartner = new()
-                            {
-                                children = new List<PolityMember> { valueMember }
-                            };
-                            member.family.partners.Add(newPartner);
-                        }
+                        // if (!partnerFound)
+                        // {
+                        //     PolityFamily.FamilyStruct.PartnerStruct newPartner = new()
+                        //     {
+                        //         children = new List<PolityMember> { valueMember }
+                        //     };
+                        //     member.family.partners.Add(newPartner);
+                        // }
 
                         if (!valueMember.family.parents.Contains(member))
                             valueMember.family.parents.Add(member);
+                        if (!member.family.children.Contains(valueMember))
+                            member.family.children.Add(valueMember);
                         break;
                 }
             }
@@ -436,15 +468,15 @@ namespace KL
 
 
             Rect rootRect = nodes[0].Rect;
-            float currentXOffset;
+            float currentXOffset = 0;
             #region Parents
             /* -------------------------- Building Parent Nodes ------------------------- */
             for (int i = 0; i < root.family.parents.Count; i++)
             {
-                currentXOffset = 0;
-                if (i != 0) currentXOffset += nodeSize.x * 2f;
-                Node parentNode = NewNode(rootRect.x + currentXOffset, rootRect.y - nodeSize.y * 2f, RelationType.Parent);
-                CreateLink(parentNode, nodes[0], CurveAnchor.Bottom);
+                // if (i != 0) currentXOffset += nodeSize.x * 2f;
+                // Node parentNode = NewNode(rootRect.x + currentXOffset, rootRect.y - nodeSize.y * 2f, RelationType.Parent);
+                // CreateLink(parentNode, nodes[0], CurveAnchor.Bottom);
+                AddParentNode();
                 polityMembers.Add(root.family.parents[i]);
             }
             // currentXOffset = nodeSize.x * 2f;
@@ -452,13 +484,13 @@ namespace KL
 
             #region Partners
             /* ------------------------- Building Partner Nodes ------------------------- */
-            List<int> partnersIds = new();
             for (int i = 0; i < root.family.partners.Count; i++)
             {
-                currentXOffset = -nodeSize.x;
-                if (i != 0) currentXOffset += nodeSize.x * 2f;
-                Node partnerNode = NewNode(rootRect.x + currentXOffset, +nodeSize.y * 2f, RelationType.Partner);
-                CreateLink(partnerNode, nodes[0], CurveAnchor.Top);
+                // currentXOffset = -nodeSize.x;
+                // if (i != 0) currentXOffset += nodeSize.x * 2f;
+                // Node partnerNode = NewNode(rootRect.x + currentXOffset, +nodeSize.y * 2f, RelationType.Partner);
+                AddPartnerNode();
+                // CreateLink(partnerNode, nodes[0], CurveAnchor.Top);
             }
             currentXOffset = nodeSize.x / 2;
             #endregion
@@ -488,7 +520,7 @@ namespace KL
         }
 
         #endregion
-      
+
         bool CheckForDuplicateNode(int id)
         {
             bool isDuplicate = false;
@@ -562,9 +594,9 @@ namespace KL
             Vector3 endPos = new(end.x + end.width * endVector.x, end.y + end.height * endVector.y, 0);
             Vector3 startTan = startPos + Vector3.right * (-50 + 100 * startVector.x) + Vector3.up * (-50 + 100 * startVector.y);
             Vector3 endTan = endPos + Vector3.right * (-50 + 100 * endVector.x) + Vector3.up * (-50 + 100 * endVector.y);
-            Color shadowCol = new(200, 200, 200, .25f);
-            for (int i = 0; i < 3; i++) // Draw a shadow
-                Handles.DrawBezier(startPos, endPos, startTan, endTan, shadowCol, null, (i + 1) * 5);
+            // Color shadowCol = new(200, 200, 200, .25f);
+            // for (int i = 0; i < 3; i++) // Draw a shadow
+            //     Handles.DrawBezier(startPos, endPos, startTan, endTan, shadowCol, null, (i + 1) * 5);
             Handles.DrawBezier(startPos, endPos, startTan, endTan, lineColor, null, 2);
         }
     }

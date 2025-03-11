@@ -17,7 +17,10 @@ namespace KL
         public struct FamilyStruct
         {
             public List<PolityMember> parents;
-            public List<PartnerStruct> partners;
+            // public List<PartnerStruct> partners;
+            public List<PolityMember> partners;
+            public List<PolityMember> children;
+
             [Serializable]
             public struct PartnerStruct
             {

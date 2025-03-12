@@ -102,17 +102,17 @@ namespace KL
             /* -------------------------------------------------------------------------- */
             /*                                  SIDEBAR                                   */
             /* -------------------------------------------------------------------------- */
-            float topBarHeight = position.height * .1f;
-            float topBarWidth = position.width;
-            GUILayout.BeginArea(new Rect(0, 0, topBarWidth, topBarHeight), "", GUI.skin.window);
-            EditorGUILayout.BeginHorizontal();
+            // float topBarHeight = position.height * .1f;
+            // float topBarWidth = position.width;
+            // GUILayout.BeginArea(new Rect(0, 0, topBarWidth, topBarHeight), "", GUI.skin.window);
+            // EditorGUILayout.BeginHorizontal();
             // if (GUILayout.Button("Add Node", GUILayout.ExpandWidth(false)))
             // {
             //     if (polityMembers[0] != null) nodes.Add(NewNode(nodes[0].x, nodes[0].y - 100));
             //     else Debug.LogWarning("You must assign a root PolityMember first");
             // }
-            EditorGUILayout.EndHorizontal();
-            GUILayout.EndArea();
+            // EditorGUILayout.EndHorizontal();
+            // GUILayout.EndArea();
             /* ------------------------------- SIDEBAR END ------------------------------ */
 
 
@@ -120,8 +120,8 @@ namespace KL
             /*                                 MAIN PANEL                                 */
             /* -------------------------------------------------------------------------- */
             float mainPanelWidth = position.width;
-            float mainPanelHeight = position.height - topBarHeight;
-            GUILayout.BeginArea(new Rect(0, topBarHeight, mainPanelWidth, mainPanelHeight), "", GUI.skin.window);
+            float mainPanelHeight = position.height;
+            GUILayout.BeginArea(new Rect(0, 0, mainPanelWidth, mainPanelHeight), "", GUI.skin.window);
             Rect groupRect = new(panX, panY, 5000, 5000);
             GUI.BeginGroup(groupRect);
             BeginWindows();
@@ -440,18 +440,13 @@ namespace KL
             }
         }
 
-        void LinkFamily(int id)
+        void LinkFamily(int index)
         {
-            PolityMember member = polityMembers[id];
+            PolityMember member = polityMembers[index];
             PolityMember valueMember = null;
-            // if (polityMembers[id] != null)
-            // {
-            //     Debug.LogError("PolityMember " + key.name + " is null");
-            //     return;
-            // }
             foreach (var pair in links)
             {
-                if (pair.Key.Index == id)
+                if (pair.Key.Index == index)
                 {
                     valueMember = polityMembers[pair.Value.Index];
                     break;
@@ -460,7 +455,7 @@ namespace KL
             if (valueMember != null)
             {
                 Debug.Log("polity Member and Key " + member + " " + valueMember);
-                switch (nodes[id].Relation)
+                switch (nodes[index].Relation)
                 {
                     case RelationType.Parent:
                         if (!valueMember.family.parents.Contains(member))
@@ -473,6 +468,12 @@ namespace KL
                             valueMember.family.partners.Add(member);
                         if (!member.family.partners.Contains(valueMember))
                             member.family.partners.Add(valueMember);
+                        break;
+                    case RelationType.Children:
+                        if (!valueMember.family.children.Contains(member))
+                            valueMember.family.children.Add(member);
+                        if (!member.family.parents.Contains(valueMember))
+                            member.family.parents.Add(valueMember);
                         break;
                 }
             }
@@ -490,6 +491,8 @@ namespace KL
                     break;
                 }
             Debug.Log("Deleting link with ID " + index);
+            Debug.LogError("node relation on delete " + nodes[index].Relation);
+
             if (linkToRemoveKey == null || linkToRemoveValue == null)
             {
                 Debug.LogError("Link to remove is null");
@@ -506,10 +509,31 @@ namespace KL
                 PolityMember value = polityMembers[valueIndex];
                 if (key != null && value != null)
                 {
-                    if (key.family.parents.Contains(value))
-                        key.family.parents.Remove(value);
-                    if (value.family.parents.Contains(key))
-                        value.family.parents.Remove(key);
+                    switch (nodes[index].Relation)
+                    {
+                        case RelationType.Parent:
+                            if (key.family.children.Contains(value))
+                                key.family.children.Remove(value);
+                            if (value.family.parents.Contains(key))
+                                value.family.parents.Remove(key);
+                            break;
+                        case RelationType.Partner:
+                            if (key.family.partners.Contains(value))
+                                key.family.partners.Remove(value);
+                            if (value.family.partners.Contains(key))
+                                value.family.partners.Remove(key);
+                            break;
+                        case RelationType.Children:
+                            if (key.family.parents.Contains(value))
+                                key.family.parents.Remove(value);
+                            if (value.family.children.Contains(key))
+                                value.family.children.Remove(key);
+                            break;
+                    }
+                    // if (key.family.parents.Contains(value))
+                    //     key.family.parents.Remove(value);
+                    // if (value.family.parents.Contains(key))
+                    //     value.family.parents.Remove(key);
                 }
 
             }
@@ -524,11 +548,11 @@ namespace KL
 
 
 
-        bool CheckForDuplicateNode(int id)
+        bool CheckForDuplicateNode(int index)
         {
             bool isDuplicate = false;
             int i; for (i = 0; i < polityMembers.Count; i++)
-                if (i != id && polityMembers[i] == polityMembers[id])
+                if (i != index && polityMembers[i] == polityMembers[index])
                 { isDuplicate = true; break; }
 
             if (isDuplicate)
@@ -538,7 +562,7 @@ namespace KL
                                $"This PolityMember has already been assigned to node {i}.",
                                "OK"
                            );
-                polityMembers[id] = null;
+                polityMembers[index] = null;
             }
             return isDuplicate;
         }

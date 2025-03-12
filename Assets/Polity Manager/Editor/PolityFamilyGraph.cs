@@ -253,7 +253,7 @@ namespace KL
             int nodeIndex = nodes.IndexOf(node);
             if (nodeIndex < 0 || nodeIndex >= nodes.Count)
             {
-                Debug.LogError("Invalid node index");
+                Debug.LogError("Invalid node index " + nodeIndex + " count " + nodes.Count);
                 return;
             }
             Node oldNode = nodes[nodeIndex];
@@ -283,21 +283,17 @@ namespace KL
                 if (node.Relation == RelationType.Parent)
                     parentCount++;
             Debug.LogError("parent node count " + parentCount);
-            // if (polityMembers[0].family.parents.Count < 2 &&
-            //     parentCount < 2)
+            switch (parentCount)
             {
-                switch (parentCount)
-                {
-                    case 0:
-                        Node node = NewNode(nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f, RelationType.Parent);
-                        CreateLink(node, nodes[0], CurveAnchor.Bottom);
-                        break;
-                    case 1:
-                        Node node1 = NewNode(nodes[0].Rect.x + nodeSize.x * 1.5f,
-                                 nodes[0].Rect.y - nodeSize.y * 2f, RelationType.Parent);
-                        CreateLink(node1, nodes[0], CurveAnchor.Bottom);
-                        break;
-                }
+                case 0:
+                    Node node = NewNode(nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f, RelationType.Parent);
+                    CreateLink(node, nodes[0], CurveAnchor.Bottom);
+                    break;
+                case 1:
+                    Node node1 = NewNode(nodes[0].Rect.x + nodeSize.x * 1.5f,
+                             nodes[0].Rect.y - nodeSize.y * 2f, RelationType.Parent);
+                    CreateLink(node1, nodes[0], CurveAnchor.Bottom);
+                    break;
             }
         }
         #endregion
@@ -322,7 +318,8 @@ namespace KL
             byte linkCount = 0;
             foreach (var pair in links)
                 if (pair.Value.Node.Equals(parentNode))
-                    linkCount++;
+                    if (pair.Key.Node.Relation == RelationType.Children)
+                        linkCount++;
 
             float xPos = parentNode.Rect.x;
             float yPos = nodes[0].Rect.y + nodeSize.y * (2f + linkCount * 2f);
@@ -366,55 +363,86 @@ namespace KL
             else
             {
                 // if (polityMembers[id] != null && PrefabUtility.IsPartOfPrefabAsset(polityMembers[id]))
+                // if (!CheckForDuplicateNode(id))
+                EditorGUILayout.BeginHorizontal();
+                if (nodes[id].Relation == RelationType.Partner)
                 {
-                    // if (!CheckForDuplicateNode(id))
-                    EditorGUILayout.BeginHorizontal();
-                    {
-                        if (nodes[id].Relation == RelationType.Partner)
-                        {
-                            if (GUILayout.Button("Add Child", GUILayout.ExpandWidth(true)))
-                                AddChildrenNode(nodes[id]);
-                        }
-                        if (GUILayout.Button("Remove", GUILayout.ExpandWidth(true)))
-                        {
-                            DeleteLink(id);
-                            bool moveParent = false;
-                            List<Node> partnersToMove = new();
-                            foreach (var node in nodes)
-                                switch (node.Relation)
-                                {
-                                    case RelationType.Parent:
-                                        foreach (var pair in links)
-                                            if (pair.Key.Node.Equals(node))
-                                                if (pair.Key.Index > id)
-                                                {
-                                                    pair.Key.ChangeIndex(id);
-                                                    moveParent = true;
-                                                }
-                                        break;
-                                    case RelationType.Partner:
-                                        foreach (var pair in links)
-                                            if (pair.Key.Node.Equals(node))
-                                                if (pair.Key.Index > id)
-                                                {
-                                                    int pairDecremented = pair.Key.Index - 1;
-                                                    partnersToMove.Add(node);
-                                                    pair.Key.ChangeIndex(pairDecremented);
-                                                }
-                                        break;
-                                }
-                            if (moveParent)
-                                MoveNode(nodes[id], nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f);
-                            foreach (var partnerNode in partnersToMove)
-                            {
-                                int partnerIndex = nodes.IndexOf(partnerNode);
-                                float newX = partnerNode.Rect.x - nodeSize.x * 1.5f;
-                                MoveNode(partnerNode, newX, nodes[partnerIndex].Rect.y);
-                            }
-                        }
-                    }
-                    EditorGUILayout.EndHorizontal();
+                    if (GUILayout.Button("Add Child", GUILayout.ExpandWidth(true)))
+                        AddChildrenNode(nodes[id]);
                 }
+                if (GUILayout.Button("Remove", GUILayout.ExpandWidth(true)))
+                {
+                    bool moveParent = false;
+                    List<Node> partnersToMove = new();
+                    List<Node> childrenToMove = new();
+                    foreach (var node in nodes)
+                        switch (node.Relation)
+                        {
+                            case RelationType.Parent:
+                                foreach (var pair in links)
+                                    if (pair.Key.Node.Equals(node))
+                                        if (pair.Key.Index > id)
+                                        {
+                                            pair.Key.ChangeIndex(id);
+                                            moveParent = true;
+                                        }
+                                break;
+                            case RelationType.Partner:
+                                // Debug.LogWarning("Partner node id " + id + " nodes count " + nodes[id].Rect + "nodes[id].relation " + nodes[id].Relation);
+                                if (node.Equals(nodes[id]))
+                                {
+                                    Debug.LogError("Partner node id " + id + " nodes count " + nodes[id].Rect + "nodes[id].relation " + nodes[id].Relation);
+                                    foreach (var pair in links)
+                                    {
+                                        if (pair.Key.Index > id)
+                                        {
+                                            Debug.Log("Pair key index " + pair.Key.Index);
+                                            Debug.Log("Pair value index " + pair.Value.Index);
+                                            pair.Key.ChangeIndex(pair.Key.Index - 1);
+                                            Debug.Log("Pair key index after" + pair.Key.Index);
+                                            partnersToMove.Add(node);
+                                        }
+                                    }
+                                }
+
+                                //     if (pair.Key.Node.Equals(node))
+                                //         if (pair.Key.Index > id)
+                                //         {
+                                //             int pairDecremented = pair.Key.Index - 1;
+                                //             partnersToMove.Add(node);
+                                //             pair.Key.ChangeIndex(pairDecremented);
+                                //         }
+                                break;
+                            case RelationType.Children:
+                                Debug.LogError("Children node id " + id + " nodes count " + nodes[id].Rect);
+                                // foreach (var pair in links)
+                                //     if (pair.Key.Node.Equals(node))
+                                //         if (pair.Key.Index > id)
+                                //         {
+                                //             int pairDecremented = pair.Key.Index - 1;
+                                //             childrenToMove.Add(node);
+                                //             pair.Key.ChangeIndex(pairDecremented);
+                                //         }
+                                break;
+                        }
+
+                    // if (moveParent)
+                    //     MoveNode(nodes[id], nodes[0].Rect.x, nodes[0].Rect.y - nodeSize.y * 2f);
+                    foreach (var partnerNode in partnersToMove)
+                    {
+                        float newX = partnerNode.Rect.x - nodeSize.x * 1.5f;
+                        Debug.LogError("partner node index " + nodes.IndexOf(partnerNode));
+                        MoveNode(partnerNode, newX, partnerNode.Rect.y);
+                    }
+                    DeleteLink(id);
+
+                    // foreach (var childNode in childrenToMove)
+                    // {
+                    //     float newY = childNode.Rect.y - nodeSize.y * 2f;
+                    //     MoveNode(childNode, childNode.Rect.x, newY);
+                    // }
+                }
+                EditorGUILayout.EndHorizontal();
             }
             // GUI.DragWindow();
         }

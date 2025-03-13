@@ -5,27 +5,52 @@ using UnityEngine;
 
 namespace KL
 {
-    using static KL.PolityFamily;
     using static KL.PolityManager;
     [DisallowMultipleComponent]
     public class PolityMember : MonoBehaviour
     {
-        public string iD;
+        [SerializeField] string id;
+        public string ID { get => id; private set => id = value; }
         public PolityReader reader = new();
         public FamilyStruct family = new();
-        // public List<PolityMember> parents, partners, children;
 
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnLeaderChange;
-
-        void OnEnable() => OnFactionChange += OnFactionChanged;
-        void OnDisable() => OnFactionChange -= OnFactionChanged;
-        // void Awake() => CleanupFamily();
-        [ContextMenu("Check Family")]
-        void GenerateGUID()
+        public static Action<PolityMember> OnMemberSpawn;
+        void Start()
         {
-            iD = Guid.NewGuid().ToString().ToUpper();
+            OnMemberSpawn?.Invoke(this);
         }
+        void OnEnable()
+        {
+            OnMemberSpawn += OnMemberSpawned;
+            OnFactionChange += OnFactionChanged;
+        }
+        void OnDisable()
+        {
+            OnMemberSpawn -= OnMemberSpawned;
+            OnFactionChange -= OnFactionChanged;
+        }
+
+        [ContextMenu("Generate ID")]
+        public void GenerateGUID()
+        {
+            id = Guid.NewGuid().ToString().Replace("-", "");
+        }
+        /* --------------------------------- EVENTS --------------------------------- */
+        void OnMemberSpawned(PolityMember member)
+        {
+            ReplacePrefabWithInstance(family.parents);
+            ReplacePrefabWithInstance(family.partners);
+            ReplacePrefabWithInstance(family.children);
+            void ReplacePrefabWithInstance(List<PolityMember> members)
+            {
+                for (int i = 0; i < members.Count; i++)
+                    if (members[i].id == member.id && members[i] != member)
+                    { members[i] = member; break; }
+            }
+        }
+
         void OnFactionChanged()
         {
             // bool isCurrentFactionStillAvailable = false;
@@ -40,53 +65,41 @@ namespace KL
             //     selectedFactionIndex = 0; factionName = "";
             // }
         }
+        [ContextMenu("Clear/All")]
+        void ClearAll()
+        {
+            ClearParents();
+            ClearPartners();
+            ClearChildren();
+        }
+        [ContextMenu("Clear/Parents")]
+        void ClearParents()
+        {
+            foreach (var parent in family.parents.ToList())
+                parent.family.children.Remove(this);
+            family.parents.Clear();
+        }
+        [ContextMenu("Clear/Partners")]
+        void ClearPartners()
+        {
+            foreach (var partner in family.partners.ToList())
+                partner.family.partners.Remove(this);
+            family.partners.Clear();
+        }
+        [ContextMenu("Clear/Children")]
+        void ClearChildren()
+        {
+            foreach (var child in family.children.ToList())
+                child.family.parents.Remove(this);
+            family.children.Clear();
+        }
 
-        // [ContextMenu("Check Family")]
-        // void ResetRelationships()
-        // {
-        //     CleanupFamily();
-        //     CheckRelationship(parents, member => member.children, "parent");
-        //     CheckRelationship(partners, member => member.partners, "partner");
-        //     CheckRelationship(children, member => member.parents, "child");
-        // }
-
-        // [ContextMenu("Delete Family")]
-        // void DeleteFamily()
-        // {
-        //     // Remove this member from all partners' lists and vice versa
-        //     foreach (PolityMember partner in new List<PolityMember>(partners))
-        //         partner.partners.Remove(this);
-        //     partners.Clear();
-        //     foreach (PolityMember parent in new List<PolityMember>(parents))
-        //         parent.children.Remove(this);
-        //     parents.Clear();
-        //     foreach (PolityMember child in new List<PolityMember>(children))
-        //         child.parents.Remove(this);
-        //     children.Clear();
-        // }
-        // [ContextMenu("Cleanup Family")]
-        // void CleanupFamily()
-        // {
-        //     parents = parents.Where(item => item != null).ToList();
-        //     partners = partners.Where(item => item != null).ToList();
-        //     children = children.Where(item => item != null).ToList();
-        // }
-        // void CheckRelationship(List<PolityMember> yourFamily, Func<PolityMember, List<PolityMember>> theirFamily, string relationshipType)
-        // {
-        //     if (yourFamily.Any())
-        //     {
-        //         List<PolityMember> toRemove = new List<PolityMember>();
-        //         foreach (PolityMember member in yourFamily)
-        //             if (!theirFamily(member).Contains(this))
-        //                 toRemove.Add(member);
-
-        //         foreach (PolityMember nonReciprocal in toRemove)
-        //         {
-        //             yourFamily.Remove(nonReciprocal);
-        //             Debug.Log($"Removed non-reciprocal {relationshipType}: {nonReciprocal} from {this}'s {relationshipType} list.");
-        //         }
-        //     }
-        // }
-
+        [Serializable]
+        public struct FamilyStruct
+        {
+            public List<PolityMember> parents;
+            public List<PolityMember> partners;
+            public List<PolityMember> children;
+        }
     }
 }

@@ -9,6 +9,7 @@ using UnityEditor;
 
 namespace KL
 {
+    [DisallowMultipleComponent]
     public class PolityManager : MonoBehaviour
     {
         public static PolityManager PM { get; private set; }
@@ -152,6 +153,7 @@ namespace KL
                CheckPolityRelation(member.reader.Struct.polityName, otherMember.reader.Struct.polityName);
         public PolityRelation CheckPolityRelation(string yourPolityName, string theirPolityName)
         {
+            Debug.Log($"Checking relationship between {yourPolityName} & {theirPolityName}");
             if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
             int yourIndex = Array.FindIndex(polities, p => p.name == yourPolityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
@@ -340,67 +342,6 @@ namespace KL
                 }
         }
         #endregion
-
-
-        #region Family
-        [ContextMenu("Create Family Asset")]
-        void CreateFamilyAssetContextMenu()
-        {
-            CreateFamilyAsset();
-        }
-        void CreateFamilyAsset([CallerFilePath] string callerFilePath = "")
-        {
-            if (string.IsNullOrEmpty(callerFilePath))
-            {
-                throw new InvalidOperationException("Could not determine caller file path.");
-            }
-            PolityFamily asset = ScriptableObject.CreateInstance<PolityFamily>();
-            //  MyScriptableObjectClass asset = ScriptableObject.CreateInstance<MyScriptableObjectClass>();
-
-            // AssetDatabase.CreateAsset(asset, "Assets/Families.asset");
-            string directoryPath = Path.GetDirectoryName(callerFilePath);
-
-            // Convert the full path to a path relative to the Assets folder
-            string relativePath = "Assets" + directoryPath[Application.dataPath.Length..].Replace("\\", "/");
-            Debug.LogError("Directory Path: " + directoryPath + " relativePath: " + relativePath);
-            string path = Path.Combine(relativePath, "Families.asset");
-            AssetDatabase.CreateAsset(asset, path);
-            AssetDatabase.SaveAssets();
-
-            EditorUtility.FocusProjectWindow();
-            Selection.activeObject = asset;
-
-            Debug.Log("PolityFamily asset created at: " + path);
-            // string directoryPath = Path.GetDirectoryName(callerFilePath);
-            // string filePath = Path.Combine(directoryPath, $"{enumName}.cs");
-
-            // StringBuilder sb = new();
-            // sb.AppendLine($"namespace BladeBallad");
-            // sb.AppendLine("{");
-            // sb.AppendLine($"    public enum {enumName}");
-            // sb.AppendLine("    {");
-
-            // foreach (var value in values)
-            // {
-            //     string validName = FixEnumName(value);
-            //     sb.AppendLine($"        {validName},");
-            // }
-
-            // sb.AppendLine("    }");
-            // sb.AppendLine("}");
-
-            // File.WriteAllText(filePath, sb.ToString());
-            // Debug.Log($"Enum {enumName} generated successfully at {filePath}");
-        }
-        string FixEnumName(string value)
-        {
-            string validName = new string(value.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray());
-            if (char.IsDigit(validName[0]))
-                validName = "_" + validName;
-            return validName;
-        }
-        #endregion
-
 
         /* -------------------------------------------------------------------------- */
         /*                                POLITYSTRUCT                                */

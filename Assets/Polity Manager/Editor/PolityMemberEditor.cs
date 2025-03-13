@@ -2,16 +2,19 @@ using UnityEditor;
 using UnityEngine;
 namespace KL
 {
-    using static PolityManager;
     [CustomEditor(typeof(PolityMember))]
     public class PolityMemberEditor : Editor
     {
         PolityManager polityManager;
-
-        void OnEnable() => GetPolityManagerData();
-        void GetPolityManagerData()
+        void OnEnable()
         {
             if (polityManager == null) polityManager = FindFirstObjectByType<PolityManager>();
+            PolityMember polityMember = (PolityMember)target;
+            if (string.IsNullOrEmpty(polityMember.ID))
+            {
+                polityMember.GenerateGUID();
+                EditorUtility.SetDirty(polityMember);
+            }
         }
         public override void OnInspectorGUI()
         {
@@ -19,8 +22,8 @@ namespace KL
             { GUILayout.Label("No PolityManager found in the Scene.", EditorStyles.boldLabel); return; }
 
             serializedObject.Update();
-            SerializedProperty iD = serializedObject.FindProperty("iD");
-            EditorGUILayout.PropertyField(iD, true);
+            SerializedProperty id = serializedObject.FindProperty("id");
+            EditorGUILayout.PropertyField(id, true);
             SerializedProperty polityReader = serializedObject.FindProperty("reader");
             EditorGUILayout.PropertyField(polityReader, true);
             GUI.enabled = false;

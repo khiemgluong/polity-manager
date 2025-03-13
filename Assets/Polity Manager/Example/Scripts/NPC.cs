@@ -10,7 +10,7 @@ namespace KL
         PolityMember member;
         NavMeshAgent agent;
         Vector3 spawnPos;
-        readonly float detectionRadius = 6f;
+        readonly float detectionRadius = 8f;
         public PolityMember enemyTarget, allyEnemyTarget;
         /// <summary>
         /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
@@ -28,7 +28,7 @@ namespace KL
             OnRelationChange += OnPolityStateChanged;
         }
 
-        // void Start() => SearchForPolityMembers();
+        void Start() => SearchForPolityMembers();
 
         void Update()
         {

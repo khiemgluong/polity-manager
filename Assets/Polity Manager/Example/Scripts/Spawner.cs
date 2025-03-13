@@ -14,9 +14,7 @@ namespace KL
         void Awake()
         {
             foreach (Polity polity in PM.polities)
-            {
-                Debug.LogError(polity.name);
-            }
+                Debug.Log("Polity: " + polity.name);
         }
         void Start()
         {

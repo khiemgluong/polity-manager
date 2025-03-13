@@ -88,7 +88,7 @@ namespace KL
                 alignment = TextAnchor.MiddleRight,
                 fontStyle = FontStyle.Bold
             };
-            EditorGUILayout.LabelField("version 2.0.0", rightAlignedStyle);
+            EditorGUILayout.LabelField("Version 2.0.0", rightAlignedStyle);
             EditorGUILayout.EndHorizontal();
             // Save changes
             if (GUI.changed)

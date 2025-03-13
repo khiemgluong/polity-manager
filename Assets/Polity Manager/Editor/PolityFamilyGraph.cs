@@ -66,10 +66,6 @@ namespace KL
         {
             serializedObject = new SerializedObject(this);
 
-            parentNode = new GUIStyle("flow node 1");
-            partnerNode = new GUIStyle("flow node 3");
-            childNode = new GUIStyle("flow node 6");
-
             nodes.Clear();
             links.Clear();
             polityMembers.Clear();
@@ -93,6 +89,9 @@ namespace KL
         #region  OnGUI
         void OnGUI()
         {
+            parentNode ??= new GUIStyle("flow node 1");
+            partnerNode ??= new GUIStyle("flow node 3");
+            childNode ??= new GUIStyle("flow node 6");
             // float topBarHeight = position.height * .1f;
             // float topBarWidth = position.width;
             // GUILayout.BeginArea(new Rect(0, 0, topBarWidth, topBarHeight), "", GUI.skin.window);

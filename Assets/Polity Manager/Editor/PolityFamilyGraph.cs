@@ -308,11 +308,23 @@ namespace KL
                     RelationType deletedNodeRelation = nodes[index].Relation;
                     List<Node> nodesToMove = new();
 
+                    if (deletedNodeRelation == RelationType.Partner)
+                    {
+                        List<int> childIndices = new();
+                        foreach (var pair in links)
+                        {
+                            if (pair.Value.Index == index)
+                                childIndices.Add(pair.Key.Index);
+                        }
+                        foreach (var childIndex in childIndices)
+                        {
+                            UnlinkFamily(childIndex);
+                            RemoveLink(childIndex);
+                        }
+                    }
+
                     UnlinkFamily(index);
                     RemoveLink(index);
-                    if(deletedNodeRelation == RelationType.Partner){
-                        //Check if partner has any children and delete all of them by finding its links
-                    }
 
                     foreach (var pair in links)
                         if (pair.Key.Index > index)

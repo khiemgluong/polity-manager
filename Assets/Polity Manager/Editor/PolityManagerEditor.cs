@@ -21,8 +21,8 @@ namespace KL
             EditorGUILayout.PropertyField(polities, true);
             EditorGUI.EndDisabledGroup();
 
-            SerializedProperty dontDestroyOnLoad = serializedObject.FindProperty("dontDestroyOnLoad");
-            EditorGUILayout.PropertyField(dontDestroyOnLoad, true);
+            SerializedProperty persist = serializedObject.FindProperty("persist");
+            EditorGUILayout.PropertyField(persist, true);
 
             /* -------------------------------------------------------------------------- */
             /*                           POLITY RELATION MATRIX                           */
@@ -79,16 +79,24 @@ namespace KL
             /* -------------------------------------------------------------------------- */
             /*                         END POLITY RELATION MATRIX                         */
             /* -------------------------------------------------------------------------- */
-
-            if (!Application.isPlaying) if (GUILayout.Button("Member Family Graph"))
-                    EditorWindow.GetWindow<PolityFamilyGraph>("Polity Manager");
-
+            GUILayout.Space(10);
+            EditorGUILayout.BeginHorizontal();
+            if (!Application.isPlaying) if (GUILayout.Button("Polity Family Graph"))
+                    EditorWindow.GetWindow<PolityFamilyGraph>("Polity Family Graph");
+            GUIStyle rightAlignedStyle = new(GUI.skin.label)
+            {
+                alignment = TextAnchor.MiddleRight,
+                fontStyle = FontStyle.Bold
+            };
+            EditorGUILayout.LabelField("version 2.0.0", rightAlignedStyle);
+            EditorGUILayout.EndHorizontal();
             // Save changes
             if (GUI.changed)
             {
                 if (!Application.isPlaying)
                     manager.SerializePolityRelationMatrix();
-                serializedObject.ApplyModifiedProperties(); EditorUtility.SetDirty(manager);
+                serializedObject.ApplyModifiedProperties();
+                EditorUtility.SetDirty(manager);
             }
         }
 

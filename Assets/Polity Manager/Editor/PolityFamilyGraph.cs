@@ -14,7 +14,6 @@ namespace KL
             Right,
             Left,
             Bottom,
-            Child
         }
         enum RelationType
         {
@@ -54,7 +53,7 @@ namespace KL
         GUIStyle parentNode, partnerNode, childNode;
         List<Node> nodes = new();
         Dictionary<Link, Link> links = new();
-        readonly Vector2 nodeSize = new(140, 65);
+        readonly Vector2 nodeSize = new(140, 70);
         bool initialized;
 
         /* ------------------------------ PAN CONTROLS ------------------------------ */
@@ -67,18 +66,13 @@ namespace KL
         {
             serializedObject = new SerializedObject(this);
 
-            parentNode = new GUIStyle(GUI.skin.window);
-            parentNode.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node6.png") as Texture2D;
-            partnerNode = new GUIStyle(GUI.skin.window);
-            partnerNode.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node3.png") as Texture2D;
-            childNode = new GUIStyle(GUI.skin.window);
-            childNode.normal.background = EditorGUIUtility.Load("builtin skins/darkskin/images/node1.png") as Texture2D;
+            parentNode = new GUIStyle("flow node 1");
+            partnerNode = new GUIStyle("flow node 3");
+            childNode = new GUIStyle("flow node 6");
 
-            // nodes.Clear();
             nodes.Clear();
+            links.Clear();
             polityMembers.Clear();
-            // linkedNodes.Clear();
-
             // Calculate the center of the groupRect
             Vector2 windowCenter = new(position.width / 2, position.height / 2);
             Rect rootNodeRect = new(windowCenter.x - nodeSize.x / 2,
@@ -99,9 +93,6 @@ namespace KL
         #region  OnGUI
         void OnGUI()
         {
-            /* -------------------------------------------------------------------------- */
-            /*                                  SIDEBAR                                   */
-            /* -------------------------------------------------------------------------- */
             // float topBarHeight = position.height * .1f;
             // float topBarWidth = position.width;
             // GUILayout.BeginArea(new Rect(0, 0, topBarWidth, topBarHeight), "", GUI.skin.window);
@@ -113,12 +104,6 @@ namespace KL
             // }
             // EditorGUILayout.EndHorizontal();
             // GUILayout.EndArea();
-            /* ------------------------------- SIDEBAR END ------------------------------ */
-
-
-            /* -------------------------------------------------------------------------- */
-            /*                                 MAIN PANEL                                 */
-            /* -------------------------------------------------------------------------- */
             float mainPanelWidth = position.width;
             float mainPanelHeight = position.height;
             GUILayout.BeginArea(new Rect(0, 0, mainPanelWidth, mainPanelHeight), "", GUI.skin.window);
@@ -251,7 +236,7 @@ namespace KL
             int nodeIndex = nodes.IndexOf(node);
             if (nodeIndex < 0 || nodeIndex >= nodes.Count)
             {
-                Debug.LogWarning("Invalid node index " + nodeIndex + " count " + nodes.Count);
+                Debug.LogWarning("Invalid node index " + nodeIndex);
                 return;
             }
             Node oldNode = nodes[nodeIndex];
@@ -323,8 +308,11 @@ namespace KL
                     RelationType deletedNodeRelation = nodes[index].Relation;
                     List<Node> nodesToMove = new();
 
-                    DeleteLink(index);
                     UnlinkFamily(index);
+                    RemoveLink(index);
+                    if(deletedNodeRelation == RelationType.Partner){
+                        //Check if partner has any children and delete all of them by finding its links
+                    }
 
                     foreach (var pair in links)
                         if (pair.Key.Index > index)
@@ -388,7 +376,7 @@ namespace KL
                 if (node.Relation == RelationType.Partner)
                     partnerCount++;
             float xPos = nodes[0].Rect.x + nodeSize.x * (1.5f + partnerCount * 1.5f);
-            float yPos = nodes[0].Rect.y + 45 / 2;
+            float yPos = nodes[0].Rect.y + (nodes[0].Rect.size.y - nodeSize.y) / 2;
             Node partnerNode = NewNode(xPos, yPos, RelationType.Partner);
             CreateLink(partnerNode, nodes[0], CurveAnchor.Left);
             return partnerNode;
@@ -419,7 +407,6 @@ namespace KL
             int startIndex = nodes.IndexOf(startNode);
             int endIndex = nodes.IndexOf(endNode);
             links.Add(new(startNode, startIndex, anchor), new(endNode, endIndex, endAnchor));
-            Debug.Log("start Index " + startIndex + " end Index " + endIndex);
         }
 
         void MoveLink(int nodeIndex, Node newNode)
@@ -436,23 +423,15 @@ namespace KL
                 links.Add(new Link(newNode, key.Index, key.Anchor), value);
             }
         }
-        void DeleteLink(int index)
+        void RemoveLink(int index)
         {
             Link linkToRemoveKey = null;
-            Link linkToRemoveValue = null;
             foreach (var pair in links)
                 if (pair.Key.Index == index)
                 {
                     linkToRemoveKey = pair.Key;
-                    linkToRemoveValue = pair.Value;
                     break;
                 }
-            if (linkToRemoveKey == null || linkToRemoveValue == null)
-            {
-                Debug.LogError("Link to remove is null");
-                return;
-            }
-
             links.Remove(linkToRemoveKey);
             RemoveNode(linkToRemoveKey.Node);
         }
@@ -586,7 +565,7 @@ namespace KL
                 CurveAnchor.Right => CurveAnchor.Left,
                 CurveAnchor.Left => CurveAnchor.Right,
                 CurveAnchor.Bottom => CurveAnchor.Top,
-                _ => CurveAnchor.Child,
+                _ => CurveAnchor.Bottom,
             };
 
         Vector2 GetNodeAnchorVector(CurveAnchor point)
@@ -596,7 +575,6 @@ namespace KL
                 CurveAnchor.Right => new(1.0f, 0.5f),
                 CurveAnchor.Left => new(0.0f, 0.5f),
                 CurveAnchor.Bottom => new(0.5f, 1f),
-                CurveAnchor.Child => new(0.5f, 1f),
                 _ => new(0.5f, 0.5f),
             };
 
@@ -615,11 +593,10 @@ namespace KL
                 return Color.white;
             return startAnchor switch
             {
-                CurveAnchor.Top => Color.blue,
+                CurveAnchor.Top => Color.red,
                 CurveAnchor.Right => Color.green,
                 CurveAnchor.Left => Color.green,
-                CurveAnchor.Bottom => Color.red,
-                CurveAnchor.Child => Color.cyan,
+                CurveAnchor.Bottom => Color.blue,
                 _ => Color.black,// Default to center if unknown for some reason
             };
         }

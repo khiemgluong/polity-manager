@@ -23,8 +23,10 @@ namespace KL
             EditorGUILayout.PropertyField(iD, true);
             SerializedProperty polityReader = serializedObject.FindProperty("reader");
             EditorGUILayout.PropertyField(polityReader, true);
+            GUI.enabled = false;
             SerializedProperty family = serializedObject.FindProperty("family");
             EditorGUILayout.PropertyField(family, true);
+            GUI.enabled = true;
 
             SerializedProperty parentsSerializedProp = serializedObject.FindProperty("parents");
             SerializedProperty partnersSerializedProp = serializedObject.FindProperty("partners");

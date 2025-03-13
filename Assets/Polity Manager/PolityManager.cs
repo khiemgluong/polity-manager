@@ -28,7 +28,7 @@ namespace KL
         { public List<PolityRelation> relations = new(); public int rows, columns; }
 
         [SerializeField]
-        [Tooltip("Set to true to persist this Singleton across scenes")] bool dontDestroyOnLoad;
+        [Tooltip("Set to true to persist this Singleton across scenes")] bool persist;
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnRelationChange, OnFactionChange;
         void Awake()
@@ -37,7 +37,7 @@ namespace KL
             else
             {
                 PM = this;
-                if (dontDestroyOnLoad)
+                if (persist)
                     DontDestroyOnLoad(gameObject);
             }
             int ln = polities.Length;

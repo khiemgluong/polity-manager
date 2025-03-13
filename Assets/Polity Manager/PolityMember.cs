@@ -75,6 +75,7 @@ namespace KL
         [ContextMenu("Clear/Parents")]
         void ClearParents()
         {
+            family.parents = family.parents.Where(item => item != null).ToList();
             foreach (var parent in family.parents.ToList())
                 parent.family.children.Remove(this);
             family.parents.Clear();
@@ -82,6 +83,7 @@ namespace KL
         [ContextMenu("Clear/Partners")]
         void ClearPartners()
         {
+            family.partners = family.partners.Where(item => item != null).ToList();
             foreach (var partner in family.partners.ToList())
                 partner.family.partners.Remove(this);
             family.partners.Clear();
@@ -89,6 +91,7 @@ namespace KL
         [ContextMenu("Clear/Children")]
         void ClearChildren()
         {
+            family.children = family.children.Where(item => item != null).ToList();
             foreach (var child in family.children.ToList())
                 child.family.parents.Remove(this);
             family.children.Clear();

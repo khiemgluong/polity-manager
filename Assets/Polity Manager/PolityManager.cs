@@ -356,18 +356,14 @@ namespace KL
             /// The selected polity name.
             /// </summary>
             public string polityName;
-            public bool isPolityLeader;
             /// <summary>
             /// The selected class within the polityName.
             /// </summary>
             public string className;
-            public bool isClassLeader;
             /// <summary>
             /// The selected faction within the className.
             /// </summary>
             public string factionName;
-            public bool isFactionLeader;
-
             public override readonly bool Equals(object obj)
             {
                 if (obj is PolityStruct other)

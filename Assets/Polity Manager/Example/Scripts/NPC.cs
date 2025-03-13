@@ -10,6 +10,7 @@ namespace KL
         PolityMember member;
         NavMeshAgent agent;
         Vector3 spawnPos;
+        MeshFilter meshFilter;
         readonly float detectionRadius = 8f;
         public PolityMember enemyTarget, allyEnemyTarget;
         /// <summary>
@@ -18,8 +19,7 @@ namespace KL
         // public Transform targetArrow;
         void Awake()
         {
-            // targetArrow = transform.Find("TargetArrow");
-            // targetArrow.gameObject.SetActive(false);
+            meshFilter = GetComponent<MeshFilter>();
             member = GetComponent<PolityMember>();
             agent = GetComponent<NavMeshAgent>();
             agent.avoidancePriority = Random.Range(1, 99);
@@ -43,32 +43,62 @@ namespace KL
                 // RotateArrowTowardsTarget(enemyTarget.transform);
             }
         }
+        void SetMesh(int index)
+        {
+            if (meshFilter.mesh != npcMeshes[index])
+            {
+                meshFilter.mesh = npcMeshes[index];
+            }
+        }
+        bool beginAttack = false;
+        Coroutine attackCoroutine;
 
-        // void RotateArrowTowardsTarget(Transform target)
-        // {
-        //     float originalXRotation = targetArrow.eulerAngles.x;
-        //     float originalZRotation = targetArrow.eulerAngles.z;
-
-        //     targetArrow.LookAt(target);
-
-        //     Quaternion additionalRotation = Quaternion.Euler(0, -90, 0);
-        //     targetArrow.rotation *= additionalRotation;
-
-        //     Vector3 currentEulerAngles = targetArrow.eulerAngles;
-        //     currentEulerAngles.x = originalXRotation;
-        //     currentEulerAngles.z = originalZRotation;
-        //     targetArrow.eulerAngles = currentEulerAngles;
-        // }
         void MoveTowardsPolityMemberTarget(PolityMember polityMember)
         {
-            agent.SetDestination(polityMember.transform.position);
+            Debug.Log("Remaining distance: " + agent.remainingDistance + "velocity: " + agent.velocity.magnitude);
+            if (agent.remainingDistance < agent.stoppingDistance)
+            {
+                agent.speed = 0;
+                agent.velocity = Vector3.zero;
+            }
+            else
+            {
+                if (agent.remainingDistance >= agent.stoppingDistance)
+                    agent.SetDestination(polityMember.transform.position);
+                agent.speed = 2f;
+            }
+            if (agent.remainingDistance > agent.stoppingDistance + .1f)
+            {
+                if (agent.velocity.magnitude > 1)
+                    SetMesh(1);
+                else SetMesh(0);
+            }
+            else
+            {
+                if (!beginAttack)
+                {
+                    attackCoroutine = StartCoroutine(AttackRoutine());
+                    beginAttack = true;
+                }
+            }
+
             Vector3 direction = (polityMember.transform.position - transform.position).normalized;
             float singleStep = agent.angularSpeed * Time.deltaTime;
 
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, singleStep);
         }
-
+        System.Collections.IEnumerator AttackRoutine()
+        {
+            while (true)
+            {
+                int randomIndex = Random.Range(2, 5); // Random index between 2 and 4 (inclusive)
+                SetMesh(randomIndex);
+                if (randomIndex == 3 || randomIndex == 4)
+                    yield return new WaitForSeconds(.15f);
+                else yield return new WaitForSeconds(Random.Range(.5f, 1.5f));
+            }
+        }
         void OnPolityStateChanged()
         {
             if (allyEnemyTarget != null)
@@ -125,6 +155,7 @@ namespace KL
                                 allyEnemyTarget = null;
                                 enemyTarget = polityMember;
                                 agent.updateRotation = false;
+                                agent.SetDestination(enemyTarget.transform.position);
                                 // targetArrow.gameObject.SetActive(true);
                                 break;
                         }

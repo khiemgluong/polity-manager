@@ -153,7 +153,6 @@ namespace KL
                CheckPolityRelation(member.reader.Struct.polityName, otherMember.reader.Struct.polityName);
         public PolityRelation CheckPolityRelation(string yourPolityName, string theirPolityName)
         {
-            Debug.Log($"Checking relationship between {yourPolityName} & {theirPolityName}");
             if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
             int yourIndex = Array.FindIndex(polities, p => p.name == yourPolityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
@@ -161,7 +160,6 @@ namespace KL
             { Debug.LogError("One or both polity names not found."); return default; }
 
             PolityRelation relation = PolityRelationMatrix[yourIndex, theirIndex];
-            Debug.Log($"Relationship w/ {yourPolityName} & {theirPolityName}: {relation} ({yourIndex},{theirIndex})");
             return relation;
         }
 

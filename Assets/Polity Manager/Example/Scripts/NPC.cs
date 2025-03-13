@@ -14,7 +14,7 @@ namespace KL
         Vector3 spawnPos;
         MeshFilter meshFilter;
         readonly float detectionRadius = 8f;
-        bool beginAttack = false;
+        public bool beginAttack = false;
         Coroutine attackCoroutine;
         /// <summary>
         /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
@@ -23,7 +23,6 @@ namespace KL
         void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
-            member = GetComponent<PolityMember>();
             agent = GetComponent<NavMeshAgent>();
             agent.avoidancePriority = Random.Range(1, 99);
             spawnPos = transform.position;
@@ -31,14 +30,41 @@ namespace KL
             OnRelationChange += OnPolityStateChanged;
         }
 
-        void Start() => SearchForPolityMembers();
+        void Start()
+        {
+            member = GetComponent<PolityMember>();
+        }
 
         void Update()
         {
+            if (!agent.enabled) return;
+            SearchForPolityMembers();
             if (allyTarget != null)
-                MoveTowardsPolityMemberTarget(allyTarget);
+                MoveTowardsTarget(allyTarget);
             else if (target != null)
-                MoveTowardsPolityMemberTarget(target);
+                MoveTowardsTarget(target);
+            else
+            {
+                target = null;
+                allyTarget = null;
+                beginAttack = false;
+                if (agent.remainingDistance >= agent.stoppingDistance)
+                {
+                    agent.updateRotation = true;
+                    agent.speed = 2;
+                }
+                else
+                {
+                    agent.updateRotation = false;
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                                                Quaternion.Euler(0, 180, 0),
+                                                agent.angularSpeed * Time.deltaTime);
+                }
+                agent.SetDestination(spawnPos);
+                SetMesh(0);
+                if (attackCoroutine != null)
+                    StopCoroutine(attackCoroutine);
+            }
         }
         void SetMesh(int index)
         {
@@ -47,9 +73,8 @@ namespace KL
         }
 
 
-        void MoveTowardsPolityMemberTarget(PolityMember polityMember)
+        void MoveTowardsTarget(PolityMember polityMember)
         {
-            // Debug.Log("Remaining distance: " + agent.remainingDistance + "velocity: " + agent.velocity.magnitude);
             if (agent.remainingDistance < agent.stoppingDistance)
             {
                 agent.speed = 0;
@@ -57,10 +82,9 @@ namespace KL
             }
             else
             {
-                if (agent.remainingDistance >= agent.stoppingDistance)
-                    agent.SetDestination(polityMember.transform.position);
                 agent.speed = 2f;
             }
+            agent.SetDestination(polityMember.transform.position);
             if (agent.remainingDistance > agent.stoppingDistance + .1f)
             {
                 if (agent.velocity.magnitude > 1)
@@ -90,7 +114,7 @@ namespace KL
                 SetMesh(randomIndex);
                 if (randomIndex == 3 || randomIndex == 4)
                 {
-                    yield return new WaitForSeconds(.125f);
+                    yield return new WaitForSeconds(.1f);
                     if (target != null)
                         target.GetComponent<NPC>().TakeDamage();
                 }
@@ -129,12 +153,15 @@ namespace KL
 
         public void SearchForPolityMembers()
         {
+            if (target != null) return;
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius);
+            PolityMember foundMember = null;
             foreach (var hitCollider in hitColliders)
                 if (hitCollider.TryGetComponent<PolityMember>(out var polityMember))
                     if (polityMember.GetComponent<NPC>().health > 0)
                         if (polityMember != member)
                         {
+                            foundMember = polityMember;
                             PolityRelation relation = PM.CheckPolityRelation(member, polityMember);
                             switch (relation)
                             {
@@ -152,6 +179,14 @@ namespace KL
                                     break;
                             }
                         }
+            if (foundMember == null)
+            {
+                agent.SetDestination(spawnPos);
+                if (attackCoroutine != null)
+                    StopCoroutine(attackCoroutine);
+                agent.speed = 2f;
+                agent.updateRotation = true;
+            }
         }
         void TakeDamage()
         {
@@ -159,16 +194,16 @@ namespace KL
             if (health <= 0)
             {
                 StopCoroutine(attackCoroutine);
-                NPC targetNPC = target.GetComponent<NPC>();
                 target = null;
-                transform.rotation = Quaternion.identity;
+                transform.rotation = Quaternion.Euler(0, 180, 0);
                 SetMesh(5);
-                Destroy(GetComponent<NavMeshAgent>());
-                targetNPC.StopCoroutine(targetNPC.attackCoroutine);
-                targetNPC.SetMesh(0);
-                targetNPC.target = null;
-                targetNPC.SearchForPolityMembers();
-                Destroy(gameObject, 5f);
+                GetComponent<NavMeshAgent>().enabled = false;
+                if (target != null)
+                {
+                    NPC targetNPC = target.GetComponent<NPC>();
+                    targetNPC.target = null;
+                }
+                Destroy(gameObject, 2.5f);
             }
         }
 

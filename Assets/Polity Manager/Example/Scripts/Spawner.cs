@@ -10,7 +10,7 @@ namespace KL
         [SerializeField] GameObject dummy, cursor;
         [SerializeField] PolityReader polityReader;
         HashSet<Transform> usedSpawnPoints = new();
-
+        public bool spawn = true;
         void Awake()
         {
             foreach (Polity polity in PM.polities)
@@ -34,20 +34,21 @@ namespace KL
                 spawnPoints[k] = spawnPoints[n];
                 spawnPoints[n] = value;
             }
-            foreach (NPC dummy in dummies)
-                foreach (var spawnPoint in spawnPoints)
-                {
-                    // Check if spawn point has already been used
-                    if (!usedSpawnPoints.Contains(spawnPoint))
+            if (spawn)
+                foreach (NPC dummy in dummies)
+                    foreach (var spawnPoint in spawnPoints)
                     {
-                        SpawnNPC(dummy.gameObject, spawnPoint.position);
-                        usedSpawnPoints.Add(spawnPoint); break;
+                        // Check if spawn point has already been used
+                        if (!usedSpawnPoints.Contains(spawnPoint))
+                        {
+                            SpawnNPC(dummy.gameObject, spawnPoint.position);
+                            usedSpawnPoints.Add(spawnPoint); break;
+                        }
                     }
-                }
         }
-        void SpawnNPC(GameObject prefab, Vector3 position, Quaternion rotation = default)
+        void SpawnNPC(GameObject prefab, Vector3 position)
         {
-            GameObject npc = Instantiate(prefab, position, rotation);
+            GameObject npc = Instantiate(prefab, position, Quaternion.Euler(0, 180, 0));
             if (!npc.TryGetComponent(out PolityMember _))
             {
                 PolityMember _member = npc.AddComponent<PolityMember>();

@@ -17,9 +17,12 @@ namespace KL
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnLeaderChange;
         public static Action<PolityMember> OnMemberSpawn;
-        void Start()
+        void Awake()
         {
-            OnMemberSpawn?.Invoke(this);
+            if (id == null || id == "") GenerateGUID();
+            family.parents ??= new();
+            family.partners ??= new();
+            family.children ??= new();
         }
         void OnEnable()
         {
@@ -31,7 +34,10 @@ namespace KL
             OnMemberSpawn -= OnMemberSpawned;
             OnFactionChange -= OnFactionChanged;
         }
-
+        void Start()
+        {
+            OnMemberSpawn?.Invoke(this);
+        }
         [ContextMenu("Generate ID")]
         public void GenerateGUID()
         {
@@ -40,6 +46,7 @@ namespace KL
         /* --------------------------------- EVENTS --------------------------------- */
         void OnMemberSpawned(PolityMember member)
         {
+            if (id == null || id == "") return;
             ReplacePrefabWithInstance(family.parents);
             ReplacePrefabWithInstance(family.partners);
             ReplacePrefabWithInstance(family.children);

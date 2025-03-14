@@ -10,10 +10,18 @@ namespace KL
     {
         Vector2 scrollPosition;
         const float gridSize = 20, headerWidth = 120;
+        void OnEnable()
+        {
+            PolityManager manager = (PolityManager)target;
+            if (manager.RelationMatrix == null)
+                manager.LoadPolityRelationMatrix();
 
+        }
         public override void OnInspectorGUI()
         {
             PolityManager manager = (PolityManager)target;
+            GUILayoutOption width = GUILayout.Width(gridSize);
+            GUILayoutOption height = GUILayout.Height(gridSize);
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
@@ -21,61 +29,70 @@ namespace KL
             EditorGUILayout.PropertyField(polities, true);
             EditorGUI.EndDisabledGroup();
 
-            SerializedProperty persist = serializedObject.FindProperty("persist");
-            EditorGUILayout.PropertyField(persist, true);
-
             /* -------------------------------------------------------------------------- */
             /*                           POLITY RELATION MATRIX                           */
             /* -------------------------------------------------------------------------- */
-            /* ----------------------------- BEGIN VERTICAL ----------------------------- */
-            GUILayout.BeginVertical();
-            scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
-
-            // Create the matrix GUI with headers
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(-47);
-            EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
-            for (int j = manager.polities.Length - 1; j >= 0; j--)
+            if (manager.polities.Length > 0)
             {
-                GUILayout.Space(-1);
-                Rect labelRect = GUILayoutUtility.GetRect(new GUIContent(manager.polities[j].name), GUI.skin.label, GUILayout.Width(gridSize), GUILayout.Height(headerWidth));
-                RotateText(labelRect, manager.polities[j].name, 270);
-            }
-            EditorGUILayout.EndHorizontal();
+                SerializedProperty persist = serializedObject.FindProperty("persist");
+                EditorGUILayout.PropertyField(persist, true);
+                GUILayout.BeginVertical();
+                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
+                                                    GUILayout.ExpandHeight(true));
 
-            for (int i = 0; i < manager.polities.Length; i++)
-            {
+                // Create the matrix GUI with headers
                 EditorGUILayout.BeginHorizontal();
-                EditorGUILayout.LabelField(manager.polities[i].name, new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
-                // Create a grid but only for entries above the diagonal
-                for (int j = manager.polities.Length - 1; j > i; j--) // Note the condition and the decrement
-                {
-                    string tooltipText = $"{manager.polities[i].name} & {manager.polities[j].name} | {manager.PolityRelationMatrix[i, j]}";
-                    GUIContent buttonContent = new GUIContent("", tooltipText);  // Tooltip text as the second parameter
-                    Rect gridRect = EditorGUILayout.GetControlRect(GUILayout.Width(gridSize), GUILayout.Height(gridSize));
-
-                    if (GUI.Button(gridRect, buttonContent))
+                GUILayout.Space(-47);
+                EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
+                if (manager.polities.Length > 0)
+                    for (int j = manager.polities.Length - 1; j >= 0; j--)
                     {
-                        switch (Event.current.button)
-                        {
-                            case 0: // Left mouse button
-                                manager.PolityRelationMatrix[i, j] = GetNextRelationship(manager.PolityRelationMatrix[i, j]); break;
-                            case 1: // Right mouse button
-                                manager.PolityRelationMatrix[i, j] = GetBackRelationship(manager.PolityRelationMatrix[i, j]); break;
-                            default: return;
-                        }
-                        manager.PolityRelationMatrix[j, i] = manager.PolityRelationMatrix[i, j];//Set reciprocal
-                        if (Application.isPlaying) OnRelationChange?.Invoke();
+                        GUILayout.Space(-1);
+                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.polities[j].name),
+                                                                    GUI.skin.label, width,
+                                                                    GUILayout.Height(headerWidth));
+                        RotateText(labelRect, manager.polities[j].name, 270);
                     }
-
-                    Color color = GetColorForRelationship(manager.PolityRelationMatrix[i, j]);
-                    EditorGUI.DrawRect(gridRect, color);
-                    GUI.Label(gridRect, ""); // Optionally add labels or icons
-                }
                 EditorGUILayout.EndHorizontal();
+
+                for (int i = 0; i < manager.polities.Length; i++)
+                {
+                    EditorGUILayout.BeginHorizontal();
+                    EditorGUILayout.LabelField(manager.polities[i].name, new GUIStyle(GUI.skin.label)
+                    { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
+                    // Create a grid but only for entries above the diagonal
+                    for (int j = manager.polities.Length - 1; j > i; j--)
+                    {
+                        string tooltipText = manager.polities[i].name + 
+                                            " & " + manager.polities[j].name + 
+                                            " | " + manager.RelationMatrix[i, j];
+
+                        GUIContent buttonContent = new("", tooltipText);
+                        Rect gridRect = EditorGUILayout.GetControlRect(width, height);
+
+                        if (GUI.Button(gridRect, buttonContent))
+                        {
+                            switch (Event.current.button)
+                            {
+                                case 0: // Left mouse button
+                                    GetNextRelationship(manager, i, j); break;
+                                case 1: // Right mouse button
+                                    GetBackRelationship(manager, i, j); break;
+                                default: break;
+                            }
+                            //Set reciprocal
+                            manager.RelationMatrix[j, i] = manager.RelationMatrix[i, j];
+                            if (Application.isPlaying) OnRelationChange?.Invoke();
+                        }
+
+                        Color color = GetColorForRelationship(manager.RelationMatrix[i, j]);
+                        EditorGUI.DrawRect(gridRect, color);
+                        GUI.Label(gridRect, ""); // Optionally add labels or icons
+                    }
+                    EditorGUILayout.EndHorizontal();
+                }
+                EditorGUILayout.EndScrollView(); GUILayout.EndVertical();
             }
-            EditorGUILayout.EndScrollView(); GUILayout.EndVertical();
-            /* ------------------------------ END VERTICAL ------------------------------ */
             /* -------------------------------------------------------------------------- */
             /*                         END POLITY RELATION MATRIX                         */
             /* -------------------------------------------------------------------------- */
@@ -123,9 +140,11 @@ namespace KL
                 _ => Color.white,
             };
         }
-        PolityRelation GetNextRelationship(PolityRelation current)
+
+        void GetNextRelationship(PolityManager manager, int i, int j)
         {
-            return current switch
+            PolityRelation relation = manager.RelationMatrix[i, j];
+            manager.RelationMatrix[i, j] = relation switch
             {
                 PolityRelation.Neutral => PolityRelation.Allies,
                 PolityRelation.Allies => PolityRelation.Enemies,
@@ -133,9 +152,10 @@ namespace KL
                 _ => PolityRelation.Neutral,
             };
         }
-        PolityRelation GetBackRelationship(PolityRelation current)
+        void GetBackRelationship(PolityManager manager, int i, int j)
         {
-            return current switch
+            PolityRelation relation = manager.RelationMatrix[i, j];
+            manager.RelationMatrix[i, j] = relation switch
             {
                 PolityRelation.Neutral => PolityRelation.Enemies,
                 PolityRelation.Enemies => PolityRelation.Allies,

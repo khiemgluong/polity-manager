@@ -1,30 +1,28 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static KL.PolityManager;
-
 namespace KL
 {
     public class Spawner : MonoBehaviour
     {
         [SerializeField] NPC[] dummies;
         [SerializeField] GameObject dummy, cursor;
+        public bool spawn = true;
         [SerializeField] PolityReader polityReader;
         HashSet<Transform> usedSpawnPoints = new();
-        public bool spawn = true;
         void Awake()
         {
             foreach (Polity polity in PM.polities)
                 Debug.Log("Polity: " + polity.name);
         }
+        
         void Start()
         {
             // return;
-            // Collect all child GameObjects as spawn points
             List<Transform> spawnPoints = new();
             for (int i = 0; i < transform.childCount; i++)
                 spawnPoints.Add(transform.GetChild(i));
 
-            // Shuffle the list of spawn points to randomize order
             int n = spawnPoints.Count;
             while (n > 1)
             {

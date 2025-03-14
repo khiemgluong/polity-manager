@@ -14,8 +14,8 @@ namespace KL
     {
         public static PolityManager PM { get; private set; }
         [Tooltip("The largest, most important organizational unit in your game.")]
-        public Polity[] polities;
-        public PolityRelation[,] PolityRelationMatrix { get; private set; }
+        public Polity[] polities = new Polity[0];
+        public PolityRelation[,] RelationMatrix { get; set; }
         [SerializeField] string polityRelationMatrixString;
         public enum PolityRelation
         {
@@ -41,8 +41,6 @@ namespace KL
                 if (persist)
                     DontDestroyOnLoad(gameObject);
             }
-            int ln = polities.Length;
-            PolityRelationMatrix = new PolityRelation[ln, ln];
             LoadPolityRelationMatrix();
         }
 
@@ -53,40 +51,39 @@ namespace KL
             List<string> polityNames = new();
             foreach (var polity in polities)
                 polityNames.Add(polity.name);
-            // GenerateEnum("PolitiesEnum", polityNames);
         }
 
         [ContextMenu("Reset Polity Relation Matrix")]
         void ResetPolityRelationMatrix()
         {
             int size = polities.Length;
-            PolityRelationMatrix = new PolityRelation[size, size];
+            RelationMatrix = new PolityRelation[size, size];
             for (int i = 0; i < size; i++)
                 for (int j = 0; j < size; j++)
-                    PolityRelationMatrix[i, j] = PolityRelation.Neutral;
+                    RelationMatrix[i, j] = PolityRelation.Neutral;
             SerializePolityRelationMatrix();
             ValidatePolityRelationMatrix();
         }
         void ValidatePolityRelationMatrix()
         {
             LoadPolityRelationMatrix();
-            if (PolityRelationMatrix == null ||
-                PolityRelationMatrix.GetLength(0) != polities.Length ||
-                PolityRelationMatrix.GetLength(1) != polities.Length)
+            if (RelationMatrix == null ||
+                RelationMatrix.GetLength(0) != polities.Length ||
+                RelationMatrix.GetLength(1) != polities.Length)
             {
                 // Create a temporary matrix to hold existing data
                 PolityRelation[,] tempMatrix = new PolityRelation[polities.Length, polities.Length];
-                if (PolityRelationMatrix != null)
+                if (RelationMatrix != null)
                 {
-                    int minRows = Mathf.Min(PolityRelationMatrix.GetLength(0), polities.Length);
-                    int minCols = Mathf.Min(PolityRelationMatrix.GetLength(1), polities.Length);
+                    int minRows = Mathf.Min(RelationMatrix.GetLength(0), polities.Length);
+                    int minCols = Mathf.Min(RelationMatrix.GetLength(1), polities.Length);
 
                     for (int i = 0; i < minRows; i++)
                         for (int j = 0; j < minCols; j++)
-                            tempMatrix[i, j] = PolityRelationMatrix[i, j];
+                            tempMatrix[i, j] = RelationMatrix[i, j];
                 }
                 // Replace the old matrix with the new matrix of appropriate size
-                PolityRelationMatrix = tempMatrix;
+                RelationMatrix = tempMatrix;
                 CheckForDuplicatePolityNames();
             }
         }
@@ -104,8 +101,15 @@ namespace KL
         }
         [ContextMenu("Load Polity Relation Matrix")]
         // Unity can't serialize & deserialize matrices, so this is a custom approach around it.
-        void LoadPolityRelationMatrix() =>
-            PolityRelationMatrix = DeserializePolityRelationMatrixMatrix();
+        public void LoadPolityRelationMatrix()
+        {
+            if (RelationMatrix == null)
+            {
+                int ln = polities.Length;
+                RelationMatrix = new PolityRelation[ln, ln];
+            }
+            RelationMatrix = DeserializePolityRelationMatrixMatrix();
+        }
 
         /* -------------------------------------------------------------------------- */
         /*                             PUBLIC API METHODS                             */
@@ -128,7 +132,7 @@ namespace KL
         }
 
         public string SerializePolityRelationMatrix() =>
-            SerializePolityRelationMatrix(PolityRelationMatrix);
+            SerializePolityRelationMatrix(RelationMatrix);
 
         public PolityRelation[,] DeserializePolityRelationMatrixMatrix(string json)
         {
@@ -159,7 +163,7 @@ namespace KL
             if (yourIndex == -1 || theirIndex == -1)
             { Debug.LogError("One or both polity names not found."); return default; }
 
-            PolityRelation relation = PolityRelationMatrix[yourIndex, theirIndex];
+            PolityRelation relation = RelationMatrix[yourIndex, theirIndex];
             return relation;
         }
 
@@ -259,10 +263,10 @@ namespace KL
                 Debug.LogError("One or both polity names not found.");
                 return;
             }
-            PolityRelationMatrix[thisIndex, theirIndex] = newRelation;
-            PolityRelationMatrix[theirIndex, thisIndex] = newRelation;
-            PolityRelationMatrix[thisIndex, theirIndex] = newRelation;
-            PolityRelationMatrix[theirIndex, thisIndex] = newRelation;
+            RelationMatrix[thisIndex, theirIndex] = newRelation;
+            RelationMatrix[theirIndex, thisIndex] = newRelation;
+            RelationMatrix[thisIndex, theirIndex] = newRelation;
+            RelationMatrix[theirIndex, thisIndex] = newRelation;
             OnRelationChange?.Invoke();
             Debug.Log($"Set relation between {thisPolityName} & {theirPolityName} to {newRelation}");
         }
@@ -408,11 +412,11 @@ namespace KL
         [Serializable]
         public class Faction : PolityBase
         {
-            public Faction(string _name, Texture2D _emblem, PolityMember _leader)
+            public Faction(string name, Texture2D emblem, PolityMember leader)
             {
-                name = _name;
-                emblem = _emblem;
-                leader = _leader;
+                base.name = name;
+                base.emblem = emblem;
+                base.leader = leader;
             }
         }
 

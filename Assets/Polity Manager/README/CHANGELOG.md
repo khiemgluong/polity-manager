@@ -5,6 +5,7 @@
 ### Added
 
 ### Changed
+- PolityRelation[,] PolityRelationMatrix named to RelationMatrix
 
 ### Fixed
 

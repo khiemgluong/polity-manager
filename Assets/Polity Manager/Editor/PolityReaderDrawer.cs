@@ -1,11 +1,10 @@
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 namespace KL
 {
     using static PolityManager;
-
     [CustomPropertyDrawer(typeof(PolityReader))]
     public class PolityReaderDrawer : PropertyDrawer
     {
@@ -99,24 +98,40 @@ namespace KL
             }
 
             EditorGUI.EndProperty();
-
             if (!loadedReader)
             {
-                if (fieldInfo.GetValue(property.serializedObject.targetObject) is PolityReader polityReader)
+                object targetObject = GetTargetObjectOfProperty();
+                if (targetObject is PolityReader polityReader)
                 {
-                    if (string.IsNullOrEmpty(polityReader.Struct.polityName)
-                        && polityIndex >= 0 && polityIndex < polityNames.Length)
+                    if (string.IsNullOrEmpty(polityReader.Struct.polityName) &&
+                        polityIndex >= 0 && polityIndex < polityNames.Length)
                         polityReader.Struct.polityName = polityNames[polityIndex];
 
-                    if (string.IsNullOrEmpty(polityReader.Struct.className)
-                        && classIndex > 0 && classIndex < classNames.Length)
+                    if (string.IsNullOrEmpty(polityReader.Struct.className) &&
+                        classIndex > 0 && classIndex < classNames.Length)
                         polityReader.Struct.className = classNames[classIndex];
 
-                    if (string.IsNullOrEmpty(polityReader.Struct.factionName)
-                        && factionIndex > 0 && factionIndex < factionNames.Length)
+                    if (string.IsNullOrEmpty(polityReader.Struct.factionName) &&
+                        factionIndex > 0 && factionIndex < factionNames.Length)
                         polityReader.Struct.factionName = factionNames[factionIndex];
                 }
                 loadedReader = true;
+            }
+            object GetTargetObjectOfProperty()
+            {
+                object obj = property.serializedObject.targetObject;
+                string[] pathParts = property.propertyPath.Split('.');
+
+                foreach (var pathPart in pathParts)
+                {
+                    var fieldInfo = obj.GetType().GetField(pathPart, BindingFlags.Public
+                                                            | BindingFlags.NonPublic
+                                                            | BindingFlags.Instance);
+                    if (fieldInfo == null)
+                        return null;
+                    obj = fieldInfo.GetValue(obj);
+                }
+                return obj;
             }
         }
 
@@ -137,7 +152,8 @@ namespace KL
 
         void UpdateClassNames(int polityIndex)
         {
-            if (polityManager.polities[polityIndex].classes != null && polityManager.polities[polityIndex].classes.Length > 0)
+            if (polityManager.polities[polityIndex].classes != null &&
+                polityManager.polities[polityIndex].classes.Length > 0)
             {
                 classNames = new string[polityManager.polities[polityIndex].classes.Length + 1];
                 classNames[0] = "\t";
@@ -145,17 +161,15 @@ namespace KL
                     classNames[i + 1] = polityManager.polities[polityIndex].classes[i].name;
             }
             else
-            {
-                classNames = new string[1];
-                classNames[0] = "\t";
-            }
+            { classNames = new string[1]; classNames[0] = "\t"; }
         }
 
         void UpdateFactionNames(int polityIndex, int classIndex)
         {
             int adjustedClassIndex = classIndex - 1;
             if (polityIndex >= 0 && polityIndex < polityManager.polities.Length &&
-                adjustedClassIndex >= 0 && adjustedClassIndex < polityManager.polities[polityIndex].classes.Length)
+                adjustedClassIndex >= 0 &&
+                adjustedClassIndex < polityManager.polities[polityIndex].classes.Length)
             {
                 Class _class = polityManager.polities[polityIndex].classes[adjustedClassIndex];
                 if (_class.factions != null && _class.factions.Count > 0)
@@ -166,10 +180,7 @@ namespace KL
                         factionNames[i + 1] = _class.factions[i].name;
                 }
                 else
-                {
-                    factionNames = new string[1];
-                    factionNames[0] = "\t";
-                }
+                { factionNames = new string[1]; factionNames[0] = "\t"; }
             }
         }
     }

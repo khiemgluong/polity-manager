@@ -91,7 +91,7 @@ namespace KL
                 {
                     memberName.text = polityMember.name;
 
-                    PolityStruct polityStruct = polityMember.reader.Struct;
+                    PolityStruct polityStruct = polityMember.reader.polity;
                     memberPolity.text = polityStruct.polityName;
                     //Get the emblem of just the polity if available
                     PolityStruct emblemStruct = new()

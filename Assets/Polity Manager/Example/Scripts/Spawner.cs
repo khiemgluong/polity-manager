@@ -50,7 +50,6 @@ namespace KL
             {
                 PolityMember _member = npc.AddComponent<PolityMember>();
                 _member.reader.SetPolity(polityReader);
-                Debug.Log("Spawned NPC polity: " + _member.reader.Struct.polityName);
             }
             return npc;
         }

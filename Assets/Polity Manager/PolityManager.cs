@@ -103,7 +103,7 @@ namespace KL
                 int ln = polities.Length;
                 RelationMatrix = new PolityRelation[ln, ln];
             }
-            RelationMatrix = DeserializePolityRelationMatrixMatrix();
+            RelationMatrix = DeserializeRelationMatrix();
         }
 
         /* -------------------------------------------------------------------------- */
@@ -139,7 +139,7 @@ namespace KL
                     matrix[i, j] = wrapper.relations[index++];
             return matrix;
         }
-        public PolityRelation[,] DeserializePolityRelationMatrixMatrix() =>
+        public PolityRelation[,] DeserializeRelationMatrix() =>
             DeserializeRelationMatrix(polityRelationMatrixString);
         #region Getters
         /* --------------------------------- GETTERS -------------------------------- */
@@ -148,7 +148,7 @@ namespace KL
         /// </summary>
         /// <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
         public PolityRelation CheckPolityRelation(PolityMember member, PolityMember otherMember) =>
-               CheckPolityRelation(member.reader.Struct.polityName, otherMember.reader.Struct.polityName);
+               CheckPolityRelation(member.reader.polity.polityName, otherMember.reader.polity.polityName);
         public PolityRelation CheckPolityRelation(string yourPolityName, string theirPolityName)
         {
             if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
@@ -266,7 +266,7 @@ namespace KL
         }
 
         public void ChangePolityRelation(PolityMember member, string theirPolityName, PolityRelation newRelation)
-            => ChangePolityRelation(member.reader.Struct.polityName, theirPolityName, newRelation);
+            => ChangePolityRelation(member.reader.polity.polityName, theirPolityName, newRelation);
 
         /// <summary>
         /// Adds a faction to a polity, requiring a matching polityName and className to work.

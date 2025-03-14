@@ -56,7 +56,11 @@ namespace KL
 
         void Update()
         {
-
+            if (Time.timeScale == 0)
+            {
+                cursor.SetActive(false);
+                return;
+            }
             Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
             int terrainLayerMask = LayerMask.GetMask("Terrain") | LayerMask.GetMask("NPC");
             if (Physics.Raycast(ray, out RaycastHit hit, 100, terrainLayerMask))
@@ -74,10 +78,7 @@ namespace KL
 
                 cursor.transform.position = hit.point + Vector3.up * .01f;
                 if (Input.GetMouseButtonDown(0))
-                {
-                    Debug.Log(hit.point);
                     SpawnNPC(spawnDummy, hit.point);
-                }
 
             }
             else

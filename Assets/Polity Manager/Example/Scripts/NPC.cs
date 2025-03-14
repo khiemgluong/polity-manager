@@ -9,12 +9,12 @@ namespace KL
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         PolityMember member;
         public PolityMember target, allyTarget;
-        public int health = 10;
+        int health = 25;
         NavMeshAgent agent;
         Vector3 spawnPos;
         MeshFilter meshFilter;
         readonly float detectionRadius = 8f;
-        public bool beginAttack = false;
+        bool beginAttack = false;
         Coroutine attackCoroutine;
         /// <summary>
         /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.

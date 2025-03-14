@@ -77,7 +77,7 @@ namespace KL
             if (scroll != 0)
             {
                 UnityEngine.Camera.main.fieldOfView -= scroll * 15f;
-                UnityEngine.Camera.main.fieldOfView = Mathf.Clamp(UnityEngine.Camera.main.fieldOfView, 40, 100);
+                UnityEngine.Camera.main.fieldOfView = Mathf.Clamp(UnityEngine.Camera.main.fieldOfView, 45, 135);
             }
 
             Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);

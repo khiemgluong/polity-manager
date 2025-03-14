@@ -155,7 +155,7 @@ namespace KL
             int yourIndex = Array.FindIndex(polities, p => p.name == yourPolityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
             if (yourIndex == -1 || theirIndex == -1)
-            { Debug.LogError("One or both polity names not found."); return default; }
+            { Debug.Log("One or both polity names not found."); return default; }
 
             PolityRelation relation = RelationMatrix[yourIndex, theirIndex];
             return relation;
@@ -238,18 +238,18 @@ namespace KL
         /// </summary>
         /// <param name="theirPolityName">The string of the polity name that is selected.</param>
         /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
-        public void ChangePolityRelation(string thisPolityName, string theirPolityName, PolityRelation newRelation)
+        public void ChangePolityRelation(string polityName, string theirPolityName, PolityRelation newRelation)
         {
-            int thisIndex = Array.FindIndex(polities, p => p.name == thisPolityName);
+            int thisIndex = Array.FindIndex(polities, p => p.name == polityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
-            if (thisPolityName.Equals(theirPolityName))
+            if (polityName.Equals(theirPolityName))
             {
-                Debug.LogWarning($"Cannot change identical polities {thisPolityName}.");
+                Debug.LogWarning($"Cannot change identical polities {polityName}.");
                 return;
             }
-            if (thisPolityName.Equals(theirPolityName))
+            if (polityName.Equals(theirPolityName))
             {
-                Debug.LogWarning($"Cannot change identical polities {thisPolityName}.");
+                Debug.LogWarning($"Cannot change identical polities {polityName}.");
                 return;
             }
             if (thisIndex == -1 || theirIndex == -1)
@@ -259,14 +259,14 @@ namespace KL
             }
             RelationMatrix[thisIndex, theirIndex] = newRelation;
             RelationMatrix[theirIndex, thisIndex] = newRelation;
-            RelationMatrix[thisIndex, theirIndex] = newRelation;
-            RelationMatrix[theirIndex, thisIndex] = newRelation;
             OnRelationChange?.Invoke();
-            Debug.Log($"Set relation between {thisPolityName} & {theirPolityName} to {newRelation}");
+            Debug.Log($"Set relation between {polityName} & {theirPolityName} to {newRelation}");
         }
 
         public void ChangePolityRelation(PolityMember member, string theirPolityName, PolityRelation newRelation)
             => ChangePolityRelation(member.reader.polity.polityName, theirPolityName, newRelation);
+        public void ChangePolityRelation(PolityReader reader, PolityReader theirReader, PolityRelation newRelation)
+            => ChangePolityRelation(reader.polity.polityName, theirReader.polity.polityName, newRelation);
 
         /// <summary>
         /// Adds a faction to a polity, requiring a matching polityName and className to work.

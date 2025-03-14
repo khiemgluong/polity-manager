@@ -1,6 +1,6 @@
 ## [Unreleased]
 
-## [2.0.0] - 2025-03-15
+## [2.0.0] - 2025-03-14
 
 ### Added
 
@@ -9,6 +9,7 @@
 ### Changed
 
 - PolityRelation[,] PolityRelationMatrix renamed to RelationMatrix
+- SerializePolityRelationMatrix() and DeserializePolityRelationmatrix() renamed to SerializeRelationMatrix() and DeserializeRelationMatrix()
 
 ### Fixed
 

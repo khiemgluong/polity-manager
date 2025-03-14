@@ -36,12 +36,12 @@ namespace KL
                 if (persist)
                     DontDestroyOnLoad(gameObject);
             }
-            LoadPolityRelationMatrix();
+            LoadRelationMatrix();
         }
 
         void OnValidate()
         {
-            ValidatePolityRelationMatrix();
+            ValidateRelationMatrix();
             SerializeRelationMatrix();
             List<string> polityNames = new();
             foreach (var polity in polities)
@@ -57,11 +57,11 @@ namespace KL
                 for (int j = 0; j < size; j++)
                     RelationMatrix[i, j] = PolityRelation.Neutral;
             SerializeRelationMatrix();
-            ValidatePolityRelationMatrix();
+            ValidateRelationMatrix();
         }
-        void ValidatePolityRelationMatrix()
+        void ValidateRelationMatrix()
         {
-            LoadPolityRelationMatrix();
+            LoadRelationMatrix();
             if (RelationMatrix == null ||
                 RelationMatrix.GetLength(0) != polities.Length ||
                 RelationMatrix.GetLength(1) != polities.Length)
@@ -96,7 +96,7 @@ namespace KL
         }
         [ContextMenu("Load Polity Relation Matrix")]
         // Unity can't serialize & deserialize matrices, so this is a custom approach around it.
-        public void LoadPolityRelationMatrix()
+        public void LoadRelationMatrix()
         {
             if (RelationMatrix == null)
             {
@@ -162,7 +162,8 @@ namespace KL
         }
 
         /// <summary>
-        /// Gets the emblem texture of the polity, or its class and faction if those properties have been provided.
+        /// Gets the emblem texture of the polity, or its class 
+        /// and faction if those properties have been provided.
         /// </summary>
         public Texture2D GetPolityEmblem(PolityStruct _struct)
         {
@@ -417,7 +418,7 @@ namespace KL
         [SerializeField]
         public abstract class PolityBase
         {
-            [Tooltip("The name of the polity unit.")]
+            [Tooltip("The name of the political unit.")]
             public string name;
             /// <summary>
             /// Can represent a standard, vexillum, ensign, coat of arms or a team color.

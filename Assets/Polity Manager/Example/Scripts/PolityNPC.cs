@@ -4,7 +4,7 @@ using UnityEngine.AI;
 namespace KL
 {
     using static KL.PolityManager;
-    public class NPC : MonoBehaviour
+    public class PolityNPC : MonoBehaviour
     {
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         PolityMember member;
@@ -116,7 +116,7 @@ namespace KL
                 {
                     yield return new WaitForSeconds(.1f);
                     if (target != null)
-                        target.GetComponent<NPC>().TakeDamage();
+                        target.GetComponent<PolityNPC>().TakeDamage();
                 }
                 else yield return new WaitForSeconds(Random.Range(.5f, 1.5f));
             }
@@ -158,7 +158,7 @@ namespace KL
             PolityMember foundMember = null;
             foreach (var hitCollider in hitColliders)
                 if (hitCollider.TryGetComponent<PolityMember>(out var polityMember))
-                    if (polityMember.GetComponent<NPC>().health > 0)
+                    if (polityMember.GetComponent<PolityNPC>().health > 0)
                         if (polityMember != member)
                         {
                             foundMember = polityMember;
@@ -166,7 +166,7 @@ namespace KL
                             switch (relation)
                             {
                                 case PolityRelation.Allies:
-                                    NPC allyNPC = polityMember.GetComponent<NPC>();
+                                    PolityNPC allyNPC = polityMember.GetComponent<PolityNPC>();
                                     if (allyNPC.target != null)
                                         if (allyNPC.target != null)
                                             allyTarget = allyNPC.target;
@@ -200,7 +200,7 @@ namespace KL
                 GetComponent<NavMeshAgent>().enabled = false;
                 if (target != null)
                 {
-                    NPC targetNPC = target.GetComponent<NPC>();
+                    PolityNPC targetNPC = target.GetComponent<PolityNPC>();
                     targetNPC.target = null;
                 }
                 Destroy(member);

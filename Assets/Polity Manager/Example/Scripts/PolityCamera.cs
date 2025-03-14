@@ -6,7 +6,7 @@ namespace KL
 {
     using static KL.PolityManager;
     using static KL.PolityMember;
-    public class Camera : MonoBehaviour
+    public class PolityCamera : MonoBehaviour
     {
         public Image targetImage;
         public RectTransform panel;
@@ -16,13 +16,8 @@ namespace KL
         TextMeshProUGUI memberName, memberPolity, classText, fationText;
         TextMeshProUGUI parentName, partnerName, childrenName;
         bool isPaused;
-        int layerMask;
         void Start()
         {
-            int npcLayer = LayerMask.NameToLayer("NPC");
-            int playerLayer = LayerMask.NameToLayer("Terrain");
-            layerMask = (1 << npcLayer) | (1 << playerLayer);
-
             canvasGroup = targetImage.GetComponent<CanvasGroup>();
             Transform t = targetImage.transform;
             emblem = t.Find("Emblem").GetComponent<RawImage>();
@@ -76,19 +71,17 @@ namespace KL
 
             if (scroll != 0)
             {
-                UnityEngine.Camera.main.fieldOfView -= scroll * 15f;
-                UnityEngine.Camera.main.fieldOfView = Mathf.Clamp(UnityEngine.Camera.main.fieldOfView, 45, 135);
+                Camera.main.fieldOfView -= scroll * 15f;
+                Camera.main.fieldOfView = Mathf.Clamp(Camera.main.fieldOfView, 45, 135);
             }
 
-            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
-                { canvasGroup.alpha = 0; return; }
-                else canvasGroup.alpha = 1;
                 if (hit.collider.TryGetComponent<PolityMember>(out var polityMember))
                 {
+                    canvasGroup.alpha = 1;
                     memberName.text = polityMember.name;
 
                     PolityStruct polityStruct = polityMember.reader.polity;
@@ -156,6 +149,7 @@ namespace KL
                 }
                 else
                 {
+                    canvasGroup.alpha = 0;
                     memberName.text = "";
                     memberPolity.text = "";
                     fationText.text = "";
@@ -168,8 +162,8 @@ namespace KL
             else canvasGroup.alpha = 0;
 
             Vector2 mousePosition = Input.mousePosition;
-
-            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)targetImage.canvas.transform, mousePosition, targetImage.canvas.worldCamera, out Vector2 canvasPosition);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)targetImage.canvas.transform,
+                                        mousePosition, targetImage.canvas.worldCamera, out Vector2 canvasPosition);
             targetImage.rectTransform.anchoredPosition = canvasPosition;
         }
     }

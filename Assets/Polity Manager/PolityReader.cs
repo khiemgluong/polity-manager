@@ -9,7 +9,6 @@ namespace KL
         public PolityStruct polity = new();
         [SerializeField] int polityIndex, classIndex, factionIndex;
         [SerializeField] bool isPolityLeader, isClassLeader, isFactionLeader;
-        public System.Collections.Generic.List<PolityMember> parents, partners, children;
 
         public void SetPolity(PolityReader polityReader)
         {
@@ -30,7 +29,6 @@ namespace KL
 
         public override int GetHashCode()
         {
-            // return base.GetHashCode();
             return HashCode.Combine(polity.polityName?.ToLowerInvariant(),
                                     polity.className?.ToLowerInvariant(),
                                     polity.factionName?.ToLowerInvariant());

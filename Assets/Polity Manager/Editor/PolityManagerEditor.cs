@@ -14,7 +14,7 @@ namespace KL
         {
             PolityManager manager = (PolityManager)target;
             if (manager.RelationMatrix == null)
-                manager.LoadPolityRelationMatrix();
+                manager.LoadRelationMatrix();
         }
         public override void OnInspectorGUI()
         {

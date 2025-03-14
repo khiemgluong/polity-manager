@@ -3,9 +3,9 @@ using UnityEngine;
 using static KL.PolityManager;
 namespace KL
 {
-    public class Spawner : MonoBehaviour
+    public class PolitySpawner : MonoBehaviour
     {
-        [SerializeField] NPC[] dummies;
+        [SerializeField] PolityNPC[] dummies;
         [SerializeField] Material[] colors;
         [SerializeField] GameObject spawnDummy, cursor;
         public bool spawn = true;
@@ -42,6 +42,7 @@ namespace KL
                             meshRenderer.material = colors[i];
                             usedSpawnPoints.Add(spawnPoint); break;
                         }
+            Time.timeScale = 1;
         }
         GameObject SpawnNPC(GameObject prefab, Vector3 position)
         {
@@ -61,12 +62,11 @@ namespace KL
                 cursor.SetActive(false);
                 return;
             }
-            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
-            int terrainLayerMask = LayerMask.GetMask("Terrain") | LayerMask.GetMask("NPC");
-            if (Physics.Raycast(ray, out RaycastHit hit, 100, terrainLayerMask))
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
-                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("NPC"))
-                {
+                if (hit.collider.TryGetComponent<PolityMember>(out _))
+                { 
                     cursor.SetActive(false);
                     return;
                 }

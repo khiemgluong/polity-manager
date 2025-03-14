@@ -144,12 +144,16 @@ namespace KL
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
             float height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-            SerializedProperty classIndexProp = property.FindPropertyRelative("classIndex");
-            if (classNames != null && classNames.Length > 1)
-                height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            if (property.propertyPath.Contains("Array.data"))
+                height += EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing;
+            else
+            {
+                if (classNames != null && classNames.Length > 1)
+                    height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-            if (classIndexProp.intValue > 0 && factionNames != null && factionNames.Length > 0)
-                height += EditorGUIUtility.singleLineHeight;
+                if (classIndex > 0 && factionNames != null && factionNames.Length > 1)
+                    height += EditorGUIUtility.singleLineHeight;
+            }
             return height;
         }
 

@@ -13,19 +13,23 @@ namespace KL
         public Button quitButton;
         RawImage emblem;
         CanvasGroup canvasGroup;
-        TextMeshProUGUI memberName, memberPolity, memberClass, memberFaction;
+        TextMeshProUGUI memberName, memberPolity, classText, fationText;
         TextMeshProUGUI parentName, partnerName, childrenName;
         bool isPaused;
-
+        int layerMask;
         void Start()
         {
+            int npcLayer = LayerMask.NameToLayer("NPC");
+            int playerLayer = LayerMask.NameToLayer("Terrain");
+            layerMask = (1 << npcLayer) | (1 << playerLayer);
+
             canvasGroup = targetImage.GetComponent<CanvasGroup>();
             Transform t = targetImage.transform;
             emblem = t.Find("Emblem").GetComponent<RawImage>();
             memberName = t.Find("Name").GetComponent<TextMeshProUGUI>();
             memberPolity = t.Find("Polity").GetComponent<TextMeshProUGUI>();
-            memberClass = t.Find("Class").GetComponent<TextMeshProUGUI>();
-            memberFaction = t.Find("Faction").GetComponent<TextMeshProUGUI>();
+            classText = t.Find("Class").GetComponent<TextMeshProUGUI>();
+            fationText = t.Find("Faction").GetComponent<TextMeshProUGUI>();
             /* --------------------------- FamilyStruct texts --------------------------- */
             parentName = t.Find("Parents").GetComponent<TextMeshProUGUI>();
             partnerName = t.Find("Partners").GetComponent<TextMeshProUGUI>();
@@ -41,9 +45,9 @@ namespace KL
             Debug.Log("Quit button clicked!");
             Application.Quit();
 
-            #if UNITY_EDITOR
-                UnityEditor.EditorApplication.isPlaying = false;
-            #endif
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#endif
         }
         void Update()
         {
@@ -78,9 +82,11 @@ namespace KL
 
             Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
 
-            if (Physics.Raycast(ray, out RaycastHit hit, 100))
+            if (Physics.Raycast(ray, out RaycastHit hit, 100, layerMask))
             {
-                canvasGroup.alpha = 1;
+                if (hit.collider.gameObject.layer == LayerMask.NameToLayer("Terrain"))
+                { canvasGroup.alpha = 0; return; }
+                else canvasGroup.alpha = 1;
                 if (hit.collider.TryGetComponent<PolityMember>(out var polityMember))
                 {
                     memberName.text = polityMember.name;
@@ -101,58 +107,58 @@ namespace KL
                     else emblem.gameObject.SetActive(false);
                     if (polityStruct.className.Equals("\t"))
                     {
-                        memberClass.gameObject.SetActive(false);
-                        memberFaction.gameObject.SetActive(false);
+                        classText.gameObject.SetActive(false);
+                        fationText.gameObject.SetActive(false);
                     }
                     else
                     {
-                        memberClass.gameObject.SetActive(true);
-                        memberClass.text = polityStruct.className;
+                        classText.gameObject.SetActive(true);
+                        classText.text = polityStruct.className;
                     }
                     if (polityStruct.factionName.Equals("\t"))
-                        memberFaction.gameObject.SetActive(false);
+                        fationText.gameObject.SetActive(false);
                     else
                     {
-                        memberFaction.gameObject.SetActive(true);
-                        memberFaction.text = polityStruct.factionName;
+                        fationText.gameObject.SetActive(true);
+                        fationText.text = polityStruct.factionName;
                     }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 
-                    // FamilyStruct familyStruct = polityMember.GetMemberFamily();
-                    // if (familyStruct.parents.Length == 0)
-                    //     parentName.gameObject.SetActive(false);
-                    // else
-                    // {
-                    //     parentName.gameObject.SetActive(true);
-                    //     if (familyStruct.parents.Length > 1)
-                    //         parentName.text = "Parents: " + familyStruct.parents.Length;
-                    //     else parentName.text = "Parent: " + familyStruct.parents[0].name;
-                    // }
-                    // if (familyStruct.partners.Length == 0)
-                    //     partnerName.gameObject.SetActive(false);
-                    // else
-                    // {
-                    //     partnerName.gameObject.SetActive(true);
-                    //     if (familyStruct.partners.Length > 1)
-                    //         partnerName.text = "Partners: " + familyStruct.partners.Length;
-                    //     else partnerName.text = "Partner: " + familyStruct.partners[0].name;
-                    // }
-                    // if (familyStruct.children.Length == 0)
-                    //     childrenName.gameObject.SetActive(false);
-                    // else
-                    // {
-                    //     childrenName.gameObject.SetActive(true);
-                    //     if (familyStruct.children.Length > 1)
-                    //         childrenName.text = "Children: " + familyStruct.children.Length;
-                    //     else childrenName.text = "Child: " + familyStruct.children[0].name;
-                    // }
+                    FamilyStruct familyStruct = polityMember.family;
+                    if (familyStruct.parents.Count == 0)
+                        parentName.gameObject.SetActive(false);
+                    else
+                    {
+                        parentName.gameObject.SetActive(true);
+                        if (familyStruct.parents.Count > 1)
+                            parentName.text = "Parents: " + familyStruct.parents.Count;
+                        else parentName.text = "Parent: " + familyStruct.parents[0].name;
+                    }
+                    if (familyStruct.partners.Count == 0)
+                        partnerName.gameObject.SetActive(false);
+                    else
+                    {
+                        partnerName.gameObject.SetActive(true);
+                        if (familyStruct.partners.Count > 1)
+                            partnerName.text = "Partners: " + familyStruct.partners.Count;
+                        else partnerName.text = "Partner: " + familyStruct.partners[0].name;
+                    }
+                    if (familyStruct.children.Count == 0)
+                        childrenName.gameObject.SetActive(false);
+                    else
+                    {
+                        childrenName.gameObject.SetActive(true);
+                        if (familyStruct.children.Count > 1)
+                            childrenName.text = "Children: " + familyStruct.children.Count;
+                        else childrenName.text = "Child: " + familyStruct.children[0].name;
+                    }
 
                 }
                 else
                 {
                     memberName.text = "";
                     memberPolity.text = "";
-                    memberFaction.text = "";
+                    fationText.text = "";
 
                     parentName.text = "";
                     partnerName.text = "";

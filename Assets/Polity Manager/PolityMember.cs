@@ -15,8 +15,7 @@ namespace KL
         public FamilyStruct family = new();
 
         /* --------------------------------- EVENTS --------------------------------- */
-        public static Action OnLeaderChange;
-        public static Action<PolityMember> OnMemberSpawn;
+        public static Action<PolityMember> OnMemberSpawn, OnMemberDestroy;
         void Awake()
         {
             if (id == null || id == "") GenerateGUID();
@@ -28,15 +27,22 @@ namespace KL
         {
             OnMemberSpawn += OnMemberSpawned;
             OnFactionChange += OnFactionChanged;
+            OnMemberDestroy += OnMemberDestroyed;
         }
         void OnDisable()
         {
             OnMemberSpawn -= OnMemberSpawned;
             OnFactionChange -= OnFactionChanged;
+            OnMemberDestroy -= OnMemberDestroyed;
         }
+
         void Start()
         {
             OnMemberSpawn?.Invoke(this);
+        }
+        void OnDestroy()
+        {
+            OnMemberDestroy?.Invoke(this);
         }
         [ContextMenu("Generate ID")]
         public void GenerateGUID()
@@ -57,21 +63,24 @@ namespace KL
                     { members[i] = member; break; }
             }
         }
-
+        void OnMemberDestroyed(PolityMember member)
+        {
+            if (id == null || id == "") return;
+            RemoveDestroyedMember(family.parents);
+            RemoveDestroyedMember(family.partners);
+            RemoveDestroyedMember(family.children);
+            void RemoveDestroyedMember(List<PolityMember> members)
+            {
+                for (int i = 0; i < members.Count; i++)
+                    if (members[i].id == member.id)
+                    { members.Remove(members[i]); break; }
+            }
+        }
         void OnFactionChanged()
         {
-            // bool isCurrentFactionStillAvailable = false;
-            // foreach (Faction faction in PM.polities[selectedPolityIndex].classes[selectedClassIndex - 1].factions)
-            // {
-            //     if (faction.name.Equals(factionName))
-            //     { isCurrentFactionStillAvailable = true; break; }
-            // }
-            // if (!isCurrentFactionStillAvailable)
-            // {
-            //     Debug.Log(factionName + " is removed from factions list");
-            //     selectedFactionIndex = 0; factionName = "";
-            // }
+
         }
+        /* ------------------------------ CONTEXT MENU ------------------------------ */
         [ContextMenu("Clear/All")]
         void ClearAll()
         {

@@ -15,7 +15,6 @@ namespace KL
             PolityManager manager = (PolityManager)target;
             if (manager.RelationMatrix == null)
                 manager.LoadPolityRelationMatrix();
-
         }
         public override void OnInspectorGUI()
         {
@@ -63,8 +62,8 @@ namespace KL
                     // Create a grid but only for entries above the diagonal
                     for (int j = manager.polities.Length - 1; j > i; j--)
                     {
-                        string tooltipText = manager.polities[i].name + 
-                                            " & " + manager.polities[j].name + 
+                        string tooltipText = manager.polities[i].name +
+                                            " & " + manager.polities[j].name +
                                             " | " + manager.RelationMatrix[i, j];
 
                         GUIContent buttonContent = new("", tooltipText);
@@ -111,7 +110,7 @@ namespace KL
             if (GUI.changed)
             {
                 if (!Application.isPlaying)
-                    manager.SerializePolityRelationMatrix();
+                    manager.SerializeRelationMatrix();
                 serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(manager);
             }

@@ -27,7 +27,7 @@ namespace KL
             agent.avoidancePriority = Random.Range(1, 99);
             spawnPos = transform.position;
             target = null; allyTarget = null;
-            OnRelationChange += OnPolityStateChanged;
+            OnRelationChange += OnRelationChanged;
         }
 
         void Start()
@@ -39,7 +39,7 @@ namespace KL
         {
             if (!agent.enabled) return;
             SearchForPolityMembers();
-            if (allyTarget != null)
+            if (allyTarget != null && target != null)
                 MoveTowardsTarget(allyTarget);
             else if (target != null)
                 MoveTowardsTarget(target);
@@ -121,7 +121,7 @@ namespace KL
                 else yield return new WaitForSeconds(Random.Range(.5f, 1.5f));
             }
         }
-        void OnPolityStateChanged()
+        void OnRelationChanged()
         {
             if (allyTarget != null)
             {
@@ -203,7 +203,8 @@ namespace KL
                     NPC targetNPC = target.GetComponent<NPC>();
                     targetNPC.target = null;
                 }
-                Destroy(gameObject, 2.5f);
+                Destroy(member);
+                Destroy(gameObject, 2f);
             }
         }
 

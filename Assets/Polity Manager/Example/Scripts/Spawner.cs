@@ -6,7 +6,8 @@ namespace KL
     public class Spawner : MonoBehaviour
     {
         [SerializeField] NPC[] dummies;
-        [SerializeField] GameObject dummy, cursor;
+        [SerializeField] Material[] colors;
+        [SerializeField] GameObject spawnDummy, cursor;
         public bool spawn = true;
         [SerializeField] PolityReader polityReader;
         HashSet<Transform> usedSpawnPoints = new();
@@ -15,10 +16,9 @@ namespace KL
             foreach (Polity polity in PM.polities)
                 Debug.Log("Polity: " + polity.name);
         }
-        
+
         void Start()
         {
-            // return;
             List<Transform> spawnPoints = new();
             for (int i = 0; i < transform.childCount; i++)
                 spawnPoints.Add(transform.GetChild(i));
@@ -33,18 +33,17 @@ namespace KL
                 spawnPoints[n] = value;
             }
             if (spawn)
-                foreach (NPC dummy in dummies)
+                for (int i = 0; i < dummies.Length; i++)
                     foreach (var spawnPoint in spawnPoints)
-                    {
-                        // Check if spawn point has already been used
                         if (!usedSpawnPoints.Contains(spawnPoint))
                         {
-                            SpawnNPC(dummy.gameObject, spawnPoint.position);
+                            GameObject npc = SpawnNPC(dummies[i].gameObject, spawnPoint.position);
+                            MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
+                            meshRenderer.material = colors[i];
                             usedSpawnPoints.Add(spawnPoint); break;
                         }
-                    }
         }
-        void SpawnNPC(GameObject prefab, Vector3 position)
+        GameObject SpawnNPC(GameObject prefab, Vector3 position)
         {
             GameObject npc = Instantiate(prefab, position, Quaternion.Euler(0, 180, 0));
             if (!npc.TryGetComponent(out PolityMember _))
@@ -53,6 +52,7 @@ namespace KL
                 _member.reader.SetPolity(polityReader);
                 Debug.Log("Spawned NPC polity: " + _member.reader.Struct.polityName);
             }
+            return npc;
         }
 
         void Update()
@@ -77,7 +77,7 @@ namespace KL
                 if (Input.GetMouseButtonDown(0))
                 {
                     Debug.Log(hit.point);
-                    SpawnNPC(dummy, hit.point);
+                    SpawnNPC(spawnDummy, hit.point);
                 }
 
             }

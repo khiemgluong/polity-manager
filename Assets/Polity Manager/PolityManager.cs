@@ -1,11 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.IO;
-using System.Text;
-using System.Linq;
-using UnityEditor;
 
 namespace KL
 {
@@ -16,7 +11,7 @@ namespace KL
         [Tooltip("The largest, most important organizational unit in your game.")]
         public Polity[] polities = new Polity[0];
         public PolityRelation[,] RelationMatrix { get; set; }
-        [SerializeField] string polityRelationMatrixString;
+        [SerializeField] string polityRelationMatrixString = "";
         public enum PolityRelation
         {
             Neutral,
@@ -47,7 +42,7 @@ namespace KL
         void OnValidate()
         {
             ValidatePolityRelationMatrix();
-            SerializePolityRelationMatrix();
+            SerializeRelationMatrix();
             List<string> polityNames = new();
             foreach (var polity in polities)
                 polityNames.Add(polity.name);
@@ -61,7 +56,7 @@ namespace KL
             for (int i = 0; i < size; i++)
                 for (int j = 0; j < size; j++)
                     RelationMatrix[i, j] = PolityRelation.Neutral;
-            SerializePolityRelationMatrix();
+            SerializeRelationMatrix();
             ValidatePolityRelationMatrix();
         }
         void ValidatePolityRelationMatrix()
@@ -116,7 +111,7 @@ namespace KL
         /* -------------------------------------------------------------------------- */
 
         /* ------------------------------- SERIALIZERS ------------------------------ */
-        public string SerializePolityRelationMatrix(PolityRelation[,] polityRelationMatrix)
+        public string SerializeRelationMatrix(PolityRelation[,] polityRelationMatrix)
         {
             PolityRelationMatrixWrapper wrapper = new()
             {
@@ -131,12 +126,11 @@ namespace KL
             return polityRelationMatrixString;
         }
 
-        public string SerializePolityRelationMatrix() =>
-            SerializePolityRelationMatrix(RelationMatrix);
+        public string SerializeRelationMatrix() => SerializeRelationMatrix(RelationMatrix);
 
-        public PolityRelation[,] DeserializePolityRelationMatrixMatrix(string json)
+        public PolityRelation[,] DeserializeRelationMatrix(string json)
         {
-            if (json.Equals("")) return null;
+            if (json.Equals("") || json == null) return null;
             PolityRelationMatrixWrapper wrapper = JsonUtility.FromJson<PolityRelationMatrixWrapper>(json);
             PolityRelation[,] matrix = new PolityRelation[wrapper.rows, wrapper.columns];
             int index = 0;
@@ -146,7 +140,7 @@ namespace KL
             return matrix;
         }
         public PolityRelation[,] DeserializePolityRelationMatrixMatrix() =>
-            DeserializePolityRelationMatrixMatrix(polityRelationMatrixString);
+            DeserializeRelationMatrix(polityRelationMatrixString);
         #region Getters
         /* --------------------------------- GETTERS -------------------------------- */
         /// <summary>

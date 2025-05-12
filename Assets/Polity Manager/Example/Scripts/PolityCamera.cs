@@ -98,23 +98,24 @@ namespace KL
                         emblem.texture = emblemTexture;
                     }
                     else emblem.gameObject.SetActive(false);
-                    if (polityStruct.className.Equals("\t"))
-                    {
-                        classText.gameObject.SetActive(false);
-                        fationText.gameObject.SetActive(false);
-                    }
-                    else
-                    {
-                        classText.gameObject.SetActive(true);
-                        classText.text = polityStruct.className;
-                    }
-                    if (polityStruct.factionName.Equals("\t"))
-                        fationText.gameObject.SetActive(false);
-                    else
-                    {
-                        fationText.gameObject.SetActive(true);
-                        fationText.text = polityStruct.factionName;
-                    }
+                    // if (string.IsNullOrEmpty(polityStruct.className)
+                    //     || polityStruct.className.Equals("\t"))
+                    // {
+                    //     classText.gameObject.SetActive(false);
+                    //     fationText.gameObject.SetActive(false);
+                    // }
+                    // else
+                    // {
+                    //     classText.gameObject.SetActive(true);
+                    //     classText.text = polityStruct.className;
+                    // }
+                    // if (polityStruct.factionName.Equals("\t"))
+                    //     fationText.gameObject.SetActive(false);
+                    // else
+                    // {
+                    //     fationText.gameObject.SetActive(true);
+                    //     fationText.text = polityStruct.factionName;
+                    // }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 
                     FamilyStruct familyStruct = polityMember.family;

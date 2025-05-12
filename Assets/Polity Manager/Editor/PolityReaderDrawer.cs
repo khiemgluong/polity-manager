@@ -108,7 +108,19 @@ namespace KL
             {
                 object targetObject = GetTargetObjectOfProperty();
                 if (targetObject is PolityReader polityReader)
-                    polityReader.SetPolity(polityReader);
+                {
+                    PolityStruct newStruct = new()
+                    {
+                        polityName = (polityIndex >= 0 && polityIndex < polityNames.Length)
+                            ? polityNames[polityIndex] : null,
+                        className = (classIndex > 0 && classIndex < classNames.Length)
+                            ? classNames[classIndex] : null,
+                        factionName = (factionIndex > 0 && factionIndex < factionNames.Length)
+                            ? factionNames[factionIndex] : null
+                    };
+                    polityReader.SetPolity(newStruct);
+                    // EditorUtility.SetDirty(property.serializedObject.targetObject);
+                }
                 loadedReader = true;
             }
             object GetTargetObjectOfProperty()

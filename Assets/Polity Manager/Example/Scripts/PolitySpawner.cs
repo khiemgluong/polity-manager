@@ -9,7 +9,7 @@ namespace KL
         [SerializeField] Material[] colors;
         [SerializeField] GameObject spawnDummy, cursor;
         public bool spawn = true;
-        [SerializeField] PolityReader polityReader;
+        [SerializeField] PolityReader polityReader = new();
         HashSet<Transform> usedSpawnPoints = new();
         void Awake()
         {
@@ -65,9 +65,17 @@ namespace KL
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
-                if (hit.collider.TryGetComponent<PolityMember>(out _))
+                if (hit.collider.TryGetComponent(out PolityMember member))
                 {
                     cursor.SetActive(false);
+                    // if (Input.GetMouseButtonDown(0))
+                    // {
+                    //     PolityStruct polityStruct = new()
+                    //     {
+                    //         polityName = "Orks"
+                    //     };
+                    //     member.reader.SetPolity(polityStruct);
+                    // }
                     return;
                 }
                 else

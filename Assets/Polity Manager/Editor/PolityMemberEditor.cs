@@ -12,7 +12,7 @@ namespace KL
             PolityMember polityMember = (PolityMember)target;
             if (string.IsNullOrEmpty(polityMember.ID))
             {
-                polityMember.GenerateGUID();
+                polityMember.GenerateID();
                 EditorUtility.SetDirty(polityMember);
             }
         }

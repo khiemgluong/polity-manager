@@ -18,11 +18,12 @@ namespace KL
         public static Action<PolityMember> OnMemberSpawn, OnMemberDestroy;
         void Awake()
         {
-            if (id == null || id == "") GenerateGUID();
+            if (id == null || id == "") GenerateID();
             family.parents ??= new();
             family.partners ??= new();
             family.children ??= new();
         }
+
         void OnEnable()
         {
             OnMemberSpawn += OnMemberSpawned;
@@ -40,12 +41,13 @@ namespace KL
         {
             OnMemberSpawn?.Invoke(this);
         }
+
         void OnDestroy()
         {
             OnMemberDestroy?.Invoke(this);
         }
         [ContextMenu("Generate ID")]
-        public void GenerateGUID()
+        public void GenerateID()
         {
             id = Guid.NewGuid().ToString().Replace("-", "");
         }

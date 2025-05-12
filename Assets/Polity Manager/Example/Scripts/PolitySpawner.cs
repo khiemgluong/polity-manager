@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using static KL.PolityManager;
 namespace KL
 {
@@ -11,12 +12,29 @@ namespace KL
         public bool spawn = true;
         [SerializeField] PolityReader polityReader = new();
         HashSet<Transform> usedSpawnPoints = new();
+        public Dropdown dropdown;
         void Awake()
         {
             foreach (Polity polity in PM.polities)
                 Debug.Log("Polity: " + polity.name);
-        }
 
+            dropdown.ClearOptions();
+            List<Dropdown.OptionData> optionList = new();
+            foreach (var polity in PM.polities)
+            {
+                optionList.Add(new Dropdown.OptionData(polity.name));
+            }
+            dropdown.AddOptions(optionList);
+            dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
+
+        }
+        void OnDropdownValueChanged(int index)
+        {
+            string selectedValue = dropdown.options[index].text;
+            PolityStruct polityStruct = new()
+            { polityName = selectedValue };
+            polityReader.SetPolity(polityStruct);
+        }
         void Start()
         {
             List<Transform> spawnPoints = new();

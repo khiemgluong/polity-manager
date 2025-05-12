@@ -118,8 +118,13 @@ namespace KL
                         factionName = (factionIndex > 0 && factionIndex < factionNames.Length)
                             ? factionNames[factionIndex] : null
                     };
-                    polityReader.SetPolity(newStruct);
-                    // EditorUtility.SetDirty(property.serializedObject.targetObject);
+                    // #if UNITY_EDITOR
+                    if (!newStruct.Equals(polityReader.Struct))
+                    {
+                        polityReader.SetPolity(newStruct);
+                        EditorUtility.SetDirty(property.serializedObject.targetObject);
+                    }
+                    // #endif
                 }
                 loadedReader = true;
             }

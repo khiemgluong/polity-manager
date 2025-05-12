@@ -163,6 +163,7 @@ namespace KL
                         {
                             foundMember = polityMember;
                             PolityRelation relation = PM.CheckRelation(member, polityMember);
+                            Debug.Log("Found: " + polityMember.name + " Relation: " + relation);
                             switch (relation)
                             {
                                 case PolityRelation.Allies:

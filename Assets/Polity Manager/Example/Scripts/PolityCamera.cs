@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -13,22 +12,22 @@ namespace KL
         public Button quitButton;
         RawImage emblem;
         CanvasGroup canvasGroup;
-        TextMeshProUGUI memberName, memberPolity, classText, fationText;
-        TextMeshProUGUI parentName, partnerName, childrenName;
+        Text memberName, memberPolity, classText, fationText;
+        Text parentName, partnerName, childrenName;
         bool isPaused;
         void Start()
         {
             canvasGroup = targetImage.GetComponent<CanvasGroup>();
             Transform t = targetImage.transform;
             emblem = t.Find("Emblem").GetComponent<RawImage>();
-            memberName = t.Find("Name").GetComponent<TextMeshProUGUI>();
-            memberPolity = t.Find("Polity").GetComponent<TextMeshProUGUI>();
-            classText = t.Find("Class").GetComponent<TextMeshProUGUI>();
-            fationText = t.Find("Faction").GetComponent<TextMeshProUGUI>();
+            memberName = t.Find("Name").GetComponent<Text>();
+            memberPolity = t.Find("Polity").GetComponent<Text>();
+            classText = t.Find("Class").GetComponent<Text>();
+            fationText = t.Find("Faction").GetComponent<Text>();
             /* --------------------------- FamilyStruct texts --------------------------- */
-            parentName = t.Find("Parents").GetComponent<TextMeshProUGUI>();
-            partnerName = t.Find("Partners").GetComponent<TextMeshProUGUI>();
-            childrenName = t.Find("Children").GetComponent<TextMeshProUGUI>();
+            parentName = t.Find("Parents").GetComponent<Text>();
+            partnerName = t.Find("Partners").GetComponent<Text>();
+            childrenName = t.Find("Children").GetComponent<Text>();
 
             panel.gameObject.SetActive(false);
             if (quitButton != null)
@@ -98,24 +97,24 @@ namespace KL
                         emblem.texture = emblemTexture;
                     }
                     else emblem.gameObject.SetActive(false);
-                    // if (string.IsNullOrEmpty(polityStruct.className)
-                    //     || polityStruct.className.Equals("\t"))
-                    // {
-                    //     classText.gameObject.SetActive(false);
-                    //     fationText.gameObject.SetActive(false);
-                    // }
-                    // else
-                    // {
-                    //     classText.gameObject.SetActive(true);
-                    //     classText.text = polityStruct.className;
-                    // }
-                    // if (polityStruct.factionName.Equals("\t"))
-                    //     fationText.gameObject.SetActive(false);
-                    // else
-                    // {
-                    //     fationText.gameObject.SetActive(true);
-                    //     fationText.text = polityStruct.factionName;
-                    // }
+                    if (string.IsNullOrEmpty(polityStruct.className)
+                        || polityStruct.className.Equals("\t"))
+                    {
+                        classText.gameObject.SetActive(false);
+                        fationText.gameObject.SetActive(false);
+                    }
+                    else
+                    {
+                        classText.gameObject.SetActive(true);
+                        classText.text = polityStruct.className;
+                    }
+                    if (polityStruct.factionName.Equals("\t"))
+                        fationText.gameObject.SetActive(false);
+                    else
+                    {
+                        fationText.gameObject.SetActive(true);
+                        fationText.text = polityStruct.factionName;
+                    }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 
                     FamilyStruct familyStruct = polityMember.family;
@@ -161,11 +160,16 @@ namespace KL
 
             }
             else canvasGroup.alpha = 0;
-
             Vector2 mousePosition = Input.mousePosition;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle((RectTransform)targetImage.canvas.transform,
-                                        mousePosition, targetImage.canvas.worldCamera, out Vector2 canvasPosition);
-            targetImage.rectTransform.anchoredPosition = canvasPosition;
+            RectTransform parentRect = targetImage.rectTransform.parent as RectTransform;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRect,
+                mousePosition,
+                targetImage.canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : targetImage.canvas.worldCamera,
+                out Vector2 localPoint);
+
+            targetImage.rectTransform.anchoredPosition = localPoint;
         }
     }
 }

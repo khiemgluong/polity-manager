@@ -1,5 +1,18 @@
 ## [Unreleased]
 
+## [2.1.0] - 2025-5-11
+
+### Changed
+
+- CheckPolityRelation to CheckRelation
+- ChangePolityRelation to ChangeRelation
+- PolityReader Struct encapsulated and can only be modified by SetPolity()
+
+### Fixed
+
+- PolityReader dropdown fields not updating text when its polityStruct is changed
+
+
 ## [2.0.0] - 2025-03-14
 
 ### Added

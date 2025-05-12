@@ -125,7 +125,7 @@ namespace KL
         {
             if (allyTarget != null)
             {
-                PolityRelation relation = PM.CheckPolityRelation(member, allyTarget);
+                PolityRelation relation = PM.CheckRelation(member, allyTarget);
                 switch (relation)
                 {
                     case PolityRelation.Allies:
@@ -140,7 +140,7 @@ namespace KL
             }
             else if (target != null)
             {
-                PolityRelation relation = PM.CheckPolityRelation(member, target);
+                PolityRelation relation = PM.CheckRelation(member, target);
                 if (relation == PolityRelation.Neutral)
                 {
                     target = null;
@@ -162,7 +162,7 @@ namespace KL
                         if (polityMember != member)
                         {
                             foundMember = polityMember;
-                            PolityRelation relation = PM.CheckPolityRelation(member, polityMember);
+                            PolityRelation relation = PM.CheckRelation(member, polityMember);
                             switch (relation)
                             {
                                 case PolityRelation.Allies:

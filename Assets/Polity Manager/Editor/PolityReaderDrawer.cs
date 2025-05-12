@@ -34,7 +34,7 @@ namespace KL
                 return;
             }
 
-            SerializedProperty polityProp = property.FindPropertyRelative("polity");
+            SerializedProperty polityStructProp = property.FindPropertyRelative("_struct");
             SerializedProperty polityIndexProp = property.FindPropertyRelative("polityIndex");
             SerializedProperty classIndexProp = property.FindPropertyRelative("classIndex");
             SerializedProperty factionIndexProp = property.FindPropertyRelative("factionIndex");
@@ -55,15 +55,15 @@ namespace KL
             polityIndex = EditorGUI.Popup(rect, "Polity", polityIndex, polityNames);
             if (EditorGUI.EndChangeCheck())
             {
-                polityProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
+                polityStructProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
                 polityIndexProp.intValue = polityIndex;
                 UpdateClassNames(polityIndex);
                 classIndex = 0;
                 classIndexProp.intValue = classIndex;
-                polityProp.FindPropertyRelative("className").stringValue = "";
+                polityStructProp.FindPropertyRelative("className").stringValue = "";
                 factionIndex = 0;
                 factionIndexProp.intValue = factionIndex;
-                polityProp.FindPropertyRelative("factionName").stringValue = "";
+                polityStructProp.FindPropertyRelative("factionName").stringValue = "";
             }
 
             rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
@@ -75,14 +75,14 @@ namespace KL
                 classIndex = EditorGUI.Popup(rect, "Class", classIndex, classNames);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    polityProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
+                    polityStructProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
                     polityIndexProp.intValue = polityIndex;
-                    polityProp.FindPropertyRelative("className").stringValue = classNames[classIndex];
+                    polityStructProp.FindPropertyRelative("className").stringValue = classNames[classIndex];
                     classIndexProp.intValue = classIndex;
                     UpdateFactionNames(polityIndex, classIndex);
                     factionIndex = 0;
                     factionIndexProp.intValue = factionIndex;
-                    polityProp.FindPropertyRelative("factionName").stringValue = "";
+                    polityStructProp.FindPropertyRelative("factionName").stringValue = "";
                 }
                 rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
             }
@@ -94,11 +94,11 @@ namespace KL
                 factionIndex = EditorGUI.Popup(rect, "Faction", factionIndex, factionNames);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    polityProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
+                    polityStructProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
                     polityIndexProp.intValue = polityIndex;
-                    polityProp.FindPropertyRelative("className").stringValue = classNames[classIndex];
+                    polityStructProp.FindPropertyRelative("className").stringValue = classNames[classIndex];
                     classIndexProp.intValue = classIndex;
-                    polityProp.FindPropertyRelative("factionName").stringValue = factionNames[factionIndex];
+                    polityStructProp.FindPropertyRelative("factionName").stringValue = factionNames[factionIndex];
                     factionIndexProp.intValue = factionIndex;
                 }
             }
@@ -108,19 +108,7 @@ namespace KL
             {
                 object targetObject = GetTargetObjectOfProperty();
                 if (targetObject is PolityReader polityReader)
-                {
-                    if (string.IsNullOrEmpty(polityReader.polity.polityName) &&
-                        polityIndex >= 0 && polityIndex < polityNames.Length)
-                        polityReader.polity.polityName = polityNames[polityIndex];
-
-                    if (string.IsNullOrEmpty(polityReader.polity.className) &&
-                        classIndex > 0 && classIndex < classNames.Length)
-                        polityReader.polity.className = classNames[classIndex];
-
-                    if (string.IsNullOrEmpty(polityReader.polity.factionName) &&
-                        factionIndex > 0 && factionIndex < factionNames.Length)
-                        polityReader.polity.factionName = factionNames[factionIndex];
-                }
+                    polityReader.SetPolity(polityReader);
                 loadedReader = true;
             }
             object GetTargetObjectOfProperty()

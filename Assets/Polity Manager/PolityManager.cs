@@ -147,9 +147,9 @@ namespace KL
         /// Gets the current PolityRelation from one PolityMember to another.
         /// </summary>
         /// <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
-        public PolityRelation CheckPolityRelation(PolityMember member, PolityMember otherMember) =>
-               CheckPolityRelation(member.reader.polity.polityName, otherMember.reader.polity.polityName);
-        public PolityRelation CheckPolityRelation(string yourPolityName, string theirPolityName)
+        public PolityRelation CheckRelation(PolityMember member, PolityMember otherMember) =>
+               CheckRelation(member.reader.Struct.polityName, otherMember.reader.Struct.polityName);
+        public PolityRelation CheckRelation(string yourPolityName, string theirPolityName)
         {
             if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
             int yourIndex = Array.FindIndex(polities, p => p.name == yourPolityName);
@@ -239,7 +239,7 @@ namespace KL
         /// </summary>
         /// <param name="theirPolityName">The string of the polity name that is selected.</param>
         /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
-        public void ChangePolityRelation(string polityName, string theirPolityName, PolityRelation newRelation)
+        public void ChangeRelation(string polityName, string theirPolityName, PolityRelation newRelation)
         {
             int thisIndex = Array.FindIndex(polities, p => p.name == polityName);
             int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
@@ -264,11 +264,12 @@ namespace KL
             Debug.Log($"Set relation between {polityName} & {theirPolityName} to {newRelation}");
         }
 
-        public void ChangePolityRelation(PolityMember member, string theirPolityName, PolityRelation newRelation)
-            => ChangePolityRelation(member.reader.polity.polityName, theirPolityName, newRelation);
-        public void ChangePolityRelation(PolityReader reader, PolityReader theirReader, PolityRelation newRelation)
-            => ChangePolityRelation(reader.polity.polityName, theirReader.polity.polityName, newRelation);
-
+        public void ChangeRelation(PolityMember member, string theirPolityName, PolityRelation newRelation)
+            => ChangeRelation(member.reader.Struct.polityName, theirPolityName, newRelation);
+        public void ChangeRelation(PolityReader reader, PolityReader theirReader, PolityRelation newRelation)
+            => ChangeRelation(reader.Struct.polityName, theirReader.Struct.polityName, newRelation);
+        public void ChangeRelation(PolityStruct _struct, PolityStruct theirStruct, PolityRelation newRelation)
+            => ChangeRelation(_struct.polityName, theirStruct.polityName, newRelation);
         /// <summary>
         /// Adds a faction to a polity, requiring a matching polityName and className to work.
         /// </summary>

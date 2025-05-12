@@ -84,7 +84,7 @@ namespace KL
                     canvasGroup.alpha = 1;
                     memberName.text = polityMember.name;
 
-                    PolityStruct polityStruct = polityMember.reader.polity;
+                    PolityStruct polityStruct = polityMember.reader.Struct;
                     memberPolity.text = polityStruct.polityName;
                     //Get the emblem of just the polity if available
                     PolityStruct emblemStruct = new()

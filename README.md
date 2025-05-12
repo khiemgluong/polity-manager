@@ -1,19 +1,22 @@
 # Polity Manager - Manage Factions, Teams & Families
 
+- [Polity Manager - Manage Factions, Teams \& Families](#polity-manager---manage-factions-teams--families)
   - [Description](#description)
   - [Quickstart](#quickstart)
     - [Video Tutorial](#video-tutorial)
     - [Demo Tutorial](#demo-tutorial)
   - [Public APIs](#public-apis)
     - [PolityManager.cs](#politymanagercs)
-      - [ChangePolityRelation()](#changepolityrelation)
-      - [CheckPolityRelation()](#checkpolityrelation)
+      - [ChangeRelation()](#changerelation)
+      - [CheckRelation()](#checkrelation)
       - [GetPolityEmblem()](#getpolityemblem)
       - [GetPolityLeader()](#getpolityleader)
       - [AddFactionToPolity()](#addfactiontopolity)
       - [RemoveFactionFromPolity()](#removefactionfrompolity)
       - [SerializeRelationMatrix()](#serializerelationmatrix)
       - [DeserializeRelationMatrix()](#deserializerelationmatrix)
+    - [PolityReader.cs](#polityreadercs)
+      - [ChangePolity()](#changepolity)
     - [Events](#events)
       - [OnRelationChange](#onrelationchange)
       - [OnLeaderChange](#onleaderchange)
@@ -28,7 +31,6 @@
   - [Families](#families)
     - [Root Node](#root-node)
       - [Limitations](#limitations)
-    - [Leaders](#leaders)
   - [Credits](#credits)
   - [Glossary](#glossary)
 
@@ -79,7 +81,7 @@ All classes in this package is under the `KL` namespace.
 
 All public methods can be called from this PolityManager Singleton, referenced as `PM`, for example PM.ModifyPolityRelation();
 
-#### ChangePolityRelation()
+#### ChangeRelation()
 
 Sets a new relationship status between two polities based on their names, adjusting their relation to either Neutral, Allies, or Enemies.
 If the polities matched, the `OnRelationChange` event will be invoked to notify all subscribers of the relation change.
@@ -90,7 +92,7 @@ If the polities matched, the `OnRelationChange` event will be invoked to notify 
 | `theirPolityName`  | `string`         | The name of the polity that is targeted for the relationship change, retrieved from `polityName` in `PolityMember`. |
 | `factionRelation`  | `PolityRelation` | The new relation to set; can be `Neutral`, `Allies`, or `Enemies`.|
 
-#### CheckPolityRelation()
+#### CheckRelation()
 
 Compares the PolityRelation of the polityName to the second polityName and returns the enum that indicates their PolityRelation if found.
 The overload method replaces the PolityMember parameters as strings representing the polityName.
@@ -167,6 +169,14 @@ Deserializes a string representing the `PolityRelation[,]` matrix.
 
 **Returns**
 The `PolityRelation[,]` matrix which was deserialized from the string.
+
+### PolityReader.cs
+
+#### ChangePolity()
+
+| Parameter          | Type             | Description |
+|--------------------|------------------|-------------|
+| `polityReader`/`polityStruct`     | `PolityReader`/`PolityStruct`   | Changes the polity reader's polity. |
 
 ### Events
 
@@ -245,7 +255,6 @@ Since the rendered nodes only display immediate family members to the root node,
 Therefore, this _Polity Member Graph_ should **not** be used as a solution for managing and building complex and large family relationships. You should rely on something else to design your family trees, then use the graph to assign the relationships according to that design.
 
 Another factor to consider is having multiple instances of a prefab with a defined family structure, which could cause confliciting references. Generally, you should not spawn more than one `PolityMember` NPC that belongs to a family, and these NPCs should be treated as unique essential NPCs. Conversely, `PolityMembers` who do not belong to any family, or generic NPCs, can be spawned multiple times without issue.
-
 
 ## Credits
 

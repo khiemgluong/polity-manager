@@ -66,7 +66,7 @@ namespace KL
             if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
                 if (hit.collider.TryGetComponent<PolityMember>(out _))
-                { 
+                {
                     cursor.SetActive(false);
                     return;
                 }

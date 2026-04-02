@@ -2,36 +2,36 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace KL
+namespace Polity
 {
-    using static PolityManager;
-    [CustomEditor(typeof(PolityManager))]
+    using static Manager;
+    [CustomEditor(typeof(Manager))]
     public class PolityManagerEditor : Editor
     {
         Vector2 scrollPosition;
         const float gridSize = 20, headerWidth = 120;
         void OnEnable()
         {
-            PolityManager manager = (PolityManager)target;
+            Manager manager = (Manager)target;
             if (manager.RelationMatrix == null)
                 manager.LoadRelationMatrix();
         }
         public override void OnInspectorGUI()
         {
-            PolityManager manager = (PolityManager)target;
+            Manager manager = (Manager)target;
             GUILayoutOption width = GUILayout.Width(gridSize);
             GUILayoutOption height = GUILayout.Height(gridSize);
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            SerializedProperty polities = serializedObject.FindProperty("polities");
+            SerializedProperty polities = serializedObject.FindProperty("factions");
             EditorGUILayout.PropertyField(polities, true);
             EditorGUI.EndDisabledGroup();
 
             /* -------------------------------------------------------------------------- */
             /*                           POLITY RELATION MATRIX                           */
             /* -------------------------------------------------------------------------- */
-            if (manager.polities.Length > 0)
+            if (manager.factions.Length > 0)
             {
                 SerializedProperty persist = serializedObject.FindProperty("persist");
                 EditorGUILayout.PropertyField(persist, true);
@@ -43,27 +43,27 @@ namespace KL
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Space(-47);
                 EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
-                if (manager.polities.Length > 0)
-                    for (int j = manager.polities.Length - 1; j >= 0; j--)
+                if (manager.factions.Length > 0)
+                    for (int j = manager.factions.Length - 1; j >= 0; j--)
                     {
                         GUILayout.Space(-1);
-                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.polities[j].name),
+                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].name),
                                                                     GUI.skin.label, width,
                                                                     GUILayout.Height(headerWidth));
-                        RotateText(labelRect, manager.polities[j].name, 270);
+                        RotateText(labelRect, manager.factions[j].name, 270);
                     }
                 EditorGUILayout.EndHorizontal();
 
-                for (int i = 0; i < manager.polities.Length; i++)
+                for (int i = 0; i < manager.factions.Length; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(manager.polities[i].name, new GUIStyle(GUI.skin.label)
+                    EditorGUILayout.LabelField(manager.factions[i].name, new GUIStyle(GUI.skin.label)
                     { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
                     // Create a grid but only for entries above the diagonal
-                    for (int j = manager.polities.Length - 1; j > i; j--)
+                    for (int j = manager.factions.Length - 1; j > i; j--)
                     {
-                        string tooltipText = manager.polities[i].name +
-                                            " & " + manager.polities[j].name +
+                        string tooltipText = manager.factions[i].name +
+                                            " & " + manager.factions[j].name +
                                             " | " + manager.RelationMatrix[i, j];
 
                         GUIContent buttonContent = new("", tooltipText);
@@ -97,8 +97,8 @@ namespace KL
             /* -------------------------------------------------------------------------- */
             GUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();
-            if (!Application.isPlaying) if (GUILayout.Button("Polity Family Graph"))
-                    EditorWindow.GetWindow<PolityFamilyGraph>("Polity Family Graph");
+            // if (!Application.isPlaying) if (GUILayout.Button("Polity Family Graph"))
+            //         EditorWindow.GetWindow<PolityFamilyGraph>("Polity Family Graph");
             GUIStyle rightAlignedStyle = new(GUI.skin.label)
             {
                 alignment = TextAnchor.MiddleRight,
@@ -140,7 +140,7 @@ namespace KL
             };
         }
 
-        void GetNextRelationship(PolityManager manager, int i, int j)
+        void GetNextRelationship(Manager manager, int i, int j)
         {
             PolityRelation relation = manager.RelationMatrix[i, j];
             manager.RelationMatrix[i, j] = relation switch
@@ -151,7 +151,7 @@ namespace KL
                 _ => PolityRelation.Neutral,
             };
         }
-        void GetBackRelationship(PolityManager manager, int i, int j)
+        void GetBackRelationship(Manager manager, int i, int j)
         {
             PolityRelation relation = manager.RelationMatrix[i, j];
             manager.RelationMatrix[i, j] = relation switch

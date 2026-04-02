@@ -1,14 +1,14 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace KL
+namespace Polity
 {
-    using static KL.PolityManager;
+    using static Polity.Manager;
     public class PolityNPC : MonoBehaviour
     {
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
-        PolityMember member;
-        public PolityMember target, allyTarget;
+        Member member;
+        public Member target, allyTarget;
         int health = 25;
         NavMeshAgent agent;
         Vector3 spawnPos;
@@ -16,6 +16,8 @@ namespace KL
         readonly float detectionRadius = 8f;
         bool beginAttack = false;
         Coroutine attackCoroutine;
+
+        public static event System.Action<PolityNPC> OnNPCSpawn;
         /// <summary>
         /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
         /// </summary>
@@ -32,7 +34,7 @@ namespace KL
 
         void Start()
         {
-            member = GetComponent<PolityMember>();
+            member = GetComponent<Member>();
         }
 
         void Update()
@@ -73,7 +75,7 @@ namespace KL
         }
 
 
-        void MoveTowardsTarget(PolityMember polityMember)
+        void MoveTowardsTarget(Member polityMember)
         {
             if (agent.remainingDistance < agent.stoppingDistance)
             {
@@ -155,15 +157,14 @@ namespace KL
         {
             if (target != null) return;
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius);
-            PolityMember foundMember = null;
+            Member foundMember = null;
             foreach (var hitCollider in hitColliders)
-                if (hitCollider.TryGetComponent<PolityMember>(out var polityMember))
+                if (hitCollider.TryGetComponent<Member>(out var polityMember))
                     if (polityMember.GetComponent<PolityNPC>().health > 0)
                         if (polityMember != member)
                         {
                             foundMember = polityMember;
                             PolityRelation relation = PM.CheckRelation(member, polityMember);
-                            Debug.Log("Found: " + polityMember.name + " Relation: " + relation);
                             switch (relation)
                             {
                                 case PolityRelation.Allies:

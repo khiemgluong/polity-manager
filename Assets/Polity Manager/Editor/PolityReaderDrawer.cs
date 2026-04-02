@@ -2,14 +2,14 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace KL
+namespace Polity
 {
-    using static PolityManager;
+    using static Manager;
     [CustomPropertyDrawer(typeof(PolityReader))]
     public class PolityReaderDrawer : PropertyDrawer
     {
-        PolityManager polityManager;
-        string[] polityNames, classNames, factionNames;
+        Manager polityManager;
+        string[] factionNames, coalitionNames, factionNames1;
         int polityIndex;
         int classIndex;
         int factionIndex;
@@ -19,12 +19,12 @@ namespace KL
         {
             if (polityManager == null)
             {
-                polityManager = Object.FindFirstObjectByType<PolityManager>();
-                if (polityManager != null && polityManager.polities != null)
+                polityManager = Object.FindFirstObjectByType<Manager>();
+                if (polityManager != null && polityManager.factions != null)
                 {
-                    polityNames = new string[polityManager.polities.Length];
-                    for (int i = 0; i < polityManager.polities.Length; i++)
-                        polityNames[i] = polityManager.polities[i].name;
+                    factionNames = new string[polityManager.factions.Length];
+                    for (int i = 0; i < polityManager.factions.Length; i++)
+                        factionNames[i] = polityManager.factions[i].name;
                 }
             }
 
@@ -52,10 +52,10 @@ namespace KL
 
             // Polity dropdown
             EditorGUI.BeginChangeCheck();
-            polityIndex = EditorGUI.Popup(rect, "Polity", polityIndex, polityNames);
+            polityIndex = EditorGUI.Popup(rect, "Polity", polityIndex, factionNames);
             if (EditorGUI.EndChangeCheck())
             {
-                polityStructProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
+                polityStructProp.FindPropertyRelative("polityName").stringValue = factionNames[polityIndex];
                 polityIndexProp.intValue = polityIndex;
                 UpdateClassNames(polityIndex);
                 classIndex = 0;
@@ -69,15 +69,15 @@ namespace KL
             rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
             // Class dropdown
-            if (classNames != null && classNames.Length > 1)
+            if (coalitionNames != null && coalitionNames.Length > 1)
             {
                 EditorGUI.BeginChangeCheck();
-                classIndex = EditorGUI.Popup(rect, "Class", classIndex, classNames);
+                classIndex = EditorGUI.Popup(rect, "Class", classIndex, coalitionNames);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    polityStructProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
+                    polityStructProp.FindPropertyRelative("polityName").stringValue = factionNames[polityIndex];
                     polityIndexProp.intValue = polityIndex;
-                    polityStructProp.FindPropertyRelative("className").stringValue = classNames[classIndex];
+                    polityStructProp.FindPropertyRelative("className").stringValue = coalitionNames[classIndex];
                     classIndexProp.intValue = classIndex;
                     UpdateFactionNames(polityIndex, classIndex);
                     factionIndex = 0;
@@ -88,17 +88,17 @@ namespace KL
             }
 
             // Faction dropdown
-            if (classIndex > 0 && factionNames != null && factionNames.Length > 1)
+            if (classIndex > 0 && factionNames1 != null && factionNames1.Length > 1)
             {
                 EditorGUI.BeginChangeCheck();
-                factionIndex = EditorGUI.Popup(rect, "Faction", factionIndex, factionNames);
+                factionIndex = EditorGUI.Popup(rect, "Faction", factionIndex, factionNames1);
                 if (EditorGUI.EndChangeCheck())
                 {
-                    polityStructProp.FindPropertyRelative("polityName").stringValue = polityNames[polityIndex];
+                    polityStructProp.FindPropertyRelative("polityName").stringValue = factionNames[polityIndex];
                     polityIndexProp.intValue = polityIndex;
-                    polityStructProp.FindPropertyRelative("className").stringValue = classNames[classIndex];
+                    polityStructProp.FindPropertyRelative("className").stringValue = coalitionNames[classIndex];
                     classIndexProp.intValue = classIndex;
-                    polityStructProp.FindPropertyRelative("factionName").stringValue = factionNames[factionIndex];
+                    polityStructProp.FindPropertyRelative("factionName").stringValue = factionNames1[factionIndex];
                     factionIndexProp.intValue = factionIndex;
                 }
             }
@@ -111,12 +111,11 @@ namespace KL
                 {
                     PolityStruct newStruct = new()
                     {
-                        polityName = (polityIndex >= 0 && polityIndex < polityNames.Length)
-                            ? polityNames[polityIndex] : null,
-                        className = (classIndex > 0 && classIndex < classNames.Length)
-                            ? classNames[classIndex] : null,
-                        factionName = (factionIndex > 0 && factionIndex < factionNames.Length)
-                            ? factionNames[factionIndex] : null
+                        factionName = (polityIndex >= 0 && polityIndex < factionNames.Length)
+                            ? factionNames[polityIndex] : null,
+                        coalitionName = (classIndex > 0 && classIndex < coalitionNames.Length)
+                            ? coalitionNames[classIndex] : null,
+             
                     };
                     // #if UNITY_EDITOR
                     if (!newStruct.Equals(polityReader.Struct))
@@ -153,10 +152,10 @@ namespace KL
                 height += EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing;
             else
             {
-                if (classNames != null && classNames.Length > 1)
+                if (coalitionNames != null && coalitionNames.Length > 1)
                     height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
 
-                if (classIndex > 0 && factionNames != null && factionNames.Length > 1)
+                if (classIndex > 0 && factionNames1 != null && factionNames1.Length > 1)
                     height += EditorGUIUtility.singleLineHeight;
             }
             return height;
@@ -164,36 +163,36 @@ namespace KL
 
         void UpdateClassNames(int polityIndex)
         {
-            if (polityManager.polities[polityIndex].classes != null &&
-                polityManager.polities[polityIndex].classes.Length > 0)
-            {
-                classNames = new string[polityManager.polities[polityIndex].classes.Length + 1];
-                classNames[0] = "\t";
-                for (int i = 0; i < polityManager.polities[polityIndex].classes.Length; i++)
-                    classNames[i + 1] = polityManager.polities[polityIndex].classes[i].name;
-            }
-            else
-            { classNames = new string[1]; classNames[0] = "\t"; }
+            // if (polityManager.polities[polityIndex].classes != null &&
+            //     polityManager.polities[polityIndex].classes.Length > 0)
+            // {
+            //     classNames = new string[polityManager.polities[polityIndex].classes.Length + 1];
+            //     classNames[0] = "\t";
+            //     for (int i = 0; i < polityManager.polities[polityIndex].classes.Length; i++)
+            //         classNames[i + 1] = polityManager.polities[polityIndex].classes[i].name;
+            // }
+            // else
+            // { classNames = new string[1]; classNames[0] = "\t"; }
         }
 
         void UpdateFactionNames(int polityIndex, int classIndex)
         {
             int adjustedClassIndex = classIndex - 1;
-            if (polityIndex >= 0 && polityIndex < polityManager.polities.Length &&
-                adjustedClassIndex >= 0 &&
-                adjustedClassIndex < polityManager.polities[polityIndex].classes.Length)
-            {
-                Class _class = polityManager.polities[polityIndex].classes[adjustedClassIndex];
-                if (_class.factions != null && _class.factions.Count > 0)
-                {
-                    factionNames = new string[_class.factions.Count + 1];
-                    factionNames[0] = "\t";
-                    for (int i = 0; i < _class.factions.Count; i++)
-                        factionNames[i + 1] = _class.factions[i].name;
-                }
-                else
-                { factionNames = new string[1]; factionNames[0] = "\t"; }
-            }
+            // if (polityIndex >= 0 && polityIndex < polityManager.polities.Length &&
+            //     adjustedClassIndex >= 0 &&
+            //     adjustedClassIndex < polityManager.polities[polityIndex].classes.Length)
+            // {
+            //     Faction _class = polityManager.polities[polityIndex].classes[adjustedClassIndex];
+            //     if (_class.factions != null && _class.factions.Count > 0)
+            //     {
+            //         factionNames = new string[_class.factions.Count + 1];
+            //         factionNames[0] = "\t";
+            //         for (int i = 0; i < _class.factions.Count; i++)
+            //             factionNames[i + 1] = _class.factions[i].name;
+            //     }
+            //     else
+            //     { factionNames = new string[1]; factionNames[0] = "\t"; }
+            // }
         }
     }
 }

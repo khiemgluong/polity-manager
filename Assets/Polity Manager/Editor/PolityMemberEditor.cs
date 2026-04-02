@@ -1,20 +1,14 @@
 using UnityEditor;
 using UnityEngine;
-namespace KL
+namespace Polity
 {
-    [CustomEditor(typeof(PolityMember))]
+    [CustomEditor(typeof(Member))]
     public class PolityMemberEditor : Editor
     {
-        PolityManager polityManager;
+        Manager polityManager;
         void OnEnable()
         {
-            if (polityManager == null) polityManager = FindFirstObjectByType<PolityManager>();
-            PolityMember polityMember = (PolityMember)target;
-            if (string.IsNullOrEmpty(polityMember.ID))
-            {
-                polityMember.GenerateID();
-                EditorUtility.SetDirty(polityMember);
-            }
+            if (polityManager == null) polityManager = FindFirstObjectByType<Manager>();
         }
         public override void OnInspectorGUI()
         {
@@ -25,17 +19,7 @@ namespace KL
             SerializedProperty polityReader = serializedObject.FindProperty("reader");
             EditorGUILayout.PropertyField(polityReader, true);
             GUI.enabled = false;
-            SerializedProperty family = serializedObject.FindProperty("family");
-            EditorGUILayout.PropertyField(family, true);
             GUI.enabled = true;
-
-            SerializedProperty parentsSerializedProp = serializedObject.FindProperty("parents");
-            SerializedProperty partnersSerializedProp = serializedObject.FindProperty("partners");
-            SerializedProperty childrenSerializedProp = serializedObject.FindProperty("children");
-
-            ReadOnlyPropertyField(parentsSerializedProp);
-            ReadOnlyPropertyField(partnersSerializedProp);
-            ReadOnlyPropertyField(childrenSerializedProp);
 
             serializedObject.ApplyModifiedProperties();
             if (GUI.changed) EditorUtility.SetDirty(target);

@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace KL
+namespace Polity
 {
-    using static KL.PolityManager;
-    using static KL.PolityMember;
+    using static Polity.Manager;
+    using static Polity.Member;
     public class PolityCamera : MonoBehaviour
     {
         public Image targetImage;
@@ -78,17 +78,17 @@ namespace KL
 
             if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
-                if (hit.collider.TryGetComponent<PolityMember>(out var polityMember))
+                if (hit.collider.TryGetComponent<Member>(out var polityMember))
                 {
                     canvasGroup.alpha = 1;
                     memberName.text = polityMember.name;
 
                     PolityStruct polityStruct = polityMember.reader.Struct;
-                    memberPolity.text = polityStruct.polityName;
+                    memberPolity.text = polityStruct.factionName;
                     //Get the emblem of just the polity if available
                     PolityStruct emblemStruct = new()
                     {
-                        polityName = polityStruct.polityName
+                        factionName = polityStruct.factionName
                     };
                     Texture emblemTexture = PM.GetPolityEmblem(emblemStruct);
                     if (emblemTexture != null)
@@ -97,8 +97,8 @@ namespace KL
                         emblem.texture = emblemTexture;
                     }
                     else emblem.gameObject.SetActive(false);
-                    if (string.IsNullOrEmpty(polityStruct.className)
-                        || polityStruct.className.Equals("\t"))
+                    if (string.IsNullOrEmpty(polityStruct.coalitionName)
+                        || polityStruct.coalitionName.Equals("\t"))
                     {
                         classText.gameObject.SetActive(false);
                         fationText.gameObject.SetActive(false);
@@ -106,7 +106,7 @@ namespace KL
                     else
                     {
                         classText.gameObject.SetActive(true);
-                        classText.text = polityStruct.className;
+                        classText.text = polityStruct.coalitionName;
                     }
                     if (polityStruct.factionName.Equals("\t"))
                         fationText.gameObject.SetActive(false);
@@ -117,34 +117,6 @@ namespace KL
                     }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 
-                    FamilyStruct familyStruct = polityMember.family;
-                    if (familyStruct.parents.Count == 0)
-                        parentName.gameObject.SetActive(false);
-                    else
-                    {
-                        parentName.gameObject.SetActive(true);
-                        if (familyStruct.parents.Count > 1)
-                            parentName.text = "Parents: " + familyStruct.parents.Count;
-                        else parentName.text = "Parent: " + familyStruct.parents[0].name;
-                    }
-                    if (familyStruct.partners.Count == 0)
-                        partnerName.gameObject.SetActive(false);
-                    else
-                    {
-                        partnerName.gameObject.SetActive(true);
-                        if (familyStruct.partners.Count > 1)
-                            partnerName.text = "Partners: " + familyStruct.partners.Count;
-                        else partnerName.text = "Partner: " + familyStruct.partners[0].name;
-                    }
-                    if (familyStruct.children.Count == 0)
-                        childrenName.gameObject.SetActive(false);
-                    else
-                    {
-                        childrenName.gameObject.SetActive(true);
-                        if (familyStruct.children.Count > 1)
-                            childrenName.text = "Children: " + familyStruct.children.Count;
-                        else childrenName.text = "Child: " + familyStruct.children[0].name;
-                    }
 
                 }
                 else

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static KL.PolityManager;
-namespace KL
+using static Polity.Manager;
+namespace Polity
 {
     public class PolitySpawner : MonoBehaviour
     {
@@ -15,12 +15,12 @@ namespace KL
         public Dropdown dropdown;
         void Awake()
         {
-            foreach (Polity polity in PM.polities)
+            foreach (Faction polity in PM.factions)
                 Debug.Log("Polity: " + polity.name);
 
             dropdown.ClearOptions();
             List<Dropdown.OptionData> optionList = new();
-            foreach (var polity in PM.polities)
+            foreach (var polity in PM.factions)
             {
                 optionList.Add(new Dropdown.OptionData(polity.name));
             }
@@ -32,7 +32,7 @@ namespace KL
         {
             string selectedValue = dropdown.options[index].text;
             PolityStruct polityStruct = new()
-            { polityName = selectedValue };
+            { factionName = selectedValue };
             polityReader.SetPolity(polityStruct);
         }
         void Start()
@@ -65,9 +65,9 @@ namespace KL
         GameObject SpawnNPC(GameObject prefab, Vector3 position)
         {
             GameObject npc = Instantiate(prefab, position, Quaternion.Euler(0, 180, 0));
-            if (!npc.TryGetComponent(out PolityMember _))
+            if (!npc.TryGetComponent(out Member _))
             {
-                PolityMember _member = npc.AddComponent<PolityMember>();
+                Member _member = npc.AddComponent<Member>();
                 _member.reader.SetPolity(polityReader);
             }
             return npc;
@@ -83,7 +83,7 @@ namespace KL
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
-                if (hit.collider.TryGetComponent(out PolityMember member))
+                if (hit.collider.TryGetComponent(out Member member))
                 {
                     cursor.SetActive(false);
                     // if (Input.GetMouseButtonDown(0))

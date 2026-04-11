@@ -6,7 +6,7 @@ namespace Polities
 {
     using static Manager;
     [CustomEditor(typeof(Manager))]
-    public class PolityManagerEditor : Editor
+    public partial class PolityManagerEditor : Editor
     {
         Vector2 scrollPosition;
         const float gridSize = 20, headerWidth = 120;
@@ -19,82 +19,91 @@ namespace Polities
         public override void OnInspectorGUI()
         {
             Manager manager = (Manager)target;
-            GUILayoutOption width = GUILayout.Width(gridSize);
-            GUILayoutOption height = GUILayout.Height(gridSize);
+
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            SerializedProperty polities = serializedObject.FindProperty("factions");
-            EditorGUILayout.PropertyField(polities, true);
+            SerializedProperty factions = serializedObject.FindProperty("factions");
+            EditorGUILayout.PropertyField(factions, true);
             EditorGUI.EndDisabledGroup();
 
-            /* -------------------------------------------------------------------------- */
-            /*                           POLITY RELATION MATRIX                           */
-            /* -------------------------------------------------------------------------- */
-            if (manager.factions.Length > 0)
+            // EditorGUILayout.PropertyField(factions, true);
+
+            if (factions.isExpanded)
             {
-                SerializedProperty persist = serializedObject.FindProperty("persist");
-                EditorGUILayout.PropertyField(persist, true);
-                GUILayout.BeginVertical();
-                scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
-                                                    GUILayout.ExpandHeight(true));
-
-                // Create the matrix GUI with headers
-                EditorGUILayout.BeginHorizontal();
-                GUILayout.Space(-47);
-                EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
-                if (manager.factions.Length > 0)
-                    for (int j = manager.factions.Length - 1; j >= 0; j--)
-                    {
-                        GUILayout.Space(-1);
-                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].name),
-                                                                    GUI.skin.label, width,
-                                                                    GUILayout.Height(headerWidth));
-                        RotateText(labelRect, manager.factions[j].name, 270);
-                    }
-                EditorGUILayout.EndHorizontal();
-
-                for (int i = 0; i < manager.factions.Length; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(manager.factions[i].name, new GUIStyle(GUI.skin.label)
-                    { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
-                    // Create a grid but only for entries above the diagonal
-                    for (int j = manager.factions.Length - 1; j > i; j--)
-                    {
-                        string tooltipText = manager.factions[i].name +
-                                            " & " + manager.factions[j].name +
-                                            " | " + manager.RelationMatrix[i, j];
-
-                        GUIContent buttonContent = new("", tooltipText);
-                        Rect gridRect = EditorGUILayout.GetControlRect(width, height);
-
-                        if (GUI.Button(gridRect, buttonContent))
-                        {
-                            switch (Event.current.button)
-                            {
-                                case 0: // Left mouse button
-                                    GetNextRelationship(manager, i, j); break;
-                                case 1: // Right mouse button
-                                    GetBackRelationship(manager, i, j); break;
-                                default: break;
-                            }
-                            //Set reciprocal
-                            manager.RelationMatrix[j, i] = manager.RelationMatrix[i, j];
-                            if (Application.isPlaying) OnRelationChange?.Invoke();
-                        }
-
-                        Color color = GetColorForRelationship(manager.RelationMatrix[i, j]);
-                        EditorGUI.DrawRect(gridRect, color);
-                        GUI.Label(gridRect, ""); // Optionally add labels or icons
-                    }
-                    EditorGUILayout.EndHorizontal();
-                }
-                EditorGUILayout.EndScrollView(); GUILayout.EndVertical();
+                FactionsMatrix();
             }
-            /* -------------------------------------------------------------------------- */
-            /*                         END POLITY RELATION MATRIX                         */
-            /* -------------------------------------------------------------------------- */
+
+            EditorGUI.BeginDisabledGroup(Application.isPlaying);
+            SerializedProperty units = serializedObject.FindProperty("units");
+            EditorGUILayout.PropertyField(units, true);
+            EditorGUI.EndDisabledGroup();
+
+
+            // GUILayoutOption width = GUILayout.Width(gridSize);
+            // GUILayoutOption height = GUILayout.Height(gridSize);
+            // if (manager.factions.Length > 0)
+            // {
+            //     GUILayout.BeginVertical();
+            //     scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
+            //                                         GUILayout.ExpandHeight(true));
+
+            //     // Create the matrix GUI with headers
+            //     EditorGUILayout.BeginHorizontal();
+            //     GUILayout.Space(-47);
+            //     EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
+            //     if (manager.factions.Length > 0)
+            //         for (int j = manager.factions.Length - 1; j >= 0; j--)
+            //         {
+            //             GUILayout.Space(-1);
+            //             Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].name),
+            //                                                         GUI.skin.label, width,
+            //                                                         GUILayout.Height(headerWidth));
+            //             RotateText(labelRect, manager.factions[j].name, 270);
+            //         }
+            //     EditorGUILayout.EndHorizontal();
+
+            //     for (int i = 0; i < manager.factions.Length; i++)
+            //     {
+            //         EditorGUILayout.BeginHorizontal();
+            //         EditorGUILayout.LabelField(manager.factions[i].name, new GUIStyle(GUI.skin.label)
+            //         { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
+            //         // Create a grid but only for entries above the diagonal
+            //         for (int j = manager.factions.Length - 1; j > i; j--)
+            //         {
+            //             string tooltipText = manager.factions[i].name +
+            //                                 " & " + manager.factions[j].name +
+            //                                 " | " + manager.RelationMatrix[i, j];
+
+            //             GUIContent buttonContent = new("", tooltipText);
+            //             Rect gridRect = EditorGUILayout.GetControlRect(width, height);
+
+            //             if (GUI.Button(gridRect, buttonContent))
+            //             {
+            //                 switch (Event.current.button)
+            //                 {
+            //                     case 0: // Left mouse button
+            //                         GetNextRelationship(manager, i, j); break;
+            //                     case 1: // Right mouse button
+            //                         GetBackRelationship(manager, i, j); break;
+            //                     default: break;
+            //                 }
+            //                 //Set reciprocal
+            //                 manager.RelationMatrix[j, i] = manager.RelationMatrix[i, j];
+            //                 if (Application.isPlaying) OnRelationChange?.Invoke();
+            //             }
+
+            //             Color color = GetColorForRelationship(manager.RelationMatrix[i, j]);
+            //             EditorGUI.DrawRect(gridRect, color);
+            //             GUI.Label(gridRect, ""); // Optionally add labels or icons
+            //         }
+            //         EditorGUILayout.EndHorizontal();
+            //     }
+            //     EditorGUILayout.EndScrollView(); GUILayout.EndVertical();
+            // }
+            // /* -------------------------------------------------------------------------- */
+            // /*                         END POLITY RELATION MATRIX                         */
+            // /* -------------------------------------------------------------------------- */
             GUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();
             // if (!Application.isPlaying) if (GUILayout.Button("Polity Family Graph"))

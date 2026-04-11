@@ -10,7 +10,7 @@ namespace Polities
     {
         public static Manager Singleton { get; private set; }
         [Tooltip("The largest, most important organizational unit in your game.")]
-        public Polity[] factions = new Polity[0];
+        public Faction[] factions = new Faction[0];
         public PolityRelation[,] RelationMatrix { get; set; }
         [SerializeField] string polityRelationMatrixString = "";
         public enum PolityRelation
@@ -24,19 +24,14 @@ namespace Polities
         class PolityRelationMatrixWrapper
         { public List<PolityRelation> relations = new(); public int rows, columns; }
 
-        [SerializeField]
-        [Tooltip("Set to true to persist this Singleton across scenes")] bool persist;
+        public PolityUnits units;
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnRelationChange, OnFactionChange;
         void Awake()
         {
-            if (Singleton != null && Singleton != this) Destroy(gameObject);
-            else
-            {
-                Singleton = this;
-                if (persist)
-                    DontDestroyOnLoad(gameObject);
-            }
+            if (Singleton != null && Singleton != this)
+                Destroy(gameObject);
+            else Singleton = this;
             LoadRelationMatrix();
         }
 
@@ -45,8 +40,6 @@ namespace Polities
             ValidateRelationMatrix();
             SerializeRelationMatrix();
             List<string> polityNames = new();
-            // foreach (var polity in factions)
-            //     polityNames.Add(polity.name);
         }
 
         [ContextMenu("Reset Polity Relation Matrix")]
@@ -355,6 +348,18 @@ namespace Polities
             {
                 return HashCode.Combine(coalitionName?.ToLowerInvariant(),
                                         name?.ToLowerInvariant());
+            }
+
+            public void SetPolity(PolityReader polityReader)
+            {
+                // _struct = polityReader._struct;
+                // UpdatePolityIndices();
+            }
+
+            public void SetPolity(Polity polityStruct)
+            {
+                // _struct = polityStruct;
+                // UpdatePolityIndices();
             }
         }
 

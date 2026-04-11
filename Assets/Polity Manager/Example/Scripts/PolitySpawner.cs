@@ -15,7 +15,7 @@ namespace Polities
         public Dropdown dropdown;
         void Awake()
         {
-            foreach (Polity polity in Singleton.factions)
+            foreach (Faction polity in Singleton.factions)
                 Debug.Log("Polity: " + polity.name);
 
             dropdown.ClearOptions();

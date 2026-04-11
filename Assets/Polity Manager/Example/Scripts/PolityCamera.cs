@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Polity
+namespace Polities
 {
-    using static Polity.Manager;
-    using static Polity.Member;
+    using static Polities.Manager;
+    using static Polities.Member;
     public class PolityCamera : MonoBehaviour
     {
         public Image targetImage;
@@ -83,14 +83,14 @@ namespace Polity
                     canvasGroup.alpha = 1;
                     memberName.text = polityMember.name;
 
-                    PolityStruct polityStruct = polityMember.reader.Struct;
-                    memberPolity.text = polityStruct.factionName;
+                    Polity polityStruct = polityMember.reader.Struct;
+                    memberPolity.text = polityStruct.name;
                     //Get the emblem of just the polity if available
-                    PolityStruct emblemStruct = new()
+                    Polity emblemStruct = new()
                     {
-                        factionName = polityStruct.factionName
+                        name = polityStruct.name
                     };
-                    Texture emblemTexture = PM.GetPolityEmblem(emblemStruct);
+                    Texture emblemTexture = Singleton.GetPolityEmblem(emblemStruct);
                     if (emblemTexture != null)
                     {
                         emblem.gameObject.SetActive(true);
@@ -108,12 +108,12 @@ namespace Polity
                         classText.gameObject.SetActive(true);
                         classText.text = polityStruct.coalitionName;
                     }
-                    if (polityStruct.factionName.Equals("\t"))
+                    if (polityStruct.name.Equals("\t"))
                         fationText.gameObject.SetActive(false);
                     else
                     {
                         fationText.gameObject.SetActive(true);
-                        fationText.text = polityStruct.factionName;
+                        fationText.text = polityStruct.name;
                     }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 

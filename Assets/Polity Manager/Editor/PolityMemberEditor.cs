@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-namespace Polity
+namespace Polities
 {
     [CustomEditor(typeof(Member))]
     public class PolityMemberEditor : Editor
@@ -20,6 +20,9 @@ namespace Polity
             EditorGUILayout.PropertyField(polityReader, true);
             GUI.enabled = false;
             GUI.enabled = true;
+
+            SerializedProperty unit = serializedObject.FindProperty("unit");
+            EditorGUILayout.PropertyField(unit, true);
 
             serializedObject.ApplyModifiedProperties();
             if (GUI.changed) EditorUtility.SetDirty(target);

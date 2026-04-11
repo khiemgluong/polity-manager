@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
-namespace Polity
+namespace Polities
 {
     using static Manager;
     [Serializable]
     public class PolityReader
     {
-        [SerializeField] PolityStruct _struct = new();
-        public PolityStruct Struct => _struct;
+        [SerializeField] Polity _struct = new();
+        public Polity Struct => _struct;
         [SerializeField] int polityIndex, classIndex, factionIndex;
         [SerializeField] bool isPolityLeader, isClassLeader, isFactionLeader;
 
@@ -17,7 +17,7 @@ namespace Polity
             UpdatePolityIndices();
         }
 
-        public void SetPolity(PolityStruct polityStruct)
+        public void SetPolity(Polity polityStruct)
         {
             _struct = polityStruct;
             UpdatePolityIndices();
@@ -25,11 +25,11 @@ namespace Polity
 
         void UpdatePolityIndices()
         {
-            if (PM == null || PM.factions == null) return;
+            if (Singleton == null || Singleton.factions == null) return;
 
             // Update polityIndex
-            polityIndex = Array.FindIndex(PM.factions, p => p.name == _struct.factionName);
-            if (polityIndex >= 0 && polityIndex < PM.factions.Length)
+            polityIndex = Array.FindIndex(Singleton.factions, p => p.name == _struct.name);
+            if (polityIndex >= 0 && polityIndex < Singleton.factions.Length)
             {
                 // Update classIndex
                 // var classes = PM.polities[polityIndex].classes;
@@ -50,18 +50,18 @@ namespace Polity
         {
             if (obj is PolityReader other)
             {
-                return string.Equals(_struct.factionName, other._struct.factionName) &&
+                return string.Equals(_struct.name, other._struct.name) &&
                     string.Equals(_struct.coalitionName
                         ?? string.Empty, other._struct.coalitionName ?? string.Empty) &&
-                    string.Equals(_struct.factionName
-                        ?? string.Empty, other._struct.factionName ?? string.Empty);
+                    string.Equals(_struct.name
+                        ?? string.Empty, other._struct.name ?? string.Empty);
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(_struct.factionName?.ToLowerInvariant(),
+            return HashCode.Combine(_struct.name?.ToLowerInvariant(),
                                     _struct.coalitionName?.ToLowerInvariant());
         }
     }

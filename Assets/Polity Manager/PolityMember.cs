@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Polity
+namespace Polities
 {
     using static Manager;
     [DisallowMultipleComponent]
     public class Member : MonoBehaviour
     {
         public PolityReader reader = new();
-        public Group group;
+        // public Group group;
+        public Unit unit;
 
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action<Member> OnMemberSpawn, OnMemberDestroy;

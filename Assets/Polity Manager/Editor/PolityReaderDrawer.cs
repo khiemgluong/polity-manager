@@ -2,7 +2,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Polity
+namespace Polities
 {
     using static Manager;
     [CustomPropertyDrawer(typeof(PolityReader))]
@@ -109,9 +109,9 @@ namespace Polity
                 object targetObject = GetTargetObjectOfProperty();
                 if (targetObject is PolityReader polityReader)
                 {
-                    PolityStruct newStruct = new()
+                    Polity newStruct = new()
                     {
-                        factionName = (polityIndex >= 0 && polityIndex < factionNames.Length)
+                        name = (polityIndex >= 0 && polityIndex < factionNames.Length)
                             ? factionNames[polityIndex] : null,
                         coalitionName = (classIndex > 0 && classIndex < coalitionNames.Length)
                             ? coalitionNames[classIndex] : null,

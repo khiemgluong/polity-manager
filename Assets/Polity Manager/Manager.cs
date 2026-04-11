@@ -1,15 +1,16 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.ComponentModel;
 
-namespace Polity
+namespace Polities
 {
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {
-        public static Manager PM { get; private set; }
+        public static Manager Singleton { get; private set; }
         [Tooltip("The largest, most important organizational unit in your game.")]
-        public Faction[] factions = new Faction[0];
+        public Polity[] factions = new Polity[0];
         public PolityRelation[,] RelationMatrix { get; set; }
         [SerializeField] string polityRelationMatrixString = "";
         public enum PolityRelation
@@ -29,10 +30,10 @@ namespace Polity
         public static Action OnRelationChange, OnFactionChange;
         void Awake()
         {
-            if (PM != null && PM != this) Destroy(gameObject);
+            if (Singleton != null && Singleton != this) Destroy(gameObject);
             else
             {
-                PM = this;
+                Singleton = this;
                 if (persist)
                     DontDestroyOnLoad(gameObject);
             }
@@ -44,8 +45,8 @@ namespace Polity
             ValidateRelationMatrix();
             SerializeRelationMatrix();
             List<string> polityNames = new();
-            foreach (var polity in factions)
-                polityNames.Add(polity.name);
+            // foreach (var polity in factions)
+            //     polityNames.Add(polity.name);
         }
 
         [ContextMenu("Reset Polity Relation Matrix")]
@@ -89,9 +90,9 @@ namespace Polity
             Dictionary<string, int> nameIndex = new();
             for (int i = 0; i < factions.Length; i++)
             {
-                if (nameIndex.ContainsKey(factions[i].name))
-                    Debug.LogWarning($"Duplicate name found: {factions[i].name} at {i}");
-                else nameIndex[factions[i].name] = i;
+                // if (nameIndex.ContainsKey(factions[i].name))
+                //     Debug.LogWarning($"Duplicate name found: {factions[i].name} at {i}");
+                // else nameIndex[factions[i].name] = i;
             }
         }
         [ContextMenu("Load Polity Relation Matrix")]
@@ -143,12 +144,12 @@ namespace Polity
             DeserializeRelationMatrix(polityRelationMatrixString);
         #region Getters
         /* --------------------------------- GETTERS -------------------------------- */
-        /// <summary>
-        /// Gets the current PolityRelation from one PolityMember to another.
-        /// </summary>
-        /// <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
+        // / <summary>
+        // / Gets the current PolityRelation from one PolityMember to another.
+        // / </summary>
+        // / <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
         public PolityRelation CheckRelation(Member member, Member otherMember) =>
-               CheckRelation(member.reader.Struct.factionName, otherMember.reader.Struct.factionName);
+               CheckRelation(member.reader.Struct.name, otherMember.reader.Struct.name);
         public PolityRelation CheckRelation(string yourPolityName, string theirPolityName)
         {
             if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
@@ -161,19 +162,14 @@ namespace Polity
             return relation;
         }
 
-        /// <summary>
-        /// Gets the emblem texture of the polity, or its class 
-        /// and faction if those properties have been provided.
-        /// </summary>
-        public Texture2D GetPolityEmblem(PolityStruct _struct)
+        public Texture2D GetPolityEmblem(Polity _struct)
         {
-            Texture2D emblem;
-            if (string.IsNullOrEmpty(_struct.factionName))
+            if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return null; }
             foreach (var polity in factions)
-                if (_struct.factionName.Equals(polity.name))
+                if (_struct.name.Equals(polity.name))
                 {
-                    emblem = polity.emblem;
+                    // emblem = polity.emblem;
                     if (!string.IsNullOrEmpty(_struct.coalitionName))
                     {
                         // foreach (var polityClass in polity.classes)
@@ -191,20 +187,19 @@ namespace Polity
                         //         return emblem;
                         //     }
                         Debug.LogError("No Class Found");
-                        return emblem;
+                        return null;
                     }
-                    return emblem;
+                    return null;
                 }
             Debug.LogError("No Polity Found"); return null;
         }
 
-        public Member GetPolityLeader(PolityStruct _struct)
+        public Member GetPolityLeader(Polity _struct)
         {
-            Member leader;
-            if (string.IsNullOrEmpty(_struct.factionName))
+            if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return null; }
             foreach (var polity in factions)
-                if (_struct.factionName.Equals(polity.name))
+                if (_struct.name.Equals(polity.name))
                 {
                     // leader = polity.leader;
                     if (!string.IsNullOrEmpty(_struct.coalitionName))
@@ -263,22 +258,22 @@ namespace Polity
         }
 
         public void ChangeRelation(Member member, string theirPolityName, PolityRelation newRelation)
-            => ChangeRelation(member.reader.Struct.factionName, theirPolityName, newRelation);
+            => ChangeRelation(member.reader.Struct.name, theirPolityName, newRelation);
         public void ChangeRelation(PolityReader reader, PolityReader theirReader, PolityRelation newRelation)
-            => ChangeRelation(reader.Struct.factionName, theirReader.Struct.factionName, newRelation);
-        public void ChangeRelation(PolityStruct _struct, PolityStruct theirStruct, PolityRelation newRelation)
-            => ChangeRelation(_struct.factionName, theirStruct.factionName, newRelation);
+            => ChangeRelation(reader.Struct.name, theirReader.Struct.name, newRelation);
+        public void ChangeRelation(Polity _struct, Polity theirStruct, PolityRelation newRelation)
+            => ChangeRelation(_struct.name, theirStruct.name, newRelation);
         /// <summary>
         /// Adds a faction to a polity, requiring a matching polityName and className to work.
         /// </summary>
-        public Coalition AddFactionToPolity(PolityStruct _struct, Texture2D emblem, Member leader)
+        public Coalition AddFactionToPolity(Polity _struct, Texture2D emblem, Member leader)
         {
-            Coalition newFaction = new(_struct.factionName, emblem, leader);
-            if (string.IsNullOrEmpty(_struct.factionName))
+            Coalition newFaction = new(_struct.name, emblem, leader);
+            if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return null; }
 
             foreach (var polity in factions)
-                if (_struct.factionName.Equals(polity.name))
+                if (_struct.name.Equals(polity.name))
                     if (!string.IsNullOrEmpty(_struct.coalitionName))
                     {
                         // foreach (var polityClass in polity.classes)
@@ -304,18 +299,18 @@ namespace Polity
                     }
             return null;
         }
-        public void AddFactionToPolity(PolityStruct _struct) => AddFactionToPolity(_struct, null, null);
+        public void AddFactionToPolity(Polity _struct) => AddFactionToPolity(_struct, null, null);
 
         /// <summary>
         /// Remove a faction of a polity, if the PolityStruct polityName, className and factionName all match.
         /// </summary>
-        public void RemoveFactionFromPolity(PolityStruct _struct)
+        public void RemoveFactionFromPolity(Polity _struct)
         {
-            if (string.IsNullOrEmpty(_struct.factionName))
+            if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return; }
 
             foreach (var polity in factions)
-                if (_struct.factionName.Equals(polity.name))
+                if (_struct.name.Equals(polity.name))
                 {
                     if (string.IsNullOrEmpty(_struct.coalitionName))
                     { Debug.LogError("No Class Name Provided"); return; }
@@ -339,32 +334,27 @@ namespace Polity
         }
         #endregion
 
-        /* -------------------------------------------------------------------------- */
-        /*                                POLITYSTRUCT                                */
-        /* -------------------------------------------------------------------------- */
-        /// <summary>
-        /// This struct declares a specific polity's name, class and faction.
-        /// </summary>
+
         [Serializable]
-        public struct PolityStruct
+        public struct Polity
         {
-            public string factionName;
+            public string name;
             public string coalitionName;
 
             public override readonly bool Equals(object obj)
             {
-                if (obj is PolityStruct other)
+                if (obj is Polity other)
                 {
                     return
                         string.Equals(coalitionName ?? string.Empty, other.coalitionName ?? string.Empty) &&
-                        string.Equals(factionName ?? string.Empty, other.factionName ?? string.Empty);
+                        string.Equals(name ?? string.Empty, other.name ?? string.Empty);
                 }
                 return false;
             }
             public override readonly int GetHashCode()
             {
                 return HashCode.Combine(coalitionName?.ToLowerInvariant(),
-                                        factionName?.ToLowerInvariant());
+                                        name?.ToLowerInvariant());
             }
         }
 
@@ -375,7 +365,9 @@ namespace Polity
         [Serializable]
         public class Faction : PolityBase
         {
-            public List<Coalition> coalitions;
+            // public List<Coalition> coalitions;
+            [ReadOnly(true)]
+            public List<Unit> units;
         }
 
         /// <summary>

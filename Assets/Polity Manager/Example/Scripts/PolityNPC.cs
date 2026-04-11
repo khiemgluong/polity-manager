@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Polity
+namespace Polities
 {
-    using static Polity.Manager;
+    using static Polities.Manager;
     public class PolityNPC : MonoBehaviour
     {
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
@@ -127,7 +127,7 @@ namespace Polity
         {
             if (allyTarget != null)
             {
-                PolityRelation relation = PM.CheckRelation(member, allyTarget);
+                PolityRelation relation = Singleton.CheckRelation(member, allyTarget);
                 switch (relation)
                 {
                     case PolityRelation.Allies:
@@ -142,7 +142,7 @@ namespace Polity
             }
             else if (target != null)
             {
-                PolityRelation relation = PM.CheckRelation(member, target);
+                PolityRelation relation = Singleton.CheckRelation(member, target);
                 if (relation == PolityRelation.Neutral)
                 {
                     target = null;
@@ -164,7 +164,7 @@ namespace Polity
                         if (polityMember != member)
                         {
                             foundMember = polityMember;
-                            PolityRelation relation = PM.CheckRelation(member, polityMember);
+                            PolityRelation relation = Singleton.CheckRelation(member, polityMember);
                             switch (relation)
                             {
                                 case PolityRelation.Allies:

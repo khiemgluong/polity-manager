@@ -2,7 +2,7 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace Polity
+namespace Polities
 {
     using static Manager;
     [CustomEditor(typeof(Manager))]

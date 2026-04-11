@@ -8,15 +8,17 @@ namespace Polities
     using Polities;
     using static Polities.Manager;
     [System.Serializable]
-    public class PolityUnits
+    public struct PolityUnit
     {
-        public List<Unit> units = new List<Unit>();
+        public Polity polity;
+        public Member.Unit unit;
     }
 
     [System.Serializable]
-    public class Unit
+    public struct Unit
     {
+        public string name;
         public Member leader;
-        public List<Member> members = new List<Member>();
+        public List<Member> members;
     }
 }

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace Polities
@@ -9,9 +7,11 @@ namespace Polities
     [DisallowMultipleComponent]
     public class Member : MonoBehaviour
     {
-        public PolityReader reader = new();
-        // public Group group;
+        public Polity polity;
         public Unit unit;
+        public PolityUnit polity1;
+
+        public Polity[] sharts;
 
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action<Member> OnMemberSpawn, OnMemberDestroy;
@@ -56,6 +56,13 @@ namespace Polities
         void OnFactionChanged()
         {
 
+        }
+
+        [System.Serializable]
+        public struct Unit
+        {
+            public string name;
+            public bool leader;
         }
     }
 }

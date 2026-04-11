@@ -68,7 +68,7 @@ namespace Polities
             if (!npc.TryGetComponent(out Member _))
             {
                 Member _member = npc.AddComponent<Member>();
-                _member.reader.SetPolity(polityReader);
+                // _member.polity.SetPolity("shart");
             }
             return npc;
         }

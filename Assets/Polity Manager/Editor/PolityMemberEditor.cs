@@ -6,6 +6,8 @@ namespace Polities
     public class PolityMemberEditor : Editor
     {
         Manager polityManager;
+        string[] unitNames;
+
         void OnEnable()
         {
             if (polityManager == null) polityManager = FindFirstObjectByType<Manager>();
@@ -16,13 +18,16 @@ namespace Polities
             { GUILayout.Label("No PolityManager found in the Scene.", EditorStyles.boldLabel); return; }
 
             serializedObject.Update();
-            SerializedProperty polityReader = serializedObject.FindProperty("reader");
-            EditorGUILayout.PropertyField(polityReader, true);
+            SerializedProperty polity = serializedObject.FindProperty("polity");
+            EditorGUILayout.PropertyField(polity, true);
             GUI.enabled = false;
             GUI.enabled = true;
 
             SerializedProperty unit = serializedObject.FindProperty("unit");
             EditorGUILayout.PropertyField(unit, true);
+
+            SerializedProperty polity1 = serializedObject.FindProperty("polity1");
+            EditorGUILayout.PropertyField(polity1, true);
 
             serializedObject.ApplyModifiedProperties();
             if (GUI.changed) EditorUtility.SetDirty(target);

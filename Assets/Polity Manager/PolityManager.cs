@@ -24,7 +24,7 @@ namespace Polities
         class PolityRelationMatrixWrapper
         { public List<PolityRelation> relations = new(); public int rows, columns; }
 
-        public PolityUnits units;
+        // public PolityUnits[] units;
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnRelationChange, OnFactionChange;
         void Awake()
@@ -142,7 +142,7 @@ namespace Polities
         // / </summary>
         // / <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
         public PolityRelation CheckRelation(Member member, Member otherMember) =>
-               CheckRelation(member.reader.Struct.name, otherMember.reader.Struct.name);
+               CheckRelation(member.polity.name, otherMember.polity.name);
         public PolityRelation CheckRelation(string yourPolityName, string theirPolityName)
         {
             if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
@@ -251,7 +251,7 @@ namespace Polities
         }
 
         public void ChangeRelation(Member member, string theirPolityName, PolityRelation newRelation)
-            => ChangeRelation(member.reader.Struct.name, theirPolityName, newRelation);
+            => ChangeRelation(member.polity.name, theirPolityName, newRelation);
         public void ChangeRelation(PolityReader reader, PolityReader theirReader, PolityRelation newRelation)
             => ChangeRelation(reader.Struct.name, theirReader.Struct.name, newRelation);
         public void ChangeRelation(Polity _struct, Polity theirStruct, PolityRelation newRelation)
@@ -327,42 +327,6 @@ namespace Polities
         }
         #endregion
 
-
-        [Serializable]
-        public struct Polity
-        {
-            public string name;
-            public string coalitionName;
-
-            public override readonly bool Equals(object obj)
-            {
-                if (obj is Polity other)
-                {
-                    return
-                        string.Equals(coalitionName ?? string.Empty, other.coalitionName ?? string.Empty) &&
-                        string.Equals(name ?? string.Empty, other.name ?? string.Empty);
-                }
-                return false;
-            }
-            public override readonly int GetHashCode()
-            {
-                return HashCode.Combine(coalitionName?.ToLowerInvariant(),
-                                        name?.ToLowerInvariant());
-            }
-
-            public void SetPolity(PolityReader polityReader)
-            {
-                // _struct = polityReader._struct;
-                // UpdatePolityIndices();
-            }
-
-            public void SetPolity(Polity polityStruct)
-            {
-                // _struct = polityStruct;
-                // UpdatePolityIndices();
-            }
-        }
-
         /* -------------------------------------------------------------------------- */
         /*                             SERIALIZED CLASSES                             */
         /* -------------------------------------------------------------------------- */
@@ -370,8 +334,6 @@ namespace Polities
         [Serializable]
         public class Faction : PolityBase
         {
-            // public List<Coalition> coalitions;
-            [ReadOnly(true)]
             public List<Unit> units;
         }
 

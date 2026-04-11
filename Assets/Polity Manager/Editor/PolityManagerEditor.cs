@@ -34,10 +34,10 @@ namespace Polities
                 FactionsMatrix();
             }
 
-            EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            SerializedProperty units = serializedObject.FindProperty("units");
-            EditorGUILayout.PropertyField(units, true);
-            EditorGUI.EndDisabledGroup();
+            // EditorGUI.BeginDisabledGroup(Application.isPlaying);
+            // SerializedProperty units = serializedObject.FindProperty("units");
+            // EditorGUILayout.PropertyField(units, true);
+            // EditorGUI.EndDisabledGroup();
 
 
             // GUILayoutOption width = GUILayout.Width(gridSize);

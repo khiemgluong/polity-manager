@@ -9,7 +9,6 @@ namespace Polities
     {
         public Polity polity;
         public Unit unit;
-        public PolityUnit polity1;
 
         public Polity[] sharts;
 
@@ -39,6 +38,7 @@ namespace Polities
 
         void OnDestroy()
         {
+            Debug.LogError($"Member '{name}' is being destroyed. This may cause issues if it is still referenced in its Polity or Unit. Make sure to remove it from any Polity or Unit before destroying it.");
             OnMemberDestroy?.Invoke(this);
         }
         [ContextMenu("Generate ID")]

@@ -11,7 +11,7 @@ namespace Polities
     public struct PolityUnit
     {
         public Polity polity;
-        public Member.Unit unit;
+        // public Member.Unit unit;
     }
 
     [System.Serializable]

@@ -90,13 +90,13 @@ namespace Polities
                     {
                         name = polityStruct.name
                     };
-                    Texture emblemTexture = Singleton.GetPolityEmblem(emblemStruct);
-                    if (emblemTexture != null)
-                    {
-                        emblem.gameObject.SetActive(true);
-                        emblem.texture = emblemTexture;
-                    }
-                    else emblem.gameObject.SetActive(false);
+                    // Texture emblemTexture = Singleton.GetPolityEmblem(emblemStruct);
+                    // if (emblemTexture != null)
+                    // {
+                    //     emblem.gameObject.SetActive(true);
+                    //     emblem.texture = emblemTexture;
+                    // }
+                    // else emblem.gameObject.SetActive(false);
                     if (string.IsNullOrEmpty(polityStruct.coalitionName)
                         || polityStruct.coalitionName.Equals("\t"))
                     {

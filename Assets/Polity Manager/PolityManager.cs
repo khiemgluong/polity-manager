@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
-using System.ComponentModel;
 
 namespace Polities
 {
@@ -10,7 +9,7 @@ namespace Polities
     {
         public static Manager Singleton { get; private set; }
         [Tooltip("The largest, most important organizational unit in your game.")]
-        public Faction[] factions = new Faction[0];
+        public Polity[] factions = new Polity[0];
         public PolityRelation[,] RelationMatrix { get; set; }
         [SerializeField] string polityRelationMatrixString = "";
         public enum PolityRelation
@@ -141,6 +140,14 @@ namespace Polities
         // / Gets the current PolityRelation from one PolityMember to another.
         // / </summary>
         // / <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
+        public Polity GetPolity(string polityName)
+        {
+            foreach (var polity in factions)
+                if (polity.name.Equals(polityName))
+                    return polity;
+            Debug.LogError($"No polity found with name {polityName}");
+            return null;
+        }
         public PolityRelation CheckRelation(Member member, Member otherMember) =>
                CheckRelation(member.polity.name, otherMember.polity.name);
         public PolityRelation CheckRelation(string yourPolityName, string theirPolityName)
@@ -163,25 +170,25 @@ namespace Polities
                 if (_struct.name.Equals(polity.name))
                 {
                     // emblem = polity.emblem;
-                    if (!string.IsNullOrEmpty(_struct.coalitionName))
-                    {
-                        // foreach (var polityClass in polity.classes)
-                        //     if (_struct.className.Equals(polityClass.name))
-                        //     {
-                        //         emblem = polityClass.emblem;
-                        //         if (!string.IsNullOrEmpty(_struct.factionName))
-                        //         {
-                        //             foreach (var faction in polityClass.factions)
-                        //                 if (_struct.factionName.Equals(faction.name))
-                        //                     return faction.emblem;
-                        //             Debug.LogError("No Faction Found");
-                        //             return emblem;
-                        //         }
-                        //         return emblem;
-                        //     }
-                        Debug.LogError("No Class Found");
-                        return null;
-                    }
+                    // if (!string.IsNullOrEmpty(_struct.coalitionName))
+                    // {
+                    //     // foreach (var polityClass in polity.classes)
+                    //     //     if (_struct.className.Equals(polityClass.name))
+                    //     //     {
+                    //     //         emblem = polityClass.emblem;
+                    //     //         if (!string.IsNullOrEmpty(_struct.factionName))
+                    //     //         {
+                    //     //             foreach (var faction in polityClass.factions)
+                    //     //                 if (_struct.factionName.Equals(faction.name))
+                    //     //                     return faction.emblem;
+                    //     //             Debug.LogError("No Faction Found");
+                    //     //             return emblem;
+                    //     //         }
+                    //     //         return emblem;
+                    //     //     }
+                    //     Debug.LogError("No Class Found");
+                    //     return null;
+                    // }
                     return null;
                 }
             Debug.LogError("No Polity Found"); return null;
@@ -195,24 +202,24 @@ namespace Polities
                 if (_struct.name.Equals(polity.name))
                 {
                     // leader = polity.leader;
-                    if (!string.IsNullOrEmpty(_struct.coalitionName))
-                    {
-                        // foreach (var polityClass in polity.classes)
-                        //     if (_struct.className.Equals(polityClass.name))
-                        //     {
-                        //         leader = polityClass.leader;
-                        //         if (!string.IsNullOrEmpty(_struct.factionName))
-                        //         {
-                        //             foreach (var faction in polityClass.factions)
-                        //                 if (_struct.factionName.Equals(faction.name))
-                        //                     return faction.leader;
-                        //             Debug.LogError("No Faction Found");
-                        //             return leader;
-                        //         }
-                        //         return leader;
-                        //     }
-                        Debug.LogError("No Class Found");
-                    }
+                    // if (!string.IsNullOrEmpty(_struct.coalitionName))
+                    // {
+                    //     // foreach (var polityClass in polity.classes)
+                    //     //     if (_struct.className.Equals(polityClass.name))
+                    //     //     {
+                    //     //         leader = polityClass.leader;
+                    //     //         if (!string.IsNullOrEmpty(_struct.factionName))
+                    //     //         {
+                    //     //             foreach (var faction in polityClass.factions)
+                    //     //                 if (_struct.factionName.Equals(faction.name))
+                    //     //                     return faction.leader;
+                    //     //             Debug.LogError("No Faction Found");
+                    //     //             return leader;
+                    //     //         }
+                    //     //         return leader;
+                    //     //     }
+                    //     Debug.LogError("No Class Found");
+                    // }
                 }
             Debug.LogError("No Polity Found"); return null;
         }
@@ -265,31 +272,6 @@ namespace Polities
             if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return null; }
 
-            foreach (var polity in factions)
-                if (_struct.name.Equals(polity.name))
-                    if (!string.IsNullOrEmpty(_struct.coalitionName))
-                    {
-                        // foreach (var polityClass in polity.classes)
-                        //     if (_struct.className.Equals(polityClass.name))
-                        //         if (!string.IsNullOrEmpty(_struct.factionName))
-                        //         {
-                        //             bool factionExists = false;
-                        //             foreach (var faction in polityClass.factions)
-                        //                 if (_struct.factionName.Equals(faction.name))
-                        //                 {
-                        //                     Debug.LogWarning("Faction already exists");
-                        //                     factionExists = true; break;
-                        //                 }
-                        //             if (!factionExists)
-                        //             {
-                        //                 polityClass.factions.Add(newFaction);
-                        //                 OnFactionChange?.Invoke();
-                        //                 return newFaction;
-                        //             }
-                        //             Debug.LogError("No Faction Found");
-                        //         }
-                        // Debug.LogError("No Class Found");
-                    }
             return null;
         }
         public void AddFactionToPolity(Polity _struct) => AddFactionToPolity(_struct, null, null);
@@ -305,23 +287,7 @@ namespace Polities
             foreach (var polity in factions)
                 if (_struct.name.Equals(polity.name))
                 {
-                    if (string.IsNullOrEmpty(_struct.coalitionName))
-                    { Debug.LogError("No Class Name Provided"); return; }
-
-                    // foreach (var polityClass in polity.classes)
-                    //     if (_struct.className.Equals(polityClass.name))
-                    //     {
-                    //         if (string.IsNullOrEmpty(_struct.factionName))
-                    //         { Debug.LogError("No Faction Name Provided"); return; }
-                    //         for (int i = 0; i < polityClass.factions.Count; i++)
-                    //             if (_struct.factionName.Equals(polityClass.factions[i].name))
-                    //             {
-                    //                 polityClass.factions.RemoveAt(i);
-                    //                 Debug.Log("Faction found and removed");
-                    //                 OnFactionChange?.Invoke(); return;
-                    //             }
-                    //         return;
-                    //     }
+                    
                     Debug.LogError("No Class Found"); return;
                 }
         }
@@ -332,7 +298,7 @@ namespace Polities
         /* -------------------------------------------------------------------------- */
 
         [Serializable]
-        public class Faction : PolityBase
+        public class Polity : PolityBase
         {
             public List<Unit> units;
         }

@@ -69,11 +69,11 @@ namespace Polities
         void UpdateFactionNames(int factionIndex, SerializedProperty factionNameProp)
         {
 
-            Faction[] factions = polityManager.factions;
-            factionNames = new string[factions.Length + 1];
+            Manager.Polity[] factions = polityManager.factions;
+            factionNames = new string[factions.Length];
             Debug.Log($"Updating faction names for faction index {factionIndex} with {factions.Length} factions.");
             for (int i = 0; i < factions.Length; i++)
-                factionNames[i + 1] = factions[i].name;
+                factionNames[i] = factions[i].name;
             if (factionNameProp.stringValue != null)
             {
                 int index = System.Array.IndexOf(factionNames, factionNameProp.stringValue);

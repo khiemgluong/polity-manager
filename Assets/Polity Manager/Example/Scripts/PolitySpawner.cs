@@ -30,7 +30,7 @@ namespace Polity
         void OnDropdownValueChanged(int index)
         {
             string selectedValue = dropdown.options[index].text;
-            Faction polityStruct = new()
+            Manager.Faction polityStruct = new()
             { name = selectedValue };
         }
         void Start()

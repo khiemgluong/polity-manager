@@ -3,14 +3,17 @@ using UnityEngine;
 
 namespace Polity
 {
+  
     [Serializable]
     public struct Faction : IEquatable<Faction>
     {
         public string name;
+        public string group;
 
-        public readonly bool Equals(Faction other)
+        public readonly bool Equals(Faction faction)
         {
-            return string.Equals(name, other.name, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(name, faction.name, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(group, faction.group, StringComparison.OrdinalIgnoreCase);
         }
 
         public override readonly bool Equals(object obj)
@@ -20,7 +23,7 @@ namespace Polity
 
         public override readonly int GetHashCode()
         {
-            return HashCode.Combine(name?.ToLowerInvariant());
+            return HashCode.Combine(name?.ToLowerInvariant(), group?.ToLowerInvariant());
         }
 
 
@@ -30,6 +33,4 @@ namespace Polity
             // UpdatePolityIndices();
         }
     }
-
-  
 }

@@ -8,7 +8,6 @@ namespace Polity
     public class Member : MonoBehaviour
     {
         public Faction faction;
-        public Group group;
 
         /* --------------------------------- EVENTS --------------------------------- */
         // public static Action<Member> OnMemberSpawn, OnMemberDestroy;

@@ -82,13 +82,13 @@ namespace Polity
                     canvasGroup.alpha = 1;
                     memberName.text = polityMember.name;
 
-                    Faction polityStruct = polityMember.faction;
-                    memberPolity.text = polityStruct.name;
+                    // Faction polityStruct = polityMember.faction;
+                    // memberPolity.text = polityStruct.name;
                     //Get the emblem of just the polity if available
-                    Faction emblemStruct = new()
-                    {
-                        name = polityStruct.name
-                    };
+                    // Faction emblemStruct = new()
+                    // {
+                    //     name = polityStruct.name
+                    // };
                     // Texture emblemTexture = Singleton.GetPolityEmblem(emblemStruct);
                     // if (emblemTexture != null)
                     // {

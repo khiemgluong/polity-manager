@@ -9,47 +9,46 @@ namespace Polity
     {
         public Reader reader;
 
-        /* --------------------------------- EVENTS --------------------------------- */
-        // public static Action<Member> OnMemberSpawn, OnMemberDestroy;
         void Awake()
         {
-     
+
         }
 
-        void OnEnable()
+        protected virtual void OnEnable()
         {
             OnFactionChange += OnFactionChanged;
         }
-        void OnDisable()
+        protected virtual void OnDisable()
         {
             OnFactionChange -= OnFactionChanged;
         }
 
-        void Start()
-        {
-            Shart();
-        }
+        // public void ChangeFaction(int factionIndex)
+        // {
+        //     if (factionIndex < 0 || factionIndex >= Manager.Singleton.factions.Length)
+        //     {
+        //         Debug.LogError($"Invalid faction index: {factionIndex}. No faction change applied.");
+        //         return;
+        //     }
+        //     reader.Set(factionIndex);
+        //     Manager.OnFactionChange?.Invoke();
+        // }
 
-        public void Shart()
-        {
-          
-        }
+        // public void ChangeFaction(string newFactionName)
+        // {
+        //     int factionIndex = Array.FindIndex(Manager.Singleton.factions, 
+        //         f => string.Equals(f.name, newFactionName, StringComparison.OrdinalIgnoreCase));
+        //     if (factionIndex == -1)
+        //     {
+        //         Debug.LogError($"Faction '{newFactionName}' not found. No faction change applied.");
+        //         return;
+        //     }
+        //     reader.Set(factionIndex);
+        //     Manager.OnFactionChange?.Invoke();
+        // }
 
-        void OnDestroy()
-        {
-        }
-        [ContextMenu("Generate ID")]
-        public void GenerateID()
-        {
-        }
         /* --------------------------------- EVENTS --------------------------------- */
-        void OnMemberSpawned(Member member)
-        {
 
-        }
-        void OnMemberDestroyed(Member member)
-        {
-        }
         void OnFactionChanged()
         {
 

@@ -3,6 +3,8 @@ using UnityEngine;
 
 namespace Polity
 {
+    using static Manager;
+
     public partial class PolityManagerEditor : Editor
     {
         void FactionsMatrix()
@@ -61,6 +63,7 @@ namespace Polity
                             }
                             //Set reciprocal
                             manager.RelationMatrix[j, i] = manager.RelationMatrix[i, j];
+                            manager.SerializeRelationMatrix();
                             if (Application.isPlaying) Manager.OnRelationChange?.Invoke();
                         }
 
@@ -73,5 +76,30 @@ namespace Polity
                 EditorGUILayout.EndScrollView(); GUILayout.EndVertical();
             }
         }
+
+        void GetNextRelationship(Manager manager, int i, int j)
+        {
+            Relation relation = manager.RelationMatrix[i, j];
+            manager.RelationMatrix[i, j] = relation switch
+            {
+                Relation.Neutral => Relation.Allies,
+                Relation.Allies => Relation.Enemies,
+                Relation.Enemies => Relation.Neutral,
+                _ => Relation.Neutral,
+            };
+        }
+        void GetBackRelationship(Manager manager, int i, int j)
+        {
+            Relation relation = manager.RelationMatrix[i, j];
+            manager.RelationMatrix[i, j] = relation switch
+            {
+                Relation.Neutral => Relation.Enemies,
+                Relation.Enemies => Relation.Allies,
+                Relation.Allies => Relation.Neutral,
+                _ => Relation.Neutral,
+            };
+        }
+
+
     }
 }

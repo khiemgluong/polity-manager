@@ -45,8 +45,8 @@ namespace Polity
             // Save changes
             if (GUI.changed)
             {
-                if (!Application.isPlaying)
-                    manager.SerializeRelationMatrix();
+                // if (!Application.isPlaying)
+                //     manager.SerializeRelationMatrix();
                 serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(manager);
             }
@@ -73,29 +73,6 @@ namespace Polity
                 Relation.Allies => Color.green,
                 Relation.Enemies => Color.red,
                 _ => Color.white,
-            };
-        }
-
-        void GetNextRelationship(Manager manager, int i, int j)
-        {
-            Relation relation = manager.RelationMatrix[i, j];
-            manager.RelationMatrix[i, j] = relation switch
-            {
-                Relation.Neutral => Relation.Allies,
-                Relation.Allies => Relation.Enemies,
-                Relation.Enemies => Relation.Neutral,
-                _ => Relation.Neutral,
-            };
-        }
-        void GetBackRelationship(Manager manager, int i, int j)
-        {
-            Relation relation = manager.RelationMatrix[i, j];
-            manager.RelationMatrix[i, j] = relation switch
-            {
-                Relation.Neutral => Relation.Enemies,
-                Relation.Enemies => Relation.Allies,
-                Relation.Allies => Relation.Neutral,
-                _ => Relation.Neutral,
             };
         }
 

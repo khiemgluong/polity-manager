@@ -26,7 +26,12 @@ namespace Polity
                 public float value;
                 public Reader[] factions;
             }
+
         }
+        public SerializedDictionary<Reader, string> dict0;
+
+        public SerializedDictionary<Reader[], string> dict;
+
         void Start()
         {
 

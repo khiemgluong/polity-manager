@@ -10,15 +10,14 @@ namespace Polity
         Manager manager;
         string polityName;
         Member member;
-        SerializedProperty factionProp;
+        // SerializedProperty factionProp;
         void OnEnable()
         {
             if (manager == null) manager = FindFirstObjectByType<Manager>();
             member = (Member)target; // Cache before destruction nullifies it
             serializedObject.Update(); // Sync serialized data before reading
 
-            factionProp = serializedObject.FindProperty("faction");
-            polityName = factionProp.FindPropertyRelative("name").stringValue;
+            // polityName = factionProp.FindPropertyRelative("name").stringValue;
 
             if (string.IsNullOrEmpty(polityName))
                 polityName = member.faction.name;
@@ -29,7 +28,7 @@ namespace Polity
         {
 
         }
-
+        const float minHorizontalWidth = 320f;
         public override void OnInspectorGUI()
         {
             if (manager == null)
@@ -39,19 +38,33 @@ namespace Polity
             }
 
             serializedObject.Update();
-
+            SerializedProperty factionProp = serializedObject.FindProperty("faction");
             SerializedProperty groupProp = serializedObject.FindProperty("group");
 
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
+            float lineHeight = EditorGUIUtility.singleLineHeight;
+
+            bool useHorizontal = EditorGUIUtility.currentViewWidth >= minHorizontalWidth;
+
+            Rect totalRect = EditorGUILayout.GetControlRect(false,
+                useHorizontal ? lineHeight : (lineHeight * 2) + spacing);
+
+            Rect factionRect, groupRect;
+            if (useHorizontal)
+            {
+                float halfWidth = (totalRect.width - spacing) / 2f;
+                factionRect = new Rect(totalRect.x, totalRect.y, halfWidth, lineHeight);
+                groupRect = new Rect(totalRect.x + halfWidth + spacing, totalRect.y, halfWidth, lineHeight);
+                EditorGUIUtility.labelWidth = halfWidth * 0.4f;
+            }
+            else
+            {
+                factionRect = new Rect(totalRect.x, totalRect.y, totalRect.width, lineHeight);
+                groupRect = new Rect(totalRect.x, totalRect.y + lineHeight + spacing, totalRect.width, lineHeight);
+                EditorGUIUtility.labelWidth = totalRect.width * 0.4f;
+            }
+
             EditorGUI.BeginChangeCheck();
-
-            Rect totalRect = EditorGUILayout.GetControlRect();
-            float halfWidth = (totalRect.width - EditorGUIUtility.standardVerticalSpacing) / 2f;
-
-            Rect factionRect = new Rect(totalRect.x, totalRect.y, halfWidth, totalRect.height);
-            Rect groupRect = new Rect(totalRect.x + halfWidth + EditorGUIUtility.standardVerticalSpacing,
-                                        totalRect.y, halfWidth, totalRect.height);
-
-            EditorGUIUtility.labelWidth = halfWidth * 0.4f;
 
             EditorGUI.showMixedValue = factionProp.hasMultipleDifferentValues;
             EditorGUI.PropertyField(factionRect, factionProp, GUIContent.none);
@@ -59,19 +72,17 @@ namespace Polity
             EditorGUI.showMixedValue = groupProp.hasMultipleDifferentValues;
             EditorGUI.PropertyField(groupRect, groupProp, GUIContent.none);
 
-            EditorGUI.showMixedValue = false; // always reset
-            EditorGUIUtility.labelWidth = 0; // reset to default
+            EditorGUI.showMixedValue = false;
+            EditorGUIUtility.labelWidth = 0;
 
             if (EditorGUI.EndChangeCheck())
             {
                 serializedObject.ApplyModifiedProperties();
                 polityName = factionProp.FindPropertyRelative("name").stringValue;
-
-                // Iterate all selected targets individually
                 foreach (var t in targets)
                 {
                     var member = (Member)t;
-                    member.faction.name = polityName; // Update live object
+                    member.faction.name = polityName;
                     EditorUtility.SetDirty(t);
                 }
             }

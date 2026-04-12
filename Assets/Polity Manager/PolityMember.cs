@@ -57,10 +57,9 @@ namespace Polity
         }
 
         [Serializable]
-        public struct Group
+        public class Group
         {
             public string name;
-            public bool leader;
         }
     }
 }

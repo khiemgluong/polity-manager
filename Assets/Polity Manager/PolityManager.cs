@@ -40,7 +40,6 @@ namespace Polity
         {
             ValidateRelationMatrix();
             SerializeRelationMatrix();
-            List<string> polityNames = new();
         }
 
         [ContextMenu("Reset Polity Relation Matrix")]
@@ -249,8 +248,8 @@ namespace Polity
 
         public void ChangeRelation(Member member, string theirPolityName, Relation newRelation)
             => ChangeRelation(member.faction.name, theirPolityName, newRelation);
-        public void ChangeRelation(PolityReader reader, PolityReader theirReader, Relation newRelation)
-            => ChangeRelation(reader.Struct.name, theirReader.Struct.name, newRelation);
+        // public void ChangeRelation(PolityReader reader, PolityReader theirReader, Relation newRelation)
+        //     => ChangeRelation(reader.Struct.name, theirReader.Struct.name, newRelation);
         public void ChangeRelation(Faction _struct, Faction theirStruct, Relation newRelation)
             => ChangeRelation(_struct.name, theirStruct.name, newRelation);
         /// <summary>

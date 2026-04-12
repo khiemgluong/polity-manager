@@ -23,11 +23,6 @@ namespace Polity
             return HashCode.Combine(name?.ToLowerInvariant());
         }
 
-        public void Set(PolityReader polityReader)
-        {
-            // _struct = polityReader._struct;
-            // UpdatePolityIndices();
-        }
 
         public void Set(Faction polityStruct)
         {
@@ -35,4 +30,6 @@ namespace Polity
             // UpdatePolityIndices();
         }
     }
+
+  
 }

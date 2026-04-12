@@ -47,6 +47,7 @@
 !/Assets/**/*.aiff
 !/Assets/**/*.aif
 !/Assets/**/*.m4a
+!/Assets/**/*.asmdef
 
 !/Assets/Documentation/*
 

@@ -20,38 +20,7 @@ namespace Polity
             EditorGUI.PropertyField(rect, nameProp);
             rect.y += lineHeight + spacing;
 
-            // EditorGUI.PropertyField(rect, logoProp);
-            // rect.y += lineHeight + spacing;
-
-            // Draw the object field manually
-            // var currentMember = leaderProp.objectReferenceValue as Member;
-
-            // EditorGUI.BeginChangeCheck();
-            // var newMember = (Member)EditorGUI.ObjectField(rect, "Leader", currentMember, typeof(Member), true); // true = allow scene objects
-            // if (EditorGUI.EndChangeCheck())
-            // {
-            //     if (newMember == null)
-            //     {
-            //         leaderProp.objectReferenceValue = null;
-            //     }
-            //     else
-            //     {
-            //         bool isSceneInstance = !EditorUtility.IsPersistent(newMember);
-            //         bool isPrefabInstance = PrefabUtility.IsPartOfPrefabInstance(newMember);
-
-            //         if (isSceneInstance || isPrefabInstance)
-            //             leaderProp.objectReferenceValue = newMember;
-            //         else
-            //             Debug.LogWarning($"{newMember.name} is a prefab asset and cannot be assigned as a leader. Use a scene instance instead.");
-            //     }
-            // }
-
-            if (EditorApplication.isPlaying)
-            {
-                // EditorGUI.PropertyField(rect, leaderProp);
-                // rect.y += lineHeight + spacing;
-                // EditorGUI.PropertyField(rect, membersProp, includeChildren: true);
-            }
+          
 
             EditorGUI.EndProperty();
         }

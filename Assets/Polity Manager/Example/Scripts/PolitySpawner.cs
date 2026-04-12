@@ -10,7 +10,6 @@ namespace Polity
         [SerializeField] Material[] colors;
         [SerializeField] GameObject spawnDummy, cursor;
         public bool spawn = true;
-        [SerializeField] PolityReader polityReader = new();
         HashSet<Transform> usedSpawnPoints = new();
         public Dropdown dropdown;
         void Awake()
@@ -33,7 +32,6 @@ namespace Polity
             string selectedValue = dropdown.options[index].text;
             Faction polityStruct = new()
             { name = selectedValue };
-            polityReader.SetPolity(polityStruct);
         }
         void Start()
         {

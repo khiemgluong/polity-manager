@@ -1,11 +1,11 @@
 using UnityEngine;
 using AYellowpaper.SerializedCollections;
-namespace Polities
+namespace Polity
 {
     public class PolityTest : MonoBehaviour
     {
-        public Polity[] shart;
-        public SerializedDictionary<Polity[], Polity[]> dict;
+        public Faction[] shart;
+        public SerializedDictionary<Faction, Faction[]> dict1;
 
         void Start()
         {

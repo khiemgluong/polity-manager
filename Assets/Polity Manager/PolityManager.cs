@@ -2,17 +2,17 @@ using System;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace Polities
+namespace Polity
 {
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {
         public static Manager Singleton { get; private set; }
         [Tooltip("The largest, most important organizational unit in your game.")]
-        public Polity[] polities = new Polity[0];
-        public PolityRelation[,] RelationMatrix { get; set; }
+        public Faction[] factions = new Faction[0];
+        public Relation[,] RelationMatrix { get; set; }
         [SerializeField] string polityRelationMatrixString = "";
-        public enum PolityRelation
+        public enum Relation
         {
             Neutral,
             Allies,
@@ -21,9 +21,10 @@ namespace Polities
 
         [Serializable]
         class PolityRelationMatrixWrapper
-        { public List<PolityRelation> relations = new(); public int rows, columns; }
+        { public List<Relation> relations = new(); public int rows, columns; }
 
-        // public PolityUnits[] units;
+        /* -------------------------------- FAMILIES -------------------------------- */
+
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnRelationChange, OnFactionChange;
         void Awake()
@@ -32,6 +33,7 @@ namespace Polities
                 Destroy(gameObject);
             else Singleton = this;
             LoadRelationMatrix();
+            Debug.LogError($"Polity has no groups defined. Make sure to add at least one group to each polity in the Manager.");
         }
 
         void OnValidate()
@@ -44,11 +46,11 @@ namespace Polities
         [ContextMenu("Reset Polity Relation Matrix")]
         void ResetPolityRelationMatrix()
         {
-            int size = polities.Length;
-            RelationMatrix = new PolityRelation[size, size];
+            int size = factions.Length;
+            RelationMatrix = new Relation[size, size];
             for (int i = 0; i < size; i++)
                 for (int j = 0; j < size; j++)
-                    RelationMatrix[i, j] = PolityRelation.Neutral;
+                    RelationMatrix[i, j] = Relation.Neutral;
             SerializeRelationMatrix();
             ValidateRelationMatrix();
         }
@@ -56,15 +58,15 @@ namespace Polities
         {
             LoadRelationMatrix();
             if (RelationMatrix == null ||
-                RelationMatrix.GetLength(0) != polities.Length ||
-                RelationMatrix.GetLength(1) != polities.Length)
+                RelationMatrix.GetLength(0) != factions.Length ||
+                RelationMatrix.GetLength(1) != factions.Length)
             {
                 // Create a temporary matrix to hold existing data
-                PolityRelation[,] tempMatrix = new PolityRelation[polities.Length, polities.Length];
+                Relation[,] tempMatrix = new Relation[factions.Length, factions.Length];
                 if (RelationMatrix != null)
                 {
-                    int minRows = Mathf.Min(RelationMatrix.GetLength(0), polities.Length);
-                    int minCols = Mathf.Min(RelationMatrix.GetLength(1), polities.Length);
+                    int minRows = Mathf.Min(RelationMatrix.GetLength(0), factions.Length);
+                    int minCols = Mathf.Min(RelationMatrix.GetLength(1), factions.Length);
 
                     for (int i = 0; i < minRows; i++)
                         for (int j = 0; j < minCols; j++)
@@ -72,29 +74,17 @@ namespace Polities
                 }
                 // Replace the old matrix with the new matrix of appropriate size
                 RelationMatrix = tempMatrix;
-                CheckForDuplicatePolityNames();
             }
         }
 
-        [ContextMenu("Find Duplicate Polity Names")]
-        void CheckForDuplicatePolityNames()
-        {
-            Dictionary<string, int> nameIndex = new();
-            for (int i = 0; i < polities.Length; i++)
-            {
-                // if (nameIndex.ContainsKey(factions[i].name))
-                //     Debug.LogWarning($"Duplicate name found: {factions[i].name} at {i}");
-                // else nameIndex[factions[i].name] = i;
-            }
-        }
+
         [ContextMenu("Load Polity Relation Matrix")]
-        // Unity can't serialize & deserialize matrices, so this is a custom approach around it.
         public void LoadRelationMatrix()
         {
             if (RelationMatrix == null)
             {
-                int ln = polities.Length;
-                RelationMatrix = new PolityRelation[ln, ln];
+                int ln = factions.Length;
+                RelationMatrix = new Relation[ln, ln];
             }
             RelationMatrix = DeserializeRelationMatrix();
         }
@@ -104,7 +94,7 @@ namespace Polities
         /* -------------------------------------------------------------------------- */
 
         /* ------------------------------- SERIALIZERS ------------------------------ */
-        public string SerializeRelationMatrix(PolityRelation[,] polityRelationMatrix)
+        public string SerializeRelationMatrix(Relation[,] polityRelationMatrix)
         {
             PolityRelationMatrixWrapper wrapper = new()
             {
@@ -121,18 +111,18 @@ namespace Polities
 
         public string SerializeRelationMatrix() => SerializeRelationMatrix(RelationMatrix);
 
-        public PolityRelation[,] DeserializeRelationMatrix(string json)
+        public Relation[,] DeserializeRelationMatrix(string json)
         {
             if (json.Equals("") || json == null) return null;
             PolityRelationMatrixWrapper wrapper = JsonUtility.FromJson<PolityRelationMatrixWrapper>(json);
-            PolityRelation[,] matrix = new PolityRelation[wrapper.rows, wrapper.columns];
+            Relation[,] matrix = new Relation[wrapper.rows, wrapper.columns];
             int index = 0;
             for (int i = 0; i < wrapper.rows; i++)
                 for (int j = 0; j < wrapper.columns; j++)
                     matrix[i, j] = wrapper.relations[index++];
             return matrix;
         }
-        public PolityRelation[,] DeserializeRelationMatrix() =>
+        public Relation[,] DeserializeRelationMatrix() =>
             DeserializeRelationMatrix(polityRelationMatrixString);
         #region Getters
         /* --------------------------------- GETTERS -------------------------------- */
@@ -140,33 +130,33 @@ namespace Polities
         // / Gets the current PolityRelation from one PolityMember to another.
         // / </summary>
         // / <returns>The PolityRelation enum as Neutral, Allies, or Enemies.</returns>
-        public Polity GetPolity(string polityName)
+        public Faction GetPolity(string polityName)
         {
-            foreach (var polity in polities)
+            foreach (var polity in factions)
                 if (polity.name.Equals(polityName))
                     return polity;
             Debug.LogError($"No polity found with name {polityName}");
             return null;
         }
-        public PolityRelation CheckRelation(Member member, Member otherMember) =>
-               CheckRelation(member.polity.name, otherMember.polity.name);
-        public PolityRelation CheckRelation(string yourPolityName, string theirPolityName)
+        public Relation CheckRelation(Member member, Member otherMember) =>
+               CheckRelation(member.faction.name, otherMember.faction.name);
+        public Relation CheckRelation(string yourPolityName, string theirPolityName)
         {
-            if (yourPolityName.Equals(theirPolityName)) return PolityRelation.Allies;
-            int yourIndex = Array.FindIndex(polities, p => p.name == yourPolityName);
-            int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
+            if (yourPolityName.Equals(theirPolityName)) return Relation.Allies;
+            int yourIndex = Array.FindIndex(factions, p => p.name == yourPolityName);
+            int theirIndex = Array.FindIndex(factions, p => p.name == theirPolityName);
             if (yourIndex == -1 || theirIndex == -1)
             { Debug.Log("One or both polity names not found."); return default; }
 
-            PolityRelation relation = RelationMatrix[yourIndex, theirIndex];
+            Relation relation = RelationMatrix[yourIndex, theirIndex];
             return relation;
         }
 
-        public Texture2D GetPolityEmblem(Polity _struct)
+        public Texture2D GetPolityEmblem(Faction _struct)
         {
             if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return null; }
-            foreach (var polity in polities)
+            foreach (var polity in factions)
                 if (_struct.name.Equals(polity.name))
                 {
                     // emblem = polity.emblem;
@@ -194,11 +184,11 @@ namespace Polities
             Debug.LogError("No Polity Found"); return null;
         }
 
-        public Member GetPolityLeader(Polity _struct)
+        public Member GetPolityLeader(Faction _struct)
         {
             if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return null; }
-            foreach (var polity in polities)
+            foreach (var polity in factions)
                 if (_struct.name.Equals(polity.name))
                 {
                     // leader = polity.leader;
@@ -232,10 +222,10 @@ namespace Polities
         /// </summary>
         /// <param name="theirPolityName">The string of the polity name that is selected.</param>
         /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
-        public void ChangeRelation(string polityName, string theirPolityName, PolityRelation newRelation)
+        public void ChangeRelation(string polityName, string theirPolityName, Relation newRelation)
         {
-            int thisIndex = Array.FindIndex(polities, p => p.name == polityName);
-            int theirIndex = Array.FindIndex(polities, p => p.name == theirPolityName);
+            int thisIndex = Array.FindIndex(factions, p => p.name == polityName);
+            int theirIndex = Array.FindIndex(factions, p => p.name == theirPolityName);
             if (polityName.Equals(theirPolityName))
             {
                 Debug.LogWarning($"Cannot change identical polities {polityName}.");
@@ -257,11 +247,11 @@ namespace Polities
             Debug.Log($"Set relation between {polityName} & {theirPolityName} to {newRelation}");
         }
 
-        public void ChangeRelation(Member member, string theirPolityName, PolityRelation newRelation)
-            => ChangeRelation(member.polity.name, theirPolityName, newRelation);
-        public void ChangeRelation(PolityReader reader, PolityReader theirReader, PolityRelation newRelation)
+        public void ChangeRelation(Member member, string theirPolityName, Relation newRelation)
+            => ChangeRelation(member.faction.name, theirPolityName, newRelation);
+        public void ChangeRelation(PolityReader reader, PolityReader theirReader, Relation newRelation)
             => ChangeRelation(reader.Struct.name, theirReader.Struct.name, newRelation);
-        public void ChangeRelation(Polity _struct, Polity theirStruct, PolityRelation newRelation)
+        public void ChangeRelation(Faction _struct, Faction theirStruct, Relation newRelation)
             => ChangeRelation(_struct.name, theirStruct.name, newRelation);
         /// <summary>
         /// Adds a faction to a polity, requiring a matching polityName and className to work.
@@ -279,12 +269,12 @@ namespace Polities
         /// <summary>
         /// Remove a faction of a polity, if the PolityStruct polityName, className and factionName all match.
         /// </summary>
-        public void RemoveFactionFromPolity(Polity _struct)
+        public void RemoveFactionFromPolity(Faction _struct)
         {
             if (string.IsNullOrEmpty(_struct.name))
             { Debug.LogError("No Polity Name Provided"); return; }
 
-            foreach (var polity in polities)
+            foreach (var polity in factions)
                 if (_struct.name.Equals(polity.name))
                 {
 
@@ -297,58 +287,17 @@ namespace Polities
         /*                             SERIALIZED CLASSES                             */
         /* -------------------------------------------------------------------------- */
         [Serializable]
-        public struct Group
+        public class Faction
         {
             public string name;
-            public Member leader;
-            public List<Member> members;
-
-            public void AddMember(Member member)
-            {
-                members ??= new List<Member>();
-                if (!members.Contains(member)) members.Add(member);
-                Debug.Log($"Added member '{member.name}' to unit '{name}'.");
-            }
-
-            public void RemoveMember(Member member)
-            {
-                if (members != null && members.Contains(member))
-                    members.Remove(member);
-                Debug.Log($"Removed member '{member.name}' from unit '{name}'.");
-            }
-
-            public void SetLeader(Member leader)
-            {
-                //first check if a leader is already set, if so add them to the members list before setting the new leader. If not, just set the new leader.
-                if (this.leader != null) AddMember(this.leader);
-                // then remove the new leader from the members list if they are in it, and set them as the new leader.
-                if (members != null && members.Contains(leader))
-                    members.Remove(leader);
-                this.leader = leader;
-            }
-        }
-
-        [Serializable]
-        public class Polity : PolityBase
-        {
             public List<Group> groups;
         }
 
-        /// <summary>
-        /// Could represent a temporary political unit, which can be added and removed at runtime.
-        /// </summary>
-      
-        public abstract class PolityBase
+        [Serializable]
+        public class Group
         {
-            [Tooltip("The name of the political unit.")]
             public string name;
-            /// <summary>
-            /// Can represent a standard, vexillum, ensign, coat of arms or a team color.
-            /// </summary>
-            public Texture2D emblem;
-            /// <summary>
-            /// The leader of this specific unit, e.g. an emperor, queen or manager.
-            /// </summary>
         }
+
     }
 }

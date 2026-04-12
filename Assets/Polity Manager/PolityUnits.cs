@@ -2,15 +2,15 @@ using System.Collections.Generic;
 
 using UnityEngine;
 
-namespace Polities
+namespace Polity
 {
     using System.ComponentModel;
-    using Polities;
-    using static Polities.Manager;
+    using Polity;
+    using static Polity.Manager;
     [System.Serializable]
     public struct PolityUnit
     {
-        public Polity polity;
+        public Faction polity;
         // public Member.Unit unit;
     }
 

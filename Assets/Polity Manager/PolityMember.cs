@@ -1,45 +1,43 @@
 using System;
 using UnityEngine;
 
-namespace Polities
+namespace Polity
 {
     using static Manager;
     [DisallowMultipleComponent]
     public class Member : MonoBehaviour
     {
-        public Polity polity;
-        public Unit unit;
-
-        public Polity[] sharts;
+        public Faction faction;
+        public Group group;
 
         /* --------------------------------- EVENTS --------------------------------- */
-        public static Action<Member> OnMemberSpawn, OnMemberDestroy;
+        // public static Action<Member> OnMemberSpawn, OnMemberDestroy;
         void Awake()
         {
+            Debug.LogError($"Member '{name}' Awake. Polity: '{faction.name}'");
         }
 
         void OnEnable()
         {
-            OnMemberSpawn += OnMemberSpawned;
             OnFactionChange += OnFactionChanged;
-            OnMemberDestroy += OnMemberDestroyed;
         }
         void OnDisable()
         {
-            OnMemberSpawn -= OnMemberSpawned;
             OnFactionChange -= OnFactionChanged;
-            OnMemberDestroy -= OnMemberDestroyed;
         }
 
         void Start()
         {
-            OnMemberSpawn?.Invoke(this);
+            Shart();
+        }
+
+        public void Shart()
+        {
+          
         }
 
         void OnDestroy()
         {
-            Debug.LogError($"Member '{name}' is being destroyed. This may cause issues if it is still referenced in its Polity or Unit. Make sure to remove it from any Polity or Unit before destroying it.");
-            OnMemberDestroy?.Invoke(this);
         }
         [ContextMenu("Generate ID")]
         public void GenerateID()
@@ -59,7 +57,7 @@ namespace Polities
         }
 
         [Serializable]
-        public struct Unit
+        public struct Group
         {
             public string name;
             public bool leader;

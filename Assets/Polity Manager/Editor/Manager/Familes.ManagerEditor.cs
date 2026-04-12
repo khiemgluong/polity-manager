@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Polities
+namespace Polity
 {
     public partial class PolityManagerEditor : Editor
     {

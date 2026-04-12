@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
-namespace Polities
+namespace Polity
 {
     using static Manager;
     [Serializable]
     public class PolityReader
     {
-        [SerializeField] Polity _struct = new();
-        public Polity Struct => _struct;
+        [SerializeField] Faction _struct = new();
+        public Faction Struct => _struct;
         [SerializeField] int polityIndex, classIndex, factionIndex;
         [SerializeField] bool isPolityLeader, isClassLeader, isFactionLeader;
 
@@ -17,7 +17,7 @@ namespace Polities
             UpdatePolityIndices();
         }
 
-        public void SetPolity(Polity polityStruct)
+        public void SetPolity(Faction polityStruct)
         {
             _struct = polityStruct;
             UpdatePolityIndices();
@@ -25,11 +25,11 @@ namespace Polities
 
         void UpdatePolityIndices()
         {
-            if (Singleton == null || Singleton.polities == null) return;
+            if (Singleton == null || Singleton.factions == null) return;
 
             // Update polityIndex
-            polityIndex = Array.FindIndex(Singleton.polities, p => p.name == _struct.name);
-            if (polityIndex >= 0 && polityIndex < Singleton.polities.Length)
+            polityIndex = Array.FindIndex(Singleton.factions, p => p.name == _struct.name);
+            if (polityIndex >= 0 && polityIndex < Singleton.factions.Length)
             {
                 // Update classIndex
                 // var classes = PM.polities[polityIndex].classes;

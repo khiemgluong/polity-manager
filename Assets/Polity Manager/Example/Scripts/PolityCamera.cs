@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Polities
+namespace Polity
 {
-    using static Polities.Manager;
-    using static Polities.Member;
+    using static Polity.Manager;
+    using static Polity.Member;
     public class PolityCamera : MonoBehaviour
     {
         public Image targetImage;
@@ -82,10 +82,10 @@ namespace Polities
                     canvasGroup.alpha = 1;
                     memberName.text = polityMember.name;
 
-                    Polity polityStruct = polityMember.polity;
+                    Faction polityStruct = polityMember.faction;
                     memberPolity.text = polityStruct.name;
                     //Get the emblem of just the polity if available
-                    Polity emblemStruct = new()
+                    Faction emblemStruct = new()
                     {
                         name = polityStruct.name
                     };

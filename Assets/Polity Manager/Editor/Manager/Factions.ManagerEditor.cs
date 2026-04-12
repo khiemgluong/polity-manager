@@ -1,7 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Polities
+namespace Polity
 {
     public partial class PolityManagerEditor : Editor
     {
@@ -13,7 +13,7 @@ namespace Polities
             Manager manager = (Manager)target;
             GUILayoutOption width = GUILayout.Width(gridSize);
             GUILayoutOption height = GUILayout.Height(gridSize);
-            if (manager.polities.Length > 0)
+            if (manager.factions.Length > 0)
             {
                 GUILayout.BeginVertical();
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
@@ -23,27 +23,27 @@ namespace Polities
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Space(-47);
                 EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
-                if (manager.polities.Length > 0)
-                    for (int j = manager.polities.Length - 1; j >= 0; j--)
+                if (manager.factions.Length > 0)
+                    for (int j = manager.factions.Length - 1; j >= 0; j--)
                     {
                         GUILayout.Space(-1);
-                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.polities[j].name),
+                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].name),
                                                                     GUI.skin.label, width,
                                                                     GUILayout.Height(headerWidth));
-                        RotateText(labelRect, manager.polities[j].name, 270);
+                        RotateText(labelRect, manager.factions[j].name, 270);
                     }
                 EditorGUILayout.EndHorizontal();
 
-                for (int i = 0; i < manager.polities.Length; i++)
+                for (int i = 0; i < manager.factions.Length; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(manager.polities[i].name, new GUIStyle(GUI.skin.label)
+                    EditorGUILayout.LabelField(manager.factions[i].name, new GUIStyle(GUI.skin.label)
                     { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
                     // Create a grid but only for entries above the diagonal
-                    for (int j = manager.polities.Length - 1; j > i; j--)
+                    for (int j = manager.factions.Length - 1; j > i; j--)
                     {
-                        string tooltipText = manager.polities[i].name +
-                                            " & " + manager.polities[j].name +
+                        string tooltipText = manager.factions[i].name +
+                                            " & " + manager.factions[j].name +
                                             " | " + manager.RelationMatrix[i, j];
 
                         GUIContent buttonContent = new("", tooltipText);

@@ -2,7 +2,7 @@ using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
-namespace Polities
+namespace Polity
 {
     using static Manager;
     [CustomPropertyDrawer(typeof(PolityReader))]
@@ -20,11 +20,11 @@ namespace Polities
             if (polityManager == null)
             {
                 polityManager = Object.FindFirstObjectByType<Manager>();
-                if (polityManager != null && polityManager.polities != null)
+                if (polityManager != null && polityManager.factions != null)
                 {
-                    factionNames = new string[polityManager.polities.Length];
-                    for (int i = 0; i < polityManager.polities.Length; i++)
-                        factionNames[i] = polityManager.polities[i].name;
+                    factionNames = new string[polityManager.factions.Length];
+                    for (int i = 0; i < polityManager.factions.Length; i++)
+                        factionNames[i] = polityManager.factions[i].name;
                 }
             }
 
@@ -109,7 +109,7 @@ namespace Polities
                 object targetObject = GetTargetObjectOfProperty();
                 if (targetObject is PolityReader polityReader)
                 {
-                    Polity newStruct = new()
+                    Faction newStruct = new()
                     {
                         name = (polityIndex >= 0 && polityIndex < factionNames.Length)
                             ? factionNames[polityIndex] : null,

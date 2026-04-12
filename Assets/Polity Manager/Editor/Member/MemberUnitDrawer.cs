@@ -1,10 +1,10 @@
 using UnityEditor;
 using UnityEngine;
-using static Polities.Manager;
+using static Polity.Manager;
 
-namespace Polities
+namespace Polity
 {
-    [CustomPropertyDrawer(typeof(Member.Unit))]
+    [CustomPropertyDrawer(typeof(Member.Group))]
     public class MemberUnitDrawer : PropertyDrawer
     {
         Manager polityManager;
@@ -26,42 +26,36 @@ namespace Polities
                 EditorGUI.LabelField(position, "Target object is not a Member.");
                 return;
             }
-            string currentPolityName = target.polity.name;
-            Debug.Log($"Current Member Polity: {currentPolityName}");
-            if (!UpdateUnitNames(currentPolityName))
+            string currentFactionName = target.faction.name;
+            Debug.Log($"Current Member Polity: {currentFactionName}");
+            SerializedProperty nameProp = property.FindPropertyRelative("name");
+
+            if (!UpdateGroupNames(currentFactionName))
             {
-                EditorGUI.LabelField(position, $"No units found for polity '{currentPolityName}'.");
+                EditorGUI.LabelField(position, $"No groups found for faction.");
                 return;
             }
-
-            SerializedProperty nameProp = property.FindPropertyRelative("name");
-            SerializedProperty isLeaderProp = property.FindPropertyRelative("leader");
 
             // Get current dropdown index based on stored value
             int currentIndex = Mathf.Max(0, System.Array.IndexOf(nameOptions, nameProp.stringValue));
 
-            float lineHeight = EditorGUIUtility.singleLineHeight;
-
-            float dropdownWidth = position.width * (2f / 3f);
-            float toggleWidth = position.width * (1f / 3f);
-
-            Rect dropdownRect = new Rect(position.x, position.y, dropdownWidth, lineHeight);
+            Rect dropdownRect = new Rect(position.x, position.y, position.width , EditorGUIUtility.singleLineHeight);
             int selectedIndex = EditorGUI.Popup(dropdownRect, currentIndex, nameOptions);
             if (selectedIndex != currentIndex)
                 nameProp.stringValue = nameOptions[selectedIndex];
 
-            // --- Is Leader Toggle (1/3 width, space-between justified) ---
-            Rect toggleRect = new Rect(position.x + dropdownWidth, position.y, toggleWidth, lineHeight);
+            // // --- Is Leader Toggle (1/3 width, space-between justified) ---
+            // Rect toggleRect = new Rect(position.x + dropdownWidth, position.y, toggleWidth, lineHeight);
 
-            EditorGUI.BeginProperty(toggleRect, GUIContent.none, isLeaderProp);
+            // EditorGUI.BeginProperty(toggleRect, GUIContent.none, isLeaderProp);
 
-            float toggleSize = EditorGUIUtility.singleLineHeight; // square toggle box
+            // float toggleSize = EditorGUIUtility.singleLineHeight; // square toggle box
 
-            Rect labelRect = new Rect(toggleRect.x, toggleRect.y, toggleWidth - toggleSize, lineHeight);
-            Rect boolRect = new Rect(toggleRect.x + toggleRect.width - toggleSize, toggleRect.y, toggleSize, lineHeight);
+            // Rect labelRect = new Rect(toggleRect.x, toggleRect.y, toggleWidth - toggleSize, lineHeight);
+            // Rect boolRect = new Rect(toggleRect.x + toggleRect.width - toggleSize, toggleRect.y, toggleSize, lineHeight);
 
-            EditorGUI.LabelField(labelRect, "   Leader?");
-            isLeaderProp.boolValue = EditorGUI.Toggle(boolRect, isLeaderProp.boolValue);
+            // EditorGUI.LabelField(labelRect, "   Leader?");
+            // isLeaderProp.boolValue = EditorGUI.Toggle(boolRect, isLeaderProp.boolValue);
 
             EditorGUI.EndProperty();
         }
@@ -71,10 +65,10 @@ namespace Polities
             return EditorGUIUtility.singleLineHeight;
         }
 
-        bool UpdateUnitNames(string factionName)
+        bool UpdateGroupNames(string factionName)
         {
-            Manager.Polity[] factions = polityManager.polities;
-            foreach (Manager.Polity faction in factions)
+            Manager.Faction[] factions = polityManager.factions;
+            foreach (Manager.Faction faction in factions)
             {
                 if (faction.name == factionName)
                 {

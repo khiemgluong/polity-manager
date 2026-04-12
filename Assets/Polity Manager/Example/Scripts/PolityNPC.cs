@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Polities
+namespace Polity
 {
-    using static Polities.Manager;
+    using static Polity.Manager;
     public class PolityNPC : MonoBehaviour
     {
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
@@ -127,14 +127,14 @@ namespace Polities
         {
             if (allyTarget != null)
             {
-                PolityRelation relation = Singleton.CheckRelation(member, allyTarget);
+                Relation relation = Singleton.CheckRelation(member, allyTarget);
                 switch (relation)
                 {
-                    case PolityRelation.Allies:
+                    case Relation.Allies:
                         target = null;
                         agent.SetDestination(spawnPos);
                         break;
-                    case PolityRelation.Neutral:
+                    case Relation.Neutral:
                         allyTarget = null;
                         SearchForPolityMembers();
                         break;
@@ -142,8 +142,8 @@ namespace Polities
             }
             else if (target != null)
             {
-                PolityRelation relation = Singleton.CheckRelation(member, target);
-                if (relation == PolityRelation.Neutral)
+                Relation relation = Singleton.CheckRelation(member, target);
+                if (relation == Relation.Neutral)
                 {
                     target = null;
                     agent.SetDestination(spawnPos);
@@ -164,16 +164,16 @@ namespace Polities
                         if (polityMember != member)
                         {
                             foundMember = polityMember;
-                            PolityRelation relation = Singleton.CheckRelation(member, polityMember);
+                            Relation relation = Singleton.CheckRelation(member, polityMember);
                             switch (relation)
                             {
-                                case PolityRelation.Allies:
+                                case Relation.Allies:
                                     PolityNPC allyNPC = polityMember.GetComponent<PolityNPC>();
                                     if (allyNPC.target != null)
                                         if (allyNPC.target != null)
                                             allyTarget = allyNPC.target;
                                     break;
-                                case PolityRelation.Enemies:
+                                case Relation.Enemies:
                                     allyTarget = null;
                                     target = polityMember;
                                     agent.updateRotation = false;

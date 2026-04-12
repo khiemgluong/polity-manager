@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 
-namespace Polities
+namespace Polity
 {
     [CustomPropertyDrawer(typeof(Manager.Group))]
     public class UnitDrawer : PropertyDrawer
@@ -11,8 +11,7 @@ namespace Polities
             EditorGUI.BeginProperty(position, label, property);
 
             var nameProp = property.FindPropertyRelative("name");
-            var leaderProp = property.FindPropertyRelative("leader");
-            var membersProp = property.FindPropertyRelative("members");
+            // var logoProp = property.FindPropertyRelative("logo");
 
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
@@ -21,12 +20,37 @@ namespace Polities
             EditorGUI.PropertyField(rect, nameProp);
             rect.y += lineHeight + spacing;
 
-            EditorGUI.PropertyField(rect, leaderProp);
-            rect.y += lineHeight + spacing;
+            // EditorGUI.PropertyField(rect, logoProp);
+            // rect.y += lineHeight + spacing;
+
+            // Draw the object field manually
+            // var currentMember = leaderProp.objectReferenceValue as Member;
+
+            // EditorGUI.BeginChangeCheck();
+            // var newMember = (Member)EditorGUI.ObjectField(rect, "Leader", currentMember, typeof(Member), true); // true = allow scene objects
+            // if (EditorGUI.EndChangeCheck())
+            // {
+            //     if (newMember == null)
+            //     {
+            //         leaderProp.objectReferenceValue = null;
+            //     }
+            //     else
+            //     {
+            //         bool isSceneInstance = !EditorUtility.IsPersistent(newMember);
+            //         bool isPrefabInstance = PrefabUtility.IsPartOfPrefabInstance(newMember);
+
+            //         if (isSceneInstance || isPrefabInstance)
+            //             leaderProp.objectReferenceValue = newMember;
+            //         else
+            //             Debug.LogWarning($"{newMember.name} is a prefab asset and cannot be assigned as a leader. Use a scene instance instead.");
+            //     }
+            // }
 
             if (EditorApplication.isPlaying)
             {
-                EditorGUI.PropertyField(rect, membersProp, includeChildren: true);
+                // EditorGUI.PropertyField(rect, leaderProp);
+                // rect.y += lineHeight + spacing;
+                // EditorGUI.PropertyField(rect, membersProp, includeChildren: true);
             }
 
             EditorGUI.EndProperty();
@@ -37,14 +61,16 @@ namespace Polities
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-            // name + leader
-            float height = (lineHeight + spacing) * 2;
-
-            if (EditorApplication.isPlaying)
-            {
-                var membersProp = property.FindPropertyRelative("members");
-                height += EditorGUI.GetPropertyHeight(membersProp, includeChildren: true);
-            }
+            // name
+            float height = lineHeight + spacing;
+            // logo
+            // height += lineHeight + spacing;
+            // if (EditorApplication.isPlaying)
+            // {
+            //     //members
+            //     var membersProp = property.FindPropertyRelative("members");
+            //     height += EditorGUI.GetPropertyHeight(membersProp, includeChildren: true);
+            // }
 
             return height;
         }

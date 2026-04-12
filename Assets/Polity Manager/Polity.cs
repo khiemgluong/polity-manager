@@ -1,41 +1,35 @@
 using System;
 using UnityEngine;
 
-namespace Polities
+namespace Polity
 {
     [Serializable]
-    public struct Polity
+    public struct Faction : IEquatable<Faction>
     {
         public string name;
-        public string faction;
-        public string group;
 
-        // public string coalitionName;
+        public readonly bool Equals(Faction other)
+        {
+            return string.Equals(name, other.name, StringComparison.OrdinalIgnoreCase);
+        }
 
-        // public override readonly bool Equals(object obj)
-        // {
-        //     if (obj is Polity other)
-        //     {
-        //         return
-        //             // string.Equals(coalitionName ?? string.Empty, 
-        //             //             other.coalitionName ?? string.Empty) &&
-        //             string.Equals(name ?? string.Empty, other.name ?? string.Empty);
-        //     }
-        //     return false;
-        // }
-        // public override readonly int GetHashCode()
-        // {
-        //     return HashCode.Combine(coalitionName?.ToLowerInvariant(),
-        //                             name?.ToLowerInvariant());
-        // }
+        public override readonly bool Equals(object obj)
+        {
+            return obj is Faction other && Equals(other);
+        }
 
-        // public void SetPolity(PolityReader polityReader)
-        // {
-        //     // _struct = polityReader._struct;
-        //     // UpdatePolityIndices();
-        // }
+        public override readonly int GetHashCode()
+        {
+            return HashCode.Combine(name?.ToLowerInvariant());
+        }
 
-        public void SetPolity(Polity polityStruct)
+        public void Set(PolityReader polityReader)
+        {
+            // _struct = polityReader._struct;
+            // UpdatePolityIndices();
+        }
+
+        public void Set(Faction polityStruct)
         {
             // _struct = polityStruct;
             // UpdatePolityIndices();

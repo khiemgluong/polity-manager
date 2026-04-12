@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static Polities.Manager;
-namespace Polities
+using static Polity.Manager;
+namespace Polity
 {
     public class PolitySpawner : MonoBehaviour
     {
@@ -15,12 +15,12 @@ namespace Polities
         public Dropdown dropdown;
         void Awake()
         {
-            foreach (Manager.Polity polity in Singleton.polities)
+            foreach (Manager.Faction polity in Singleton.factions)
                 Debug.Log("Polity: " + polity.name);
 
             dropdown.ClearOptions();
             List<Dropdown.OptionData> optionList = new();
-            foreach (var polity in Singleton.polities)
+            foreach (var polity in Singleton.factions)
             {
                 optionList.Add(new Dropdown.OptionData(polity.name));
             }
@@ -31,7 +31,7 @@ namespace Polities
         void OnDropdownValueChanged(int index)
         {
             string selectedValue = dropdown.options[index].text;
-            Polity polityStruct = new()
+            Faction polityStruct = new()
             { name = selectedValue };
             polityReader.SetPolity(polityStruct);
         }

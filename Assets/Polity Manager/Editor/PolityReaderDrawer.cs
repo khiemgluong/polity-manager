@@ -20,11 +20,11 @@ namespace Polities
             if (polityManager == null)
             {
                 polityManager = Object.FindFirstObjectByType<Manager>();
-                if (polityManager != null && polityManager.factions != null)
+                if (polityManager != null && polityManager.polities != null)
                 {
-                    factionNames = new string[polityManager.factions.Length];
-                    for (int i = 0; i < polityManager.factions.Length; i++)
-                        factionNames[i] = polityManager.factions[i].name;
+                    factionNames = new string[polityManager.polities.Length];
+                    for (int i = 0; i < polityManager.polities.Length; i++)
+                        factionNames[i] = polityManager.polities[i].name;
                 }
             }
 
@@ -113,8 +113,8 @@ namespace Polities
                     {
                         name = (polityIndex >= 0 && polityIndex < factionNames.Length)
                             ? factionNames[polityIndex] : null,
-                        coalitionName = (classIndex > 0 && classIndex < coalitionNames.Length)
-                            ? coalitionNames[classIndex] : null,
+                        // coalitionName = (classIndex > 0 && classIndex < coalitionNames.Length)
+                        //     ? coalitionNames[classIndex] : null,
              
                     };
                     // #if UNITY_EDITOR

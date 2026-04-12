@@ -7,30 +7,19 @@ namespace Polities
     {
         Manager manager;
         string polityName;
-        string unitName;
+        Member member;
         void OnEnable()
         {
             if (manager == null) manager = FindFirstObjectByType<Manager>();
-            EditorApplication.hierarchyChanged += OnHierarchyChanged;
+            member = (Member)target; // Cache before destruction nullifies it
         }
         void OnDisable()
         {
-            EditorApplication.hierarchyChanged -= OnHierarchyChanged;
-        }
-
-        void OnHierarchyChanged()
-        {
-            // target will be null if the GameObject was destroyed
-            if (target == null)
-            {
-                // RemoveMemberFromCurrentUnit(member);
-                EditorUtility.SetDirty(manager);
-            }
+            
         }
 
         public override void OnInspectorGUI()
         {
-            Member member = (Member)target;
             if (manager == null)
             {
                 GUILayout.Label("No PolityManager found in the Scene.", EditorStyles.boldLabel);
@@ -62,11 +51,10 @@ namespace Polities
                 if (!string.IsNullOrEmpty(unitName))
                 {
                     Manager.Polity polity1 = manager.GetPolity(polityProp.FindPropertyRelative("name").stringValue);
-                    foreach (var unit1 in polity1.units)
-                        if (unit1.name.Equals(unitName) && !unit1.members.Contains(member))
+                    foreach (var unit1 in polity1.groups)
+                        if (unit1.name.Equals(unitName))
                         {
-                            unit1.members.Add(member);
-                            Debug.Log($"Added Member to Unit '{unitName}' in Polity '{polityProp.FindPropertyRelative("name").stringValue}'");
+                            unit1.AddMember(member);
                         }
 
                     Debug.Log($"Unit '{unitName}' assigned to Member in Polity '{polityProp.FindPropertyRelative("name").stringValue}'");

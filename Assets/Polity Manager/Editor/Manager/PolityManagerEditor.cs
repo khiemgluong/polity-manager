@@ -23,16 +23,12 @@ namespace Polities
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            SerializedProperty factions = serializedObject.FindProperty("factions");
-            EditorGUILayout.PropertyField(factions, true);
+            SerializedProperty polities = serializedObject.FindProperty("polities");
+            EditorGUILayout.PropertyField(polities, true);
             EditorGUI.EndDisabledGroup();
 
-            // EditorGUILayout.PropertyField(factions, true);
 
-            if (factions.isExpanded)
-            {
-                FactionsMatrix();
-            }
+            if (polities.isExpanded) FactionsMatrix();
 
             GUILayout.Space(10);
             EditorGUILayout.BeginHorizontal();

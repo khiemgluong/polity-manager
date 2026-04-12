@@ -10,7 +10,6 @@ namespace Polities
         public Image targetImage;
         public RectTransform panel;
         public Button quitButton;
-        RawImage emblem;
         CanvasGroup canvasGroup;
         Text memberName, memberPolity, classText, fationText;
         Text parentName, partnerName, childrenName;
@@ -19,7 +18,7 @@ namespace Polities
         {
             canvasGroup = targetImage.GetComponent<CanvasGroup>();
             Transform t = targetImage.transform;
-            emblem = t.Find("Emblem").GetComponent<RawImage>();
+            // emblem = t.Find("Emblem").GetComponent<RawImage>();
             memberName = t.Find("Name").GetComponent<Text>();
             memberPolity = t.Find("Polity").GetComponent<Text>();
             classText = t.Find("Class").GetComponent<Text>();
@@ -97,24 +96,24 @@ namespace Polities
                     //     emblem.texture = emblemTexture;
                     // }
                     // else emblem.gameObject.SetActive(false);
-                    if (string.IsNullOrEmpty(polityStruct.coalitionName)
-                        || polityStruct.coalitionName.Equals("\t"))
-                    {
-                        classText.gameObject.SetActive(false);
-                        fationText.gameObject.SetActive(false);
-                    }
-                    else
-                    {
-                        classText.gameObject.SetActive(true);
-                        classText.text = polityStruct.coalitionName;
-                    }
-                    if (polityStruct.name.Equals("\t"))
-                        fationText.gameObject.SetActive(false);
-                    else
-                    {
-                        fationText.gameObject.SetActive(true);
-                        fationText.text = polityStruct.name;
-                    }
+                    // if (string.IsNullOrEmpty(polityStruct.coalitionName)
+                    //     || polityStruct.coalitionName.Equals("\t"))
+                    // {
+                    //     classText.gameObject.SetActive(false);
+                    //     fationText.gameObject.SetActive(false);
+                    // }
+                    // else
+                    // {
+                    //     classText.gameObject.SetActive(true);
+                    //     classText.text = polityStruct.coalitionName;
+                    // }
+                    // if (polityStruct.name.Equals("\t"))
+                    //     fationText.gameObject.SetActive(false);
+                    // else
+                    // {
+                    //     fationText.gameObject.SetActive(true);
+                    //     fationText.text = polityStruct.name;
+                    // }
                     /* --------------------------- FamilyStruct texts --------------------------- */
 
 

@@ -73,23 +73,23 @@ namespace Polities
 
         bool UpdateUnitNames(string factionName)
         {
-            Manager.Polity[] factions = polityManager.factions;
+            Manager.Polity[] factions = polityManager.polities;
             foreach (Manager.Polity faction in factions)
             {
                 if (faction.name == factionName)
                 {
-                    if (faction.units == null || faction.units.Count == 0)
+                    if (faction.groups == null || faction.groups.Count == 0)
                     {
                         nameOptions = new string[0];
                         Debug.LogWarning($"Faction '{faction.name}' has no units. Defaulting to empty options.");
                         return false;
                     }
 
-                    nameOptions = new string[faction.units.Count + 1];
+                    nameOptions = new string[faction.groups.Count + 1];
                     nameOptions[0] = "\t";
-                    for (int i = 0; i < faction.units.Count; i++)
+                    for (int i = 0; i < faction.groups.Count; i++)
                     {
-                        nameOptions[i + 1] = faction.units[i].name;
+                        nameOptions[i + 1] = faction.groups[i].name;
                         Debug.Log($"Updated unit name option {i} to '{nameOptions[i]}' for polity '{factionName}'.");
                     }
                     return true;

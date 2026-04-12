@@ -25,11 +25,11 @@ namespace Polities
 
         void UpdatePolityIndices()
         {
-            if (Singleton == null || Singleton.factions == null) return;
+            if (Singleton == null || Singleton.polities == null) return;
 
             // Update polityIndex
-            polityIndex = Array.FindIndex(Singleton.factions, p => p.name == _struct.name);
-            if (polityIndex >= 0 && polityIndex < Singleton.factions.Length)
+            polityIndex = Array.FindIndex(Singleton.polities, p => p.name == _struct.name);
+            if (polityIndex >= 0 && polityIndex < Singleton.polities.Length)
             {
                 // Update classIndex
                 // var classes = PM.polities[polityIndex].classes;
@@ -46,23 +46,23 @@ namespace Polities
             else polityIndex = classIndex = factionIndex = 0;
         }
 
-        public override bool Equals(object obj)
-        {
-            if (obj is PolityReader other)
-            {
-                return string.Equals(_struct.name, other._struct.name) &&
-                    string.Equals(_struct.coalitionName
-                        ?? string.Empty, other._struct.coalitionName ?? string.Empty) &&
-                    string.Equals(_struct.name
-                        ?? string.Empty, other._struct.name ?? string.Empty);
-            }
-            return false;
-        }
+        // public override bool Equals(object obj)
+        // {
+        //     if (obj is PolityReader other)
+        //     {
+        //         return string.Equals(_struct.name, other._struct.name) &&
+        //             string.Equals(_struct.coalitionName
+        //                 ?? string.Empty, other._struct.coalitionName ?? string.Empty) &&
+        //             string.Equals(_struct.name
+        //                 ?? string.Empty, other._struct.name ?? string.Empty);
+        //     }
+        //     return false;
+        // }
 
-        public override int GetHashCode()
-        {
-            return HashCode.Combine(_struct.name?.ToLowerInvariant(),
-                                    _struct.coalitionName?.ToLowerInvariant());
-        }
+        // public override int GetHashCode()
+        // {
+        //     return HashCode.Combine(_struct.name?.ToLowerInvariant(),
+        //                             _struct.coalitionName?.ToLowerInvariant());
+        // }
     }
 }

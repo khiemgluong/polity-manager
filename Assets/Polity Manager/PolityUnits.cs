@@ -14,11 +14,5 @@ namespace Polities
         // public Member.Unit unit;
     }
 
-    [System.Serializable]
-    public struct Unit
-    {
-        public string name;
-        public Member leader;
-        public List<Member> members;
-    }
+    
 }

@@ -15,12 +15,12 @@ namespace Polities
         public Dropdown dropdown;
         void Awake()
         {
-            foreach (Manager.Polity polity in Singleton.factions)
+            foreach (Manager.Polity polity in Singleton.polities)
                 Debug.Log("Polity: " + polity.name);
 
             dropdown.ClearOptions();
             List<Dropdown.OptionData> optionList = new();
-            foreach (var polity in Singleton.factions)
+            foreach (var polity in Singleton.polities)
             {
                 optionList.Add(new Dropdown.OptionData(polity.name));
             }

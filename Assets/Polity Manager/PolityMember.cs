@@ -58,7 +58,7 @@ namespace Polities
 
         }
 
-        [System.Serializable]
+        [Serializable]
         public struct Unit
         {
             public string name;

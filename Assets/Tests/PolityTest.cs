@@ -2,9 +2,10 @@ using UnityEngine;
 using AYellowpaper.SerializedCollections;
 namespace Polity
 {
+    // using Polity;
     public class PolityTest : MonoBehaviour
     {
-        public Faction[] shart;
+        public Reader[] shart;
 
         public Nest nest;
         public Nest[] nests;
@@ -14,7 +15,7 @@ namespace Polity
         {
             public string name;
             public int value;
-            public Faction[] factions;
+            public Reader[] factions;
             public SubNest subNest;
 
             public SubNest[] subNests;
@@ -23,7 +24,7 @@ namespace Polity
             {
                 public string name;
                 public float value;
-                public Faction[] factions;
+                public Reader[] factions;
             }
         }
         void Start()

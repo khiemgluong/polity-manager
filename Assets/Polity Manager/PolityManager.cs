@@ -138,7 +138,7 @@ namespace Polity
             return null;
         }
         public Relation CheckRelation(Member member, Member otherMember) =>
-               CheckRelation(member.faction.name, otherMember.faction.name);
+               CheckRelation(member.reader.faction, otherMember.reader.faction);
         public Relation CheckRelation(string yourPolityName, string theirPolityName)
         {
             if (yourPolityName.Equals(theirPolityName)) return Relation.Allies;
@@ -246,8 +246,8 @@ namespace Polity
             Debug.Log($"Set relation between {polityName} & {theirPolityName} to {newRelation}");
         }
 
-        public void ChangeRelation(Member member, string theirPolityName, Relation newRelation)
-            => ChangeRelation(member.faction.name, theirPolityName, newRelation);
+        public void ChangeRelation(Member member, string newFactionName, Relation newRelation)
+            => ChangeRelation(member.reader.faction, newFactionName, newRelation);
         // public void ChangeRelation(PolityReader reader, PolityReader theirReader, Relation newRelation)
         //     => ChangeRelation(reader.Struct.name, theirReader.Struct.name, newRelation);
         public void ChangeRelation(Faction _struct, Faction theirStruct, Relation newRelation)

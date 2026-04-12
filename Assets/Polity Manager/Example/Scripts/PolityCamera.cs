@@ -3,8 +3,8 @@ using UnityEngine.UI;
 
 namespace Polity
 {
-    using static Polity.Manager;
-    using static Polity.Member;
+    using static Manager;
+    using static Member;
     public class PolityCamera : MonoBehaviour
     {
         public Image targetImage;

@@ -3,7 +3,7 @@ using UnityEngine.AI;
 
 namespace Polity
 {
-    using static Polity.Manager;
+    using static Manager;
     public class PolityNPC : MonoBehaviour
     {
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];

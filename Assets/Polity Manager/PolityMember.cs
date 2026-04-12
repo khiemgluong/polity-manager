@@ -7,13 +7,13 @@ namespace Polity
     [DisallowMultipleComponent]
     public class Member : MonoBehaviour
     {
-        public Faction faction;
+        public Reader reader;
 
         /* --------------------------------- EVENTS --------------------------------- */
         // public static Action<Member> OnMemberSpawn, OnMemberDestroy;
         void Awake()
         {
-            Debug.LogError($"Member '{name}' Awake. Polity: '{faction.name}'");
+     
         }
 
         void OnEnable()
@@ -53,12 +53,6 @@ namespace Polity
         void OnFactionChanged()
         {
 
-        }
-
-        [Serializable]
-        public class Group
-        {
-            public string name;
         }
     }
 }

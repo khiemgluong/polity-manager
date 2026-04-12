@@ -1,198 +1,144 @@
-// using System.Reflection;
-// using UnityEditor;
-// using UnityEngine;
+using UnityEditor;
+using UnityEngine;
 
-// namespace Polity
-// {
-//     using static Manager;
-//     [CustomPropertyDrawer(typeof(PolityReader))]
-//     public class PolityReaderDrawer : PropertyDrawer
-//     {
-//         Manager polityManager;
-//         string[] factionNames, coalitionNames, factionNames1;
-//         int polityIndex;
-//         int classIndex;
-//         int factionIndex;
-//         bool loadedReader;
+namespace Polity
+{
+    using static Manager;
+    [CustomPropertyDrawer(typeof(Reader), true)]
+    public class PolityReaderDrawer : PropertyDrawer
+    {
+        Manager manager;
+        string[] names;
+        string[] groups;
+        const float minWidth = 400f;
 
-//         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-//         {
-//             if (polityManager == null)
-//             {
-//                 polityManager = Object.FindFirstObjectByType<Manager>();
-//                 if (polityManager != null && polityManager.factions != null)
-//                 {
-//                     factionNames = new string[polityManager.factions.Length];
-//                     for (int i = 0; i < polityManager.factions.Length; i++)
-//                         factionNames[i] = polityManager.factions[i].name;
-//                 }
-//             }
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            if (manager == null)
+            {
+                manager = Object.FindFirstObjectByType<Manager>();
+                if (manager != null && manager.factions != null)
+                {
+                    names = new string[manager.factions.Length];
+                    for (int i = 0; i < manager.factions.Length; i++)
+                    {
+                        names[i] = manager.factions[i].name;
 
-//             if (polityManager == null)
-//             {
-//                 EditorGUI.LabelField(position, "No PolityManager found in the Scene.");
-//                 return;
-//             }
+                        groups = new string[manager.factions[i].groups.Count];
+                        for (int j = 0; j < manager.factions[i].groups.Count; j++)
+                        {
+                            groups[j] = manager.factions[i].groups[j].name;
+                            Debug.Log($"Faction '{manager.factions[i].name}' has group: '{manager.factions[i].groups[j].name}'");
+                        }
+                    }
+                }
+            }
 
-//             SerializedProperty polityStructProp = property.FindPropertyRelative("_struct");
-//             SerializedProperty polityIndexProp = property.FindPropertyRelative("polityIndex");
-//             SerializedProperty classIndexProp = property.FindPropertyRelative("classIndex");
-//             SerializedProperty factionIndexProp = property.FindPropertyRelative("factionIndex");
+            if (manager == null)
+            {
+                EditorGUI.LabelField(position, "No PolityManager found in the Scene.");
+                return;
+            }
+            float lineHeight = EditorGUIUtility.singleLineHeight;
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-//             polityIndex = polityIndexProp.intValue;
-//             classIndex = classIndexProp.intValue;
-//             factionIndex = factionIndexProp.intValue;
+            Rect nameRect, groupRect;
 
-//             // Initialize class and faction names
-//             UpdateClassNames(polityIndex);
-//             UpdateFactionNames(polityIndex, classIndex);
+            if (_stacked)
+            {
+                nameRect = new Rect(position.x, position.y, position.width, lineHeight);
+                groupRect = new Rect(position.x, position.y + lineHeight + spacing, position.width, lineHeight);
+            }
+            else
+            {
+                float halfWidth = (position.width - spacing) / 2f;
+                nameRect = new Rect(position.x, position.y, halfWidth, lineHeight);
+                groupRect = new Rect(position.x + halfWidth + spacing, position.y, halfWidth, lineHeight);
+            }
 
-//             EditorGUI.BeginProperty(position, label, property);
-//             Rect rect = new(position.x, position.y, position.width, EditorGUIUtility.singleLineHeight);
+            EditorGUI.BeginProperty(position, label, property);
 
-//             // Polity dropdown
-//             EditorGUI.BeginChangeCheck();
-//             polityIndex = EditorGUI.Popup(rect, "Polity", polityIndex, factionNames);
-//             if (EditorGUI.EndChangeCheck())
-//             {
-//                 polityStructProp.FindPropertyRelative("polityName").stringValue = factionNames[polityIndex];
-//                 polityIndexProp.intValue = polityIndex;
-//                 UpdateClassNames(polityIndex);
-//                 classIndex = 0;
-//                 classIndexProp.intValue = classIndex;
-//                 polityStructProp.FindPropertyRelative("className").stringValue = "";
-//                 factionIndex = 0;
-//                 factionIndexProp.intValue = factionIndex;
-//                 polityStructProp.FindPropertyRelative("factionName").stringValue = "";
-//             }
+            SerializedProperty factionProp = property.FindPropertyRelative("faction");
+            UpdateFactionNames(factionProp);
 
-//             rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+            EditorGUI.BeginChangeCheck();
+            int currentFactionIndex = Mathf.Max(0, System.Array.IndexOf(names, factionProp.stringValue));
+            GUIContent tooltip = new("", "Faction");
+            EditorGUI.LabelField(nameRect, tooltip);
+            int factionIndex = EditorGUI.Popup(nameRect, currentFactionIndex, names);
+            if (EditorGUI.EndChangeCheck())
+                factionProp.stringValue = names[factionIndex];
 
-//             // Class dropdown
-//             if (coalitionNames != null && coalitionNames.Length > 1)
-//             {
-//                 EditorGUI.BeginChangeCheck();
-//                 classIndex = EditorGUI.Popup(rect, "Class", classIndex, coalitionNames);
-//                 if (EditorGUI.EndChangeCheck())
-//                 {
-//                     polityStructProp.FindPropertyRelative("polityName").stringValue = factionNames[polityIndex];
-//                     polityIndexProp.intValue = polityIndex;
-//                     polityStructProp.FindPropertyRelative("className").stringValue = coalitionNames[classIndex];
-//                     classIndexProp.intValue = classIndex;
-//                     UpdateFactionNames(polityIndex, classIndex);
-//                     factionIndex = 0;
-//                     factionIndexProp.intValue = factionIndex;
-//                     polityStructProp.FindPropertyRelative("factionName").stringValue = "";
-//                 }
-//                 rect.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-//             }
 
-//             // Faction dropdown
-//             if (classIndex > 0 && factionNames1 != null && factionNames1.Length > 1)
-//             {
-//                 EditorGUI.BeginChangeCheck();
-//                 factionIndex = EditorGUI.Popup(rect, "Faction", factionIndex, factionNames1);
-//                 if (EditorGUI.EndChangeCheck())
-//                 {
-//                     polityStructProp.FindPropertyRelative("polityName").stringValue = factionNames[polityIndex];
-//                     polityIndexProp.intValue = polityIndex;
-//                     polityStructProp.FindPropertyRelative("className").stringValue = coalitionNames[classIndex];
-//                     classIndexProp.intValue = classIndex;
-//                     polityStructProp.FindPropertyRelative("factionName").stringValue = factionNames1[factionIndex];
-//                     factionIndexProp.intValue = factionIndex;
-//                 }
-//             }
+            if (!GetPolityGroups(factionProp.stringValue))
+            {
+                EditorGUI.LabelField(groupRect, $"No groups found for faction.");
+                EditorGUI.EndProperty();
+                return;
+            }
+            SerializedProperty groupProp = property.FindPropertyRelative("group");
+            EditorGUI.BeginChangeCheck();
+            int currentGroupIndex = Mathf.Max(0, System.Array.IndexOf(groups, groupProp.stringValue));
+            GUIContent tooltip1 = new("", "Group");
+            EditorGUI.LabelField(groupRect, tooltip1);
+            int selectedGroupIndex = EditorGUI.Popup(groupRect, currentGroupIndex, groups);
+            if (EditorGUI.EndChangeCheck())
+                groupProp.stringValue = groups[selectedGroupIndex];
 
-//             EditorGUI.EndProperty();
-//             if (!loadedReader)
-//             {
-//                 object targetObject = GetTargetObjectOfProperty();
-//                 if (targetObject is PolityReader polityReader)
-//                 {
-//                     Faction newStruct = new()
-//                     {
-//                         name = (polityIndex >= 0 && polityIndex < factionNames.Length)
-//                             ? factionNames[polityIndex] : null,
-//                         // coalitionName = (classIndex > 0 && classIndex < coalitionNames.Length)
-//                         //     ? coalitionNames[classIndex] : null,
-             
-//                     };
-//                     // #if UNITY_EDITOR
-//                     if (!newStruct.Equals(polityReader.Struct))
-//                     {
-//                         polityReader.SetPolity(newStruct);
-//                         EditorUtility.SetDirty(property.serializedObject.targetObject);
-//                     }
-//                     // #endif
-//                 }
-//                 loadedReader = true;
-//             }
-//             object GetTargetObjectOfProperty()
-//             {
-//                 object obj = property.serializedObject.targetObject;
-//                 string[] pathParts = property.propertyPath.Split('.');
+            EditorGUI.EndProperty();
+        }
 
-//                 foreach (var pathPart in pathParts)
-//                 {
-//                     var fieldInfo = obj.GetType().GetField(pathPart, BindingFlags.Public
-//                                                                 | BindingFlags.NonPublic
-//                                                                 | BindingFlags.Instance);
-//                     if (fieldInfo == null)
-//                         return null;
-//                     obj = fieldInfo.GetValue(obj);
-//                 }
-//                 return obj;
-//             }
-//         }
+        private bool _stacked;
 
-//         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-//         {
-//             float height = EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
-//             if (property.propertyPath.Contains("Array.data"))
-//                 height += EditorGUIUtility.singleLineHeight * 2 + EditorGUIUtility.standardVerticalSpacing;
-//             else
-//             {
-//                 if (coalitionNames != null && coalitionNames.Length > 1)
-//                     height += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            float lineHeight = EditorGUIUtility.singleLineHeight;
+            float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-//                 if (classIndex > 0 && factionNames1 != null && factionNames1.Length > 1)
-//                     height += EditorGUIUtility.singleLineHeight;
-//             }
-//             return height;
-//         }
+            _stacked = EditorGUIUtility.currentViewWidth < minWidth;
+            return _stacked ? (lineHeight * 2) + spacing : lineHeight;
+        }
 
-//         void UpdateClassNames(int polityIndex)
-//         {
-//             // if (polityManager.polities[polityIndex].classes != null &&
-//             //     polityManager.polities[polityIndex].classes.Length > 0)
-//             // {
-//             //     classNames = new string[polityManager.polities[polityIndex].classes.Length + 1];
-//             //     classNames[0] = "\t";
-//             //     for (int i = 0; i < polityManager.polities[polityIndex].classes.Length; i++)
-//             //         classNames[i + 1] = polityManager.polities[polityIndex].classes[i].name;
-//             // }
-//             // else
-//             // { classNames = new string[1]; classNames[0] = "\t"; }
-//         }
+        void UpdateFactionNames(SerializedProperty factionNameProp)
+        {
 
-//         void UpdateFactionNames(int polityIndex, int classIndex)
-//         {
-//             int adjustedClassIndex = classIndex - 1;
-//             // if (polityIndex >= 0 && polityIndex < polityManager.polities.Length &&
-//             //     adjustedClassIndex >= 0 &&
-//             //     adjustedClassIndex < polityManager.polities[polityIndex].classes.Length)
-//             // {
-//             //     Faction _class = polityManager.polities[polityIndex].classes[adjustedClassIndex];
-//             //     if (_class.factions != null && _class.factions.Count > 0)
-//             //     {
-//             //         factionNames = new string[_class.factions.Count + 1];
-//             //         factionNames[0] = "\t";
-//             //         for (int i = 0; i < _class.factions.Count; i++)
-//             //             factionNames[i + 1] = _class.factions[i].name;
-//             //     }
-//             //     else
-//             //     { factionNames = new string[1]; factionNames[0] = "\t"; }
-//             // }
-//         }
-//     }
-// }
+            Manager.Faction[] factions = manager.factions;
+            names = new string[factions.Length];
+            for (int i = 0; i < factions.Length; i++)
+                names[i] = factions[i].name;
+            if (factionNameProp.stringValue != null)
+            {
+                // int index = System.Array.IndexOf(names, factionNameProp.stringValue);
+                // if (index >= 0)
+                //     this.index = index;
+                // Debug.Log($"Set faction index to {this.index} based on faction name '{factionNameProp.stringValue}'.");
+            }
+        }
+
+        bool GetPolityGroups(string factionName)
+        {
+            Manager.Faction[] factions = manager.factions;
+            foreach (Manager.Faction faction in factions)
+            {
+                if (faction.name.Equals(factionName))
+                {
+                    Debug.Log($"Found faction '{factionName}' with {faction.groups.Count} groups.");
+                    if (faction.groups == null || faction.groups.Count == 0)
+                    {
+                        groups = new string[0];
+                        return false;
+                    }
+
+                    groups = new string[faction.groups.Count + 1];
+                    groups[0] = "\t";
+                    for (int i = 0; i < faction.groups.Count; i++)
+                        groups[i + 1] = faction.groups[i].name;
+                    return true;
+                }
+            }
+            groups = new string[0];
+            Debug.LogWarning($"Faction '{factionName}' not found. Defaulting to empty unit options.");
+            return false;
+        }
+    }
+}

@@ -4,12 +4,12 @@ using UnityEngine.AI;
 namespace Polity
 {
     using static Manager;
-    public class NPC : MonoBehaviour, IMember
+    public class PolityNPC : MonoBehaviour, IMember
     {
         [field: SerializeField]
         public Faction Faction { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
-        public NPC target, ally;
+        public PolityNPC target, ally;
         int health = 25;
         NavMeshAgent agent;
         Vector3 spawnPos;
@@ -18,7 +18,7 @@ namespace Polity
         bool beginAttack = false;
         Coroutine attackCoroutine;
 
-        public static event System.Action<NPC> OnSpawn, OnDespawn;
+        public static event System.Action<PolityNPC> OnSpawn, OnDespawn;
 
         void Awake()
         {
@@ -85,7 +85,7 @@ namespace Polity
         }
 
 
-        void MoveTowardsTarget(NPC polityMember)
+        void MoveTowardsTarget(PolityNPC polityMember)
         {
             if (agent.remainingDistance < agent.stoppingDistance)
             {
@@ -128,7 +128,7 @@ namespace Polity
                 {
                     yield return new WaitForSeconds(.1f);
                     if (target != null)
-                        target.GetComponent<NPC>().TakeDamage();
+                        target.GetComponent<PolityNPC>().TakeDamage();
                 }
                 else yield return new WaitForSeconds(Random.Range(.5f, 1.5f));
             }
@@ -167,9 +167,9 @@ namespace Polity
         {
             if (target != null) return;
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius);
-            NPC foundNPC = null;
+            PolityNPC foundNPC = null;
             foreach (var hitCollider in hitColliders)
-                if (hitCollider.TryGetComponent<NPC>(out var hitNPC))
+                if (hitCollider.TryGetComponent<PolityNPC>(out var hitNPC))
                     if (hitNPC.health > 0)
                         if (hitNPC != this)
                         {
@@ -178,7 +178,7 @@ namespace Polity
                             switch (relation)
                             {
                                 case Relation.Allies:
-                                    NPC allyNPC = hitNPC.GetComponent<NPC>();
+                                    PolityNPC allyNPC = hitNPC.GetComponent<PolityNPC>();
                                     if (allyNPC.target != null)
                                         if (allyNPC.target != null)
                                             ally = allyNPC.target;
@@ -212,7 +212,7 @@ namespace Polity
                 GetComponent<NavMeshAgent>().enabled = false;
                 if (target != null)
                 {
-                    NPC targetNPC = target.GetComponent<NPC>();
+                    PolityNPC targetNPC = target.GetComponent<PolityNPC>();
                     targetNPC.target = null;
                 }
                 Destroy(gameObject, 2f);

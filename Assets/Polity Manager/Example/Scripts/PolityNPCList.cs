@@ -3,34 +3,34 @@ using UnityEngine;
 
 namespace Polity
 {
-    public class NPCList : MonoBehaviour
+    public class PolityNPCList : MonoBehaviour
     {
         [System.Serializable]
         public class NPCCategories
         {
             public Faction reader;
-            public List<NPC> npcs;
+            public List<PolityNPC> npcs;
         }
         public List<NPCCategories> npcs;
         void Awake()
         {
-            NPC.OnSpawn += OnSpawned;
-            NPC.OnDespawn += OnDespawned;
+            PolityNPC.OnSpawn += OnSpawned;
+            PolityNPC.OnDespawn += OnDespawned;
         }
 
-        private void OnSpawned(NPC npc)
+        private void OnSpawned(PolityNPC npc)
         {
             Faction reader = npc.Faction;
             NPCCategories categories = npcs.Find(list => list.reader.name.Equals(reader.name));
             if (categories != null)
             {
-                categories.npcs ??= new List<NPC>();
+                categories.npcs ??= new List<PolityNPC>();
                 categories.npcs.Add(npc);
             }
             npc.transform.SetParent(transform);
         }
 
-        private void OnDespawned(NPC npc)
+        private void OnDespawned(PolityNPC npc)
         {
             Faction reader = npc.Faction;
             NPCCategories categories = npcs.Find(list => list.reader.name.Equals(reader.name));

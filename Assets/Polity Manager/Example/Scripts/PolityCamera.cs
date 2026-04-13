@@ -3,9 +3,7 @@ using UnityEngine.UI;
 
 namespace Polity
 {
-    using static Manager;
-    using static Member;
-    public class Camera : MonoBehaviour
+    public class PolityCamera : MonoBehaviour
     {
         public Image targetImage;
         public RectTransform panel;

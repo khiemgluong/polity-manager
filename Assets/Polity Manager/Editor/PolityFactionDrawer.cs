@@ -44,7 +44,7 @@ namespace Polity
             int currentFactionIndex = Mathf.Max(0, System.Array.IndexOf(names, factionProp.stringValue));
             GUIContent tooltip = new("", "Faction");
             EditorGUI.LabelField(nameRect, tooltip);
-            int factionIndex = EditorGUI.Popup(nameRect, currentFactionIndex, names);
+            int factionIndex = EditorGUI.Popup(nameRect, "Faction", currentFactionIndex, names);
             // if (EditorGUI.EndChangeCheck())
             factionProp.stringValue = names[factionIndex];
 

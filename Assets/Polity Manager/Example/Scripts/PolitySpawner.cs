@@ -4,9 +4,9 @@ using UnityEngine.UI;
 namespace Polity
 {
     using static Manager;
-    public class Spawner : MonoBehaviour
+    public class PolitySpawner : MonoBehaviour
     {
-        [SerializeField] NPC dummy;
+        [SerializeField] PolityNPC dummy;
         public GameObject cursor;
         public bool spawn = true;
         HashSet<Transform> usedSpawnPoints = new();
@@ -62,10 +62,10 @@ namespace Polity
                         }
             Time.timeScale = 1;
         }
-        GameObject SpawnNPC(NPC dummy, Vector3 position)
+        GameObject SpawnNPC(PolityNPC dummy, Vector3 position)
         {
             GameObject npcObj = Instantiate(dummy.gameObject, position, Quaternion.Euler(0, 180, 0));
-            if (npcObj.TryGetComponent(out NPC npc))
+            if (npcObj.TryGetComponent(out PolityNPC npc))
             {
                 Debug.Log("Dropdown value: " + dropdown.options[dropdown.value].text);
                 npc.Faction.Set(dropdown.value);

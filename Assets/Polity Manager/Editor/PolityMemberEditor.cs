@@ -3,6 +3,7 @@ using UnityEngine;
 
 namespace Polity
 {
+    [CanEditMultipleObjects]
     [CustomEditor(typeof(Member))]
     public class PolityMemberEditor : Editor
     {

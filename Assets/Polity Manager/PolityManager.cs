@@ -76,7 +76,7 @@ namespace Polity
             {
                 int ln = factions.Length;
                 RelationMatrix = new Relation[ln, ln];
-                Debug.Log($"Initialized new RelationMatrix of size {ln}x{ln}.");
+                // Debug.Log($"Initialized new RelationMatrix of size {ln}x{ln}.");
             }
             RelationMatrix = DeserializeRelationMatrix();
         }
@@ -121,18 +121,35 @@ namespace Polity
             DeserializeRelationMatrix(relationMatrixJSON);
         #region Getters
         /* --------------------------------- GETTERS -------------------------------- */
+        public Faction GetFaction(int index)
+        {
+            if (index < 0 || index >= factions.Length)
+            {
+                Debug.LogError($"Invalid faction index: {index}. Returning default Faction.");
+                return default;
+            }
+            return factions[index];
+        }
+        public Relation CheckRelation(int factionIndex, int theirFactionIndex)
+        {
+            if (factionIndex < 0 || factionIndex >= factions.Length ||
+                theirFactionIndex < 0 || theirFactionIndex >= factions.Length)
+            {
+                Debug.LogError("One or both polity indices are out of range. Returning default relation.");
+                return default;
+            }
+            return RelationMatrix[factionIndex, theirFactionIndex];
+        }
         public Relation CheckRelation(Member member, Member otherMember) =>
                CheckRelation(member.reader.faction, otherMember.reader.faction);
+        public Relation CheckRelation(IMember member, IMember otherMember) =>
+                CheckRelation(member.Reader.faction, otherMember.Reader.faction);
+        public Relation CheckRelation(Reader reader, Reader otherReader) =>
+                CheckRelation(reader.faction, otherReader.faction);
         public Relation CheckRelation(string factionName, string theirFactionName)
         {
-            if (factionName.Equals(theirFactionName)) return Relation.Allies;
-            int yourIndex = Array.FindIndex(factions, p => p.name == factionName);
-            int theirIndex = Array.FindIndex(factions, p => p.name == theirFactionName);
-            if (yourIndex == -1 || theirIndex == -1)
-            { Debug.Log("One or both polity names not found."); return default; }
-
-            Relation relation = RelationMatrix[yourIndex, theirIndex];
-            return relation;
+            return CheckRelation(Array.FindIndex(factions, p => p.name == factionName),
+                            Array.FindIndex(factions, p => p.name == theirFactionName));
         }
 
         #endregion
@@ -252,14 +269,14 @@ namespace Polity
         /*                             SERIALIZED CLASSES                             */
         /* -------------------------------------------------------------------------- */
         [Serializable]
-        public struct Faction
+        public class Faction
         {
             public string name;
             public List<Group> groups;
         }
 
         [Serializable]
-        public struct Group
+        public class Group
         {
             public string name;
         }

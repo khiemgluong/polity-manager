@@ -1,20 +1,27 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static Polity.Manager;
 namespace Polity
 {
-    public class PolitySpawner : MonoBehaviour
+    using static Manager;
+    public class Spawner : MonoBehaviour
     {
-        [SerializeField] PolityNPC[] dummies;
         [SerializeField] Material[] colors;
-        [SerializeField] GameObject spawnDummy, cursor;
+        [SerializeField] NPC dummy;
+        public GameObject cursor;
         public bool spawn = true;
         HashSet<Transform> usedSpawnPoints = new();
         public Dropdown dropdown;
+        [System.Serializable]
+        public class SpawnData
+        {
+            public Reader reader;
+            public NPC npc;
+        }
+        public Reader[] polities;
         void Awake()
         {
-            foreach (Manager.Faction polity in Singleton.factions)
+            foreach (Faction polity in Singleton.factions)
                 Debug.Log("Polity: " + polity.name);
 
             dropdown.ClearOptions();
@@ -49,20 +56,24 @@ namespace Polity
                 spawnPoints[n] = value;
             }
             if (spawn)
-                for (int i = 0; i < dummies.Length; i++)
+                for (int i = 0; i < spawnPoints.Count; i++)
                     foreach (var spawnPoint in spawnPoints)
                         if (!usedSpawnPoints.Contains(spawnPoint))
                         {
-                            GameObject npc = SpawnNPC(dummies[i].gameObject, spawnPoint.position);
-                            MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
-                            meshRenderer.material = colors[i];
+                            GameObject npcObj = SpawnNPC(dummy, spawnPoint.position);
+                            IMember npc = npcObj.GetComponent<IMember>();
+                            int factionIndex = npc.Reader.RandomFactionIndex();
+                            int groupIndex = npc.Reader.RandomGroupIndex();
+                            npc.Reader.Set(factionIndex, groupIndex);
+                            // MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
+                            // meshRenderer.material = colors[i];
                             usedSpawnPoints.Add(spawnPoint); break;
                         }
             Time.timeScale = 1;
         }
-        GameObject SpawnNPC(GameObject prefab, Vector3 position)
+        GameObject SpawnNPC(NPC dummy, Vector3 position)
         {
-            GameObject npc = Instantiate(prefab, position, Quaternion.Euler(0, 180, 0));
+            GameObject npc = Instantiate(dummy.gameObject, position, Quaternion.Euler(0, 180, 0));
             if (!npc.TryGetComponent(out Member _))
             {
                 Member _member = npc.AddComponent<Member>();
@@ -78,7 +89,7 @@ namespace Polity
                 cursor.SetActive(false);
                 return;
             }
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 100))
             {
                 if (hit.collider.TryGetComponent(out Member member))
@@ -102,7 +113,7 @@ namespace Polity
 
                 cursor.transform.position = hit.point + Vector3.up * .01f;
                 if (Input.GetMouseButtonDown(0))
-                    SpawnNPC(spawnDummy, hit.point);
+                    SpawnNPC(dummy, hit.point);
 
             }
             else

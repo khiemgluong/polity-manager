@@ -38,11 +38,13 @@ namespace Polity
                 EditorGUI.LabelField(position, "No PolityManager found in the Scene.");
                 return;
             }
+            if (Application.isPlaying) property.serializedObject.Update();
+
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
+            position.y += spacing;
 
             Rect nameRect, groupRect;
-
             if (_stacked)
             {
                 nameRect = new Rect(position.x, position.y, position.width, lineHeight);
@@ -66,7 +68,6 @@ namespace Polity
             int factionIndex = EditorGUI.Popup(nameRect, currentFactionIndex, names);
             // if (EditorGUI.EndChangeCheck())
             factionProp.stringValue = names[factionIndex];
-
 
             SerializedProperty groupProp = property.FindPropertyRelative("group");
             if (!GetPolityGroups(names[factionIndex]))
@@ -94,7 +95,7 @@ namespace Polity
             float spacing = EditorGUIUtility.standardVerticalSpacing;
 
             _stacked = EditorGUIUtility.currentViewWidth < minWidth;
-            return _stacked ? (lineHeight * 2) + spacing : lineHeight;
+            return (_stacked ? (lineHeight * 2) + spacing : lineHeight) + spacing;
         }
 
         void UpdateFactionNames()

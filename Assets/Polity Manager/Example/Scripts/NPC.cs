@@ -4,11 +4,12 @@ using UnityEngine.AI;
 namespace Polity
 {
     using static Manager;
-    public class PolityNPC : MonoBehaviour
+    public class NPC : MonoBehaviour, IMember
     {
+        [field: SerializeField]
+        public Reader Reader { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
-        Member member;
-        public Member target, allyTarget;
+        public NPC target, ally;
         int health = 25;
         NavMeshAgent agent;
         Vector3 spawnPos;
@@ -17,7 +18,8 @@ namespace Polity
         bool beginAttack = false;
         Coroutine attackCoroutine;
 
-        public static event System.Action<PolityNPC> OnNPCSpawn;
+
+        public static event System.Action<NPC> OnNPCSpawn;
         /// <summary>
         /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
         /// </summary>
@@ -28,45 +30,56 @@ namespace Polity
             agent = GetComponent<NavMeshAgent>();
             agent.avoidancePriority = Random.Range(1, 99);
             spawnPos = transform.position;
-            target = null; allyTarget = null;
+            target = null; ally = null;
             OnRelationChange += OnRelationChanged;
+
         }
 
         void Start()
         {
-            member = GetComponent<Member>();
+            // Debug.LogError($"Manager singleton: {Manager.Singleton}");
+            // Debug.LogError($"Manager factions: {Manager.Singleton?.factions?.Length}");
+            // // Polity = new Reader();
+            // Polity.Set(2);
+            // Debug.LogError($"Faction after Set: {Polity.faction}");
+        }
+
+        [ContextMenu("Test")]
+        void Test()
+        {
+            // Polity.Set(2);
         }
 
         void Update()
         {
-            if (!agent.enabled) return;
-            SearchForPolityMembers();
-            if (allyTarget != null && target != null)
-                MoveTowardsTarget(allyTarget);
-            else if (target != null)
-                MoveTowardsTarget(target);
-            else
-            {
-                target = null;
-                allyTarget = null;
-                beginAttack = false;
-                if (agent.remainingDistance >= agent.stoppingDistance)
-                {
-                    agent.updateRotation = true;
-                    agent.speed = 2;
-                }
-                else
-                {
-                    agent.updateRotation = false;
-                    transform.rotation = Quaternion.RotateTowards(transform.rotation,
-                                                Quaternion.Euler(0, 180, 0),
-                                                agent.angularSpeed * Time.deltaTime);
-                }
-                agent.SetDestination(spawnPos);
-                SetMesh(0);
-                if (attackCoroutine != null)
-                    StopCoroutine(attackCoroutine);
-            }
+            // if (!agent.enabled) return;
+            // SearchForPolityMembers();
+            // if (allyTarget != null && target != null)
+            //     MoveTowardsTarget(allyTarget);
+            // else if (target != null)
+            //     MoveTowardsTarget(target);
+            // else
+            // {
+            //     target = null;
+            //     allyTarget = null;
+            //     beginAttack = false;
+            //     if (agent.remainingDistance >= agent.stoppingDistance)
+            //     {
+            //         agent.updateRotation = true;
+            //         agent.speed = 2;
+            //     }
+            //     else
+            //     {
+            //         agent.updateRotation = false;
+            //         transform.rotation = Quaternion.RotateTowards(transform.rotation,
+            //                                     Quaternion.Euler(0, 180, 0),
+            //                                     agent.angularSpeed * Time.deltaTime);
+            //     }
+            //     agent.SetDestination(spawnPos);
+            //     SetMesh(0);
+            //     if (attackCoroutine != null)
+            //         StopCoroutine(attackCoroutine);
+            // }
         }
         void SetMesh(int index)
         {
@@ -118,16 +131,16 @@ namespace Polity
                 {
                     yield return new WaitForSeconds(.1f);
                     if (target != null)
-                        target.GetComponent<PolityNPC>().TakeDamage();
+                        target.GetComponent<NPC>().TakeDamage();
                 }
                 else yield return new WaitForSeconds(Random.Range(.5f, 1.5f));
             }
         }
         void OnRelationChanged()
         {
-            if (allyTarget != null)
+            if (ally != null)
             {
-                Relation relation = Singleton.CheckRelation(member, allyTarget);
+                Relation relation = Singleton.CheckRelation(Reader, ally.Reader);
                 switch (relation)
                 {
                     case Relation.Allies:
@@ -135,14 +148,14 @@ namespace Polity
                         agent.SetDestination(spawnPos);
                         break;
                     case Relation.Neutral:
-                        allyTarget = null;
+                        ally = null;
                         SearchForPolityMembers();
                         break;
                 }
             }
             else if (target != null)
             {
-                Relation relation = Singleton.CheckRelation(member, target);
+                Relation relation = Singleton.CheckRelation(Reader, ally.Reader);
                 if (relation == Relation.Neutral)
                 {
                     target = null;
@@ -157,31 +170,31 @@ namespace Polity
         {
             if (target != null) return;
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius);
-            Member foundMember = null;
+            NPC foundNPC = null;
             foreach (var hitCollider in hitColliders)
-                if (hitCollider.TryGetComponent<Member>(out var polityMember))
-                    if (polityMember.GetComponent<PolityNPC>().health > 0)
-                        if (polityMember != member)
+                if (hitCollider.TryGetComponent<NPC>(out var hitNPC))
+                    if (hitNPC.health > 0)
+                        if (hitNPC != this)
                         {
-                            foundMember = polityMember;
-                            Relation relation = Singleton.CheckRelation(member, polityMember);
+                            foundNPC = hitNPC;
+                            Relation relation = Singleton.CheckRelation(Reader, hitNPC.Reader);
                             switch (relation)
                             {
                                 case Relation.Allies:
-                                    PolityNPC allyNPC = polityMember.GetComponent<PolityNPC>();
+                                    NPC allyNPC = hitNPC.GetComponent<NPC>();
                                     if (allyNPC.target != null)
                                         if (allyNPC.target != null)
-                                            allyTarget = allyNPC.target;
+                                            ally = allyNPC.target;
                                     break;
                                 case Relation.Enemies:
-                                    allyTarget = null;
-                                    target = polityMember;
+                                    ally = null;
+                                    target = hitNPC;
                                     agent.updateRotation = false;
                                     agent.SetDestination(target.transform.position);
                                     break;
                             }
                         }
-            if (foundMember == null)
+            if (foundNPC == null)
             {
                 agent.SetDestination(spawnPos);
                 if (attackCoroutine != null)
@@ -202,10 +215,9 @@ namespace Polity
                 GetComponent<NavMeshAgent>().enabled = false;
                 if (target != null)
                 {
-                    PolityNPC targetNPC = target.GetComponent<PolityNPC>();
+                    NPC targetNPC = target.GetComponent<NPC>();
                     targetNPC.target = null;
                 }
-                Destroy(member);
                 Destroy(gameObject, 2f);
             }
         }
@@ -216,5 +228,9 @@ namespace Polity
             Gizmos.DrawWireSphere(transform.position, detectionRadius);
         }
 
+        public void OnFactionChanged()
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

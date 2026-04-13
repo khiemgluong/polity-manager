@@ -4,25 +4,44 @@ using UnityEngine;
 namespace Polity
 {
     [Serializable]
-    public struct Reader : IEquatable<Reader>
+    public class Reader : IEquatable<Reader>
     {
         public string faction;
         public string group;
-
-        public readonly bool Equals(Reader reader)
+        public bool Equals(Reader other)
         {
-            return string.Equals(faction, reader.faction, StringComparison.OrdinalIgnoreCase)
-                && string.Equals(group, reader.group, StringComparison.OrdinalIgnoreCase);
+            return string.Equals(faction, other.faction, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(group, other.group, StringComparison.OrdinalIgnoreCase);
         }
 
-        public override readonly bool Equals(object obj)
+        public int RandomFactionIndex()
         {
-            return obj is Reader other && Equals(other);
+            if (Manager.Singleton.factions == null || Manager.Singleton.factions.Length == 0)
+            {
+                Debug.LogError("No factions available in Manager. Cannot assign random faction.");
+                return -1;
+            }
+            return UnityEngine.Random.Range(0, Manager.Singleton.factions.Length);
         }
 
-        public override readonly int GetHashCode()
+        public int RandomGroupIndex()
         {
-            return HashCode.Combine(faction?.ToLowerInvariant(), group?.ToLowerInvariant());
+            if (Manager.Singleton.factions == null || Manager.Singleton.factions.Length == 0)
+            {
+                Debug.LogError("No factions available in Manager. Cannot assign random group.");
+                return -1;
+            }
+            int factionIndex = Array.FindIndex(Manager.Singleton.factions, f =>
+                string.Equals(f.name, faction, StringComparison.OrdinalIgnoreCase));
+            if (factionIndex < 0 || factionIndex >= Manager.Singleton.factions.Length)
+            {
+                Debug.LogError($"Invalid faction index: {factionIndex}. Cannot assign random group.");
+                return -1;
+            }
+            var groups = Manager.Singleton.factions[factionIndex].groups;
+            if (groups == null || groups.Count == 0)
+                return 0; // No groups, return default index
+            return UnityEngine.Random.Range(-1, groups.Count);
         }
 
         public void Set(int factionIndex, int groupIndex = -1)
@@ -40,7 +59,6 @@ namespace Polity
                 group = null;
                 return;
             }
-
             if (factions[factionIndex].groups == null || groupIndex >= factions[factionIndex].groups.Count)
             {
                 Debug.LogError($"Invalid group index: {groupIndex} for faction '{faction}'. No group set.");
@@ -71,9 +89,8 @@ namespace Polity
             }
             int groupIndex = factions[factionIndex].groups.FindIndex(g =>
                 string.Equals(g.name, groupName, StringComparison.OrdinalIgnoreCase));
-            if (groupIndex == -1)
+            if (groupIndex < 0)
             {
-                Debug.LogError($"Group '{groupName}' not found in faction '{faction}'. No group set.");
                 group = null;
                 return;
             }

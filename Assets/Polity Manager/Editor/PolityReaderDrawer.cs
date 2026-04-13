@@ -11,7 +11,7 @@ namespace Polity
         string[] names;
         string[] groups;
         bool _stacked;
-        const float minWidth = 400f;
+        const float minWidth = 300f;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {

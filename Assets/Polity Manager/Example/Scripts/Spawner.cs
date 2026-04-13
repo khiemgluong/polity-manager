@@ -6,19 +6,13 @@ namespace Polity
     using static Manager;
     public class Spawner : MonoBehaviour
     {
-        [SerializeField] Material[] colors;
         [SerializeField] NPC dummy;
         public GameObject cursor;
         public bool spawn = true;
         HashSet<Transform> usedSpawnPoints = new();
         public Dropdown dropdown;
-        [System.Serializable]
-        public class SpawnData
-        {
-            public Reader reader;
-            public NPC npc;
-        }
-        public Reader[] polities;
+        string dropdownValue;
+     
         void Awake()
         {
             foreach (Faction polity in Singleton.factions)
@@ -36,9 +30,8 @@ namespace Polity
         }
         void OnDropdownValueChanged(int index)
         {
-            string selectedValue = dropdown.options[index].text;
-            Manager.Faction polityStruct = new()
-            { name = selectedValue };
+        //    dropdownValue = dropdown.options[index].text;
+
         }
         void Start()
         {
@@ -73,13 +66,13 @@ namespace Polity
         }
         GameObject SpawnNPC(NPC dummy, Vector3 position)
         {
-            GameObject npc = Instantiate(dummy.gameObject, position, Quaternion.Euler(0, 180, 0));
-            if (!npc.TryGetComponent(out Member _))
+            GameObject npcObj = Instantiate(dummy.gameObject, position, Quaternion.Euler(0, 180, 0));
+            if (npcObj.TryGetComponent(out NPC npc))
             {
-                Member _member = npc.AddComponent<Member>();
-                // _member.polity.SetPolity("shart");
+                Debug.Log("Dropdown value: " + dropdown.options[dropdown.value].text);
+                npc.Reader.Set(dropdown.value);
             }
-            return npc;
+            return npcObj;
         }
 
         void Update()

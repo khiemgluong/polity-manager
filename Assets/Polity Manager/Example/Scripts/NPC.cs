@@ -18,12 +18,8 @@ namespace Polity
         bool beginAttack = false;
         Coroutine attackCoroutine;
 
+        public static event System.Action<NPC> OnSpawn, OnDespawn;
 
-        public static event System.Action<NPC> OnNPCSpawn;
-        /// <summary>
-        /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
-        /// </summary>
-        // public Transform targetArrow;
         void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
@@ -37,11 +33,12 @@ namespace Polity
 
         void Start()
         {
-            // Debug.LogError($"Manager singleton: {Manager.Singleton}");
-            // Debug.LogError($"Manager factions: {Manager.Singleton?.factions?.Length}");
-            // // Polity = new Reader();
-            // Polity.Set(2);
-            // Debug.LogError($"Faction after Set: {Polity.faction}");
+            OnSpawn?.Invoke(this);
+        }
+
+        void OnDestroy()
+        {
+            OnDespawn?.Invoke(this);
         }
 
         [ContextMenu("Test")]
@@ -52,34 +49,34 @@ namespace Polity
 
         void Update()
         {
-            // if (!agent.enabled) return;
-            // SearchForPolityMembers();
-            // if (allyTarget != null && target != null)
-            //     MoveTowardsTarget(allyTarget);
-            // else if (target != null)
-            //     MoveTowardsTarget(target);
-            // else
-            // {
-            //     target = null;
-            //     allyTarget = null;
-            //     beginAttack = false;
-            //     if (agent.remainingDistance >= agent.stoppingDistance)
-            //     {
-            //         agent.updateRotation = true;
-            //         agent.speed = 2;
-            //     }
-            //     else
-            //     {
-            //         agent.updateRotation = false;
-            //         transform.rotation = Quaternion.RotateTowards(transform.rotation,
-            //                                     Quaternion.Euler(0, 180, 0),
-            //                                     agent.angularSpeed * Time.deltaTime);
-            //     }
-            //     agent.SetDestination(spawnPos);
-            //     SetMesh(0);
-            //     if (attackCoroutine != null)
-            //         StopCoroutine(attackCoroutine);
-            // }
+            if (!agent.enabled) return;
+            SearchForPolityMembers();
+            if (ally != null && target != null)
+                MoveTowardsTarget(ally);
+            else if (target != null)
+                MoveTowardsTarget(target);
+            else
+            {
+                target = null;
+                ally = null;
+                beginAttack = false;
+                if (agent.remainingDistance >= agent.stoppingDistance)
+                {
+                    agent.updateRotation = true;
+                    agent.speed = 2;
+                }
+                else
+                {
+                    agent.updateRotation = false;
+                    transform.rotation = Quaternion.RotateTowards(transform.rotation,
+                                                Quaternion.Euler(0, 180, 0),
+                                                agent.angularSpeed * Time.deltaTime);
+                }
+                agent.SetDestination(spawnPos);
+                SetMesh(0);
+                if (attackCoroutine != null)
+                    StopCoroutine(attackCoroutine);
+            }
         }
         void SetMesh(int index)
         {
@@ -88,7 +85,7 @@ namespace Polity
         }
 
 
-        void MoveTowardsTarget(Member polityMember)
+        void MoveTowardsTarget(NPC polityMember)
         {
             if (agent.remainingDistance < agent.stoppingDistance)
             {

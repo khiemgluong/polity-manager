@@ -8,12 +8,6 @@ namespace Polity
     public class Member : MonoBehaviour
     {
         public Reader reader;
-
-        void Awake()
-        {
-
-        }
-
         protected virtual void OnEnable()
         {
             OnFactionChange += OnFactionChanged;

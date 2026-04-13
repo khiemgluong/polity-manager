@@ -7,7 +7,9 @@ namespace Polity
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {
-        public static Manager Singleton { get; private set; }
+        public const string VERSION = "3.0.0";
+
+        public static Manager PM { get; private set; }
         public Faction[] factions = new Faction[0];
         public Relation[,] RelationMatrix { get; private set; }
         public enum Relation
@@ -22,9 +24,9 @@ namespace Polity
         public static Action OnRelationChange, OnFactionChange;
         void Awake()
         {
-            if (Singleton != null && Singleton != this)
+            if (PM != null && PM != this)
                 Destroy(gameObject);
-            else Singleton = this;
+            else PM = this;
             LoadRelationMatrix();
         }
 
@@ -141,11 +143,11 @@ namespace Polity
             return RelationMatrix[factionIndex, theirFactionIndex];
         }
         public Relation CheckRelation(Member member, Member otherMember) =>
-               CheckRelation(member.reader.faction, otherMember.reader.faction);
+               CheckRelation(member.faction.name, otherMember.faction.name);
         public Relation CheckRelation(IMember member, IMember otherMember) =>
-                CheckRelation(member.Reader.faction, otherMember.Reader.faction);
-        public Relation CheckRelation(Reader reader, Reader otherReader) =>
-                CheckRelation(reader.faction, otherReader.faction);
+                CheckRelation(member.Faction.name, otherMember.Faction.name);
+        public Relation CheckRelation(Polity.Faction reader, Polity.Faction otherReader) =>
+                CheckRelation(reader.name, otherReader.name);
         public Relation CheckRelation(string factionName, string theirFactionName)
         {
             return CheckRelation(Array.FindIndex(factions, p => p.name == factionName),
@@ -186,70 +188,6 @@ namespace Polity
                            newRelation);
         }
 
-        public void AddGroup(int factionIndex, string groupName)
-        {
-            if (factionIndex < 0 || factionIndex >= factions.Length)
-            {
-                Debug.LogError($"Invalid faction index: {factionIndex}. No group added.");
-                return;
-            }
-            if (string.IsNullOrEmpty(groupName))
-            {
-                Debug.LogError("Group name cannot be null or empty. No group added.");
-                return;
-            }
-            if (factions[factionIndex].groups == null)
-                factions[factionIndex].groups = new List<Group>();
-
-            if (factions[factionIndex].groups.Exists(g => g.name == groupName))
-            {
-                Debug.LogWarning($"Group '{groupName}' already exists in faction '{factions[factionIndex].name}'. No duplicate group added.");
-                return;
-            }
-            factions[factionIndex].groups.Add(new Group { name = groupName });
-        }
-
-        public void AddGroup(string factionName, string groupName)
-        {
-            int factionIndex = Array.FindIndex(factions, p => p.name == factionName);
-            if (factionIndex == -1)
-            {
-                Debug.LogError($"Faction '{factionName}' not found. No group added.");
-                return;
-            }
-            AddGroup(factionIndex, groupName);
-        }
-
-        public void RemoveGroup(int factionIndex, string groupName)
-        {
-            if (factionIndex < 0 || factionIndex >= factions.Length)
-            {
-                Debug.LogError($"Invalid faction index: {factionIndex}. No group removed.");
-                return;
-            }
-            if (string.IsNullOrEmpty(groupName))
-            {
-                Debug.LogError("Group name cannot be null or empty. No group removed.");
-                return;
-            }
-            if (factions[factionIndex].groups == null || !factions[factionIndex].groups.Exists(g => g.name == groupName))
-            {
-                Debug.LogWarning($"Group '{groupName}' does not exist in faction '{factions[factionIndex].name}'. No group removed.");
-                return;
-            }
-            factions[factionIndex].groups.RemoveAll(g => g.name == groupName);
-        }
-
-        public void RemoveGroup(string factionName, string groupName)
-        {
-            int factionIndex = Array.FindIndex(factions, p => p.name == factionName);
-            if (factionIndex == -1)
-            {
-                Debug.LogError($"Faction '{factionName}' not found. No group removed.");
-                return;
-            }
-            RemoveGroup(factionIndex, groupName);
-        }
 
         public void RemoveFactionFromPolity(Faction _struct)
         {
@@ -264,22 +202,5 @@ namespace Polity
                 }
         }
         #endregion
-
-        /* -------------------------------------------------------------------------- */
-        /*                             SERIALIZED CLASSES                             */
-        /* -------------------------------------------------------------------------- */
-        [Serializable]
-        public class Faction
-        {
-            public string name;
-            public List<Group> groups;
-        }
-
-        [Serializable]
-        public class Group
-        {
-            public string name;
-        }
-
     }
 }

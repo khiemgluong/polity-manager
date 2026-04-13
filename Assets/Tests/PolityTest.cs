@@ -5,7 +5,7 @@ namespace Polity
     // using Polity;
     public class PolityTest : MonoBehaviour
     {
-        public Reader[] shart;
+        public Faction[] shart;
 
         public Nest nest;
         public Nest[] nests;
@@ -15,7 +15,7 @@ namespace Polity
         {
             public string name;
             public int value;
-            public Reader[] factions;
+            public Faction[] factions;
             public SubNest subNest;
 
             public SubNest[] subNests;
@@ -24,13 +24,13 @@ namespace Polity
             {
                 public string name;
                 public float value;
-                public Reader[] factions;
+                public Faction[] factions;
             }
 
         }
-        public SerializedDictionary<Reader, string> dict0;
+        public SerializedDictionary<Faction, string> dict0;
 
-        public SerializedDictionary<Reader[], string> dict;
+        public SerializedDictionary<Faction[], string> dict;
 
         void Start()
         {

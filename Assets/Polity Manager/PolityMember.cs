@@ -7,7 +7,7 @@ namespace Polity
     [DisallowMultipleComponent]
     public class Member : MonoBehaviour
     {
-        public Reader reader;
+        public Faction faction;
         protected virtual void OnEnable()
         {
             OnFactionChange += OnFactionChanged;
@@ -18,7 +18,6 @@ namespace Polity
         }
 
 
-        /* --------------------------------- EVENTS --------------------------------- */
 
         protected virtual void OnFactionChanged()
         {
@@ -28,7 +27,7 @@ namespace Polity
 
     public interface IMember
     {
-        public Reader Reader { get; set; }
+        public Faction Faction { get; set; }
         public void OnFactionChanged();
         public Transform transform { get; }
     }

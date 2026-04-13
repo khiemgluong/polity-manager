@@ -15,12 +15,12 @@ namespace Polity
      
         void Awake()
         {
-            foreach (Faction polity in Singleton.factions)
+            foreach (Faction polity in PM.factions)
                 Debug.Log("Polity: " + polity.name);
 
             dropdown.ClearOptions();
             List<Dropdown.OptionData> optionList = new();
-            foreach (var polity in Singleton.factions)
+            foreach (var polity in PM.factions)
             {
                 optionList.Add(new Dropdown.OptionData(polity.name));
             }
@@ -55,9 +55,8 @@ namespace Polity
                         {
                             GameObject npcObj = SpawnNPC(dummy, spawnPoint.position);
                             IMember npc = npcObj.GetComponent<IMember>();
-                            int factionIndex = npc.Reader.RandomFactionIndex();
-                            int groupIndex = npc.Reader.RandomGroupIndex();
-                            npc.Reader.Set(factionIndex, groupIndex);
+                            int factionIndex = npc.Faction.RandomFactionIndex();
+                            npc.Faction.Set(factionIndex);
                             // MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
                             // meshRenderer.material = colors[i];
                             usedSpawnPoints.Add(spawnPoint); break;
@@ -70,7 +69,7 @@ namespace Polity
             if (npcObj.TryGetComponent(out NPC npc))
             {
                 Debug.Log("Dropdown value: " + dropdown.options[dropdown.value].text);
-                npc.Reader.Set(dropdown.value);
+                npc.Faction.Set(dropdown.value);
             }
             return npcObj;
         }

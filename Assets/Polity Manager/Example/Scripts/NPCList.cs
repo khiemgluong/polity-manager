@@ -8,7 +8,7 @@ namespace Polity
         [System.Serializable]
         public class NPCCategories
         {
-            public Reader reader;
+            public Faction reader;
             public List<NPC> npcs;
         }
         public List<NPCCategories> npcs;
@@ -20,8 +20,8 @@ namespace Polity
 
         private void OnSpawned(NPC npc)
         {
-            Reader reader = npc.Reader;
-            NPCCategories categories = npcs.Find(list => list.reader.faction.Equals(reader.faction));
+            Faction reader = npc.Faction;
+            NPCCategories categories = npcs.Find(list => list.reader.name.Equals(reader.name));
             if (categories != null)
             {
                 categories.npcs ??= new List<NPC>();
@@ -32,8 +32,8 @@ namespace Polity
 
         private void OnDespawned(NPC npc)
         {
-            Reader reader = npc.Reader;
-            NPCCategories categories = npcs.Find(list => list.reader.faction.Equals(reader.faction));
+            Faction reader = npc.Faction;
+            NPCCategories categories = npcs.Find(list => list.reader.name.Equals(reader.name));
             if (categories != null)
             {
                 categories.npcs.Remove(npc);

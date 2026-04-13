@@ -11,7 +11,7 @@ namespace Polity
         public RectTransform panel;
         public Button quitButton;
         CanvasGroup canvasGroup;
-        Text factionText, groupText;
+        Text factionText;
         bool isPaused;
         void Start()
         {
@@ -19,7 +19,6 @@ namespace Polity
             Transform t = targetImage.transform;
             factionText = t.Find("Faction").GetComponent<Text>();
             /* --------------------------- FamilyStruct texts --------------------------- */
-            groupText = t.Find("Group").GetComponent<Text>();
 
             panel.gameObject.SetActive(false);
             if (quitButton != null)
@@ -73,14 +72,12 @@ namespace Polity
                 if (hit.collider.TryGetComponent<IMember>(out var member))
                 {
                     canvasGroup.alpha = 1;
-                    factionText.text = member.Reader.faction;
-                    groupText.text = member.Reader.group ?? "";
+                    factionText.text = member.Faction.name;
                 }
                 else
                 {
                     canvasGroup.alpha = 0;
                     factionText.text = "";
-                    groupText.text = "";
                 }
 
             }

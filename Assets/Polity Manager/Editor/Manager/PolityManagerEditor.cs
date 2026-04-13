@@ -23,13 +23,17 @@ namespace Polity
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
-            SerializedProperty factions = serializedObject.FindProperty("factions");
-            EditorGUILayout.PropertyField(factions, true);
+            DrawFactionStringFields();
+
+            // SerializedProperty factions = serializedObject.FindProperty("factions");
+            // EditorGUILayout.PropertyField(factions, true);
+
             EditorGUI.EndDisabledGroup();
 
             DataCheck();
 
-            if (factions.isExpanded) FactionsMatrix();
+            // if (factions.isExpanded)
+            FactionsMatrix();
 
             GUILayout.Space(10);
 
@@ -40,7 +44,7 @@ namespace Polity
                 alignment = TextAnchor.MiddleRight,
                 fontStyle = FontStyle.Bold
             };
-            EditorGUILayout.LabelField($"Version {Application.version}", rightAlignedStyle);
+            EditorGUILayout.LabelField($"Version {VERSION}", rightAlignedStyle);
             EditorGUILayout.EndHorizontal();
             // Save changes
             if (GUI.changed)
@@ -63,6 +67,37 @@ namespace Polity
             // EditorGUI.DrawRect(adjustedRect, new Color(0.8f, 0.8f, 0.8f, 0.5f));
             GUIStyle style = new(GUI.skin.label) { alignment = TextAnchor.MiddleLeft };
             GUI.Label(adjustedRect, text, style); GUI.matrix = matrixBackup;
+        }
+
+        void DrawFactionStringFields()
+        {
+            SerializedProperty factionsProp = serializedObject.FindProperty("factions");
+
+            // Array size field
+            // EditorGUILayout.PropertyField(factionsProp.FindPropertyRelative("Array.size"));
+
+            for (int i = 0; i < factionsProp.arraySize; i++)
+            {
+                SerializedProperty factionProp = factionsProp.GetArrayElementAtIndex(i);
+                SerializedProperty nameProp = factionProp.FindPropertyRelative("name");
+
+                EditorGUILayout.BeginHorizontal();
+
+                nameProp.stringValue = EditorGUILayout.TextField($"", nameProp.stringValue);
+
+                // Remove button
+                if (GUILayout.Button("X", GUILayout.Width(20)))
+                {
+                    factionsProp.DeleteArrayElementAtIndex(i);
+                    break;
+                }
+
+                EditorGUILayout.EndHorizontal();
+            }
+
+            // Add button
+            if (GUILayout.Button("Add Faction"))
+                factionsProp.arraySize++;
         }
 
         Color GetColorForRelationship(Relation relationship)
@@ -112,46 +147,6 @@ namespace Polity
             }
             EditorGUILayout.EndHorizontal();
 
-            EditorGUILayout.BeginHorizontal();
-            int emptyPolityGroupNameCount = 0;
-            foreach (var polity in manager.factions)
-            {
-                if (polity.groups != null)
-                {
-                    foreach (var group in polity.groups)
-                    {
-                        if (string.IsNullOrEmpty(group.name))
-                            emptyPolityGroupNameCount++;
-                    }
-                }
-            }
-            if (emptyPolityGroupNameCount > 0)
-            {
-                if (emptyPolityGroupNameCount == 1) EditorGUILayout.HelpBox(
-                    $"There is one group with no name.", MessageType.Error);
-                else EditorGUILayout.HelpBox(
-                    $"There are {emptyPolityGroupNameCount} groups with no name.", MessageType.Error);
-            }
-
-            var duplicateGroupNames = manager.factions
-                .Where(p => p.groups != null)
-                .SelectMany(p => p.groups)
-                .Where(g => !string.IsNullOrEmpty(g.name))
-                .GroupBy(g => g.name)
-                .Where(g => g.Count() > 1)
-                .Select(g => g.Key)
-                .ToList();
-
-            if (duplicateGroupNames.Count > 0)
-            {
-                string names = string.Join(", ", duplicateGroupNames.Select(n => $"\"{n}\""));
-                string message = duplicateGroupNames.Count == 1
-                    ? $"Duplicate group name: {names}"
-                    : $"Duplicate group names: {names}";
-
-                EditorGUILayout.HelpBox(message, MessageType.Error);
-            }
-            EditorGUILayout.EndHorizontal();
         }
 
     }

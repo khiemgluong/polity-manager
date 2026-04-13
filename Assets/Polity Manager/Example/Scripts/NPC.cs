@@ -7,7 +7,7 @@ namespace Polity
     public class NPC : MonoBehaviour, IMember
     {
         [field: SerializeField]
-        public Reader Reader { get; set; }
+        public Faction Faction { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         public NPC target, ally;
         int health = 25;
@@ -137,7 +137,7 @@ namespace Polity
         {
             if (ally != null)
             {
-                Relation relation = Singleton.CheckRelation(Reader, ally.Reader);
+                Relation relation = PM.CheckRelation(Faction, ally.Faction);
                 switch (relation)
                 {
                     case Relation.Allies:
@@ -152,7 +152,7 @@ namespace Polity
             }
             else if (target != null)
             {
-                Relation relation = Singleton.CheckRelation(Reader, ally.Reader);
+                Relation relation = PM.CheckRelation(Faction, ally.Faction);
                 if (relation == Relation.Neutral)
                 {
                     target = null;
@@ -174,7 +174,7 @@ namespace Polity
                         if (hitNPC != this)
                         {
                             foundNPC = hitNPC;
-                            Relation relation = Singleton.CheckRelation(Reader, hitNPC.Reader);
+                            Relation relation = PM.CheckRelation(Faction, hitNPC.Faction);
                             switch (relation)
                             {
                                 case Relation.Allies:

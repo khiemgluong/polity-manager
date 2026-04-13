@@ -11,7 +11,6 @@ namespace Polity
         public bool spawn = true;
         HashSet<Transform> usedSpawnPoints = new();
         public Dropdown dropdown;
-        string dropdownValue;
      
         void Awake()
         {

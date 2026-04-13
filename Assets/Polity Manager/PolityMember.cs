@@ -10,14 +10,10 @@ namespace Polity
         public Faction faction;
         protected virtual void OnEnable()
         {
-            OnFactionChange += OnFactionChanged;
         }
         protected virtual void OnDisable()
         {
-            OnFactionChange -= OnFactionChanged;
         }
-
-
 
         protected virtual void OnFactionChanged()
         {
@@ -28,7 +24,6 @@ namespace Polity
     public interface IMember
     {
         public Faction Faction { get; set; }
-        public void OnFactionChanged();
         public Transform transform { get; }
     }
 }

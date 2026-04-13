@@ -54,7 +54,6 @@ namespace Polity
             name = reader.name;
         }
 
-
         /* --------------------------- Equality Operations -------------------------- */
         public bool Equals(Faction other)
             => string.Equals(name, other.name, StringComparison.OrdinalIgnoreCase);

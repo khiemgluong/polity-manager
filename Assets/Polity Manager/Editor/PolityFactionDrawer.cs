@@ -3,14 +3,11 @@ using UnityEngine;
 
 namespace Polity
 {
-    using static Manager;
     [CustomPropertyDrawer(typeof(Faction), true)]
-    public class PolityReaderDrawer : PropertyDrawer
+    public class PolityFactionDrawer : PropertyDrawer
     {
         Manager manager;
         string[] names;
-        bool _stacked;
-        const float minWidth = 300f;
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
@@ -21,13 +18,7 @@ namespace Polity
                 {
                     names = new string[manager.factions.Length];
                     for (int i = 0; i < manager.factions.Length; i++)
-                    {
                         names[i] = manager.factions[i].name;
-                        // groups = new string[manager.factions[i].groups.Count];
-                        // for (int j = 0; j < manager.factions[i].groups.Count; j++)
-                        //     groups[j] = manager.factions[i].groups[j].name;
-
-                    }
                 }
             }
 
@@ -45,7 +36,6 @@ namespace Polity
             Rect nameRect;
             nameRect = new Rect(position.x, position.y, position.width, lineHeight);
 
-
             EditorGUI.BeginProperty(position, label, property);
 
             UpdateFactionNames();
@@ -58,21 +48,6 @@ namespace Polity
             // if (EditorGUI.EndChangeCheck())
             factionProp.stringValue = names[factionIndex];
 
-            // SerializedProperty groupProp = property.FindPropertyRelative("group");
-            // if (!GetPolityGroups(names[factionIndex]))
-            // {
-            //     EditorGUI.LabelField(groupRect, $"No groups found for faction.");
-            //     groupProp.stringValue = null;
-            //     EditorGUI.EndProperty();
-            //     return;
-            // }
-            // // EditorGUI.BeginChangeCheck();
-            // int currentGroupIndex = Mathf.Max(0, System.Array.IndexOf(groups, groupProp.stringValue));
-            // GUIContent tooltip1 = new("", "Group");
-            // EditorGUI.LabelField(groupRect, tooltip1);
-            // int selectedGroupIndex = EditorGUI.Popup(groupRect, currentGroupIndex, groups);
-            // // if (EditorGUI.EndChangeCheck())
-            // groupProp.stringValue = groups[selectedGroupIndex];
 
             EditorGUI.EndProperty();
         }
@@ -83,7 +58,6 @@ namespace Polity
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
 
-            _stacked = EditorGUIUtility.currentViewWidth < minWidth;
             return lineHeight + spacing;
         }
 

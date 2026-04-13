@@ -8,7 +8,6 @@ namespace Polity
     public class Manager : MonoBehaviour
     {
         public const string VERSION = "3.0.0";
-
         public static Manager PM { get; private set; }
         public Faction[] factions = new Faction[0];
         public Relation[,] RelationMatrix { get; private set; }
@@ -19,9 +18,8 @@ namespace Polity
             Enemies,
         }
 
-
         /* --------------------------------- EVENTS --------------------------------- */
-        public static Action OnRelationChange, OnFactionChange;
+        public static Action OnRelationChange;
         void Awake()
         {
             if (PM != null && PM != this)
@@ -36,16 +34,18 @@ namespace Polity
             // SerializeRelationMatrix();
         }
 
-        [ContextMenu("Reset Polity Relation Matrix")]
-        void ResetPolityRelationMatrix()
+        [ContextMenu("Reset Relation Matrix")]
+        void ResetRelationMatrix()
         {
             int size = factions.Length;
             RelationMatrix = new Relation[size, size];
             for (int i = 0; i < size; i++)
                 for (int j = 0; j < size; j++)
                     RelationMatrix[i, j] = Relation.Neutral;
-            ValidateRelationMatrix();
+            Debug.Log("Reset Relation Matrix to default (Neutral) for all factions.");
             relationMatrixJSON = "";
+            ValidateRelationMatrix();
+            SerializeRelationMatrix();
         }
         void ValidateRelationMatrix()
         {

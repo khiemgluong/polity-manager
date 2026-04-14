@@ -1,83 +1,55 @@
-# Polity Manager - Manage Factions, Teams & Families
+**Polity Manager - Manage Factions & Formations**
 
-- [Polity Manager - Manage Factions, Teams \& Families](#polity-manager---manage-factions-teams--families)
-  - [Description](#description)
-  - [Quickstart](#quickstart)
-    - [Video Tutorial](#video-tutorial)
-    - [Demo Tutorial](#demo-tutorial)
-  - [Public APIs](#public-apis)
-    - [PolityManager.cs](#politymanagercs)
-      - [ChangeRelation()](#changerelation)
-      - [CheckRelation()](#checkrelation)
-      - [GetPolityEmblem()](#getpolityemblem)
-      - [GetPolityLeader()](#getpolityleader)
-      - [AddFactionToPolity()](#addfactiontopolity)
-      - [RemoveFactionFromPolity()](#removefactionfrompolity)
-      - [SerializeRelationMatrix()](#serializerelationmatrix)
-      - [DeserializeRelationMatrix()](#deserializerelationmatrix)
-    - [PolityReader.cs](#polityreadercs)
-      - [ChangePolity()](#changepolity)
-    - [Events](#events)
-      - [OnRelationChange](#onrelationchange)
-      - [OnLeaderChange](#onleaderchange)
-      - [OnFactionChange](#onfactionchange)
-    - [Structs](#structs)
-      - [PolityStruct](#politystruct)
-      - [FamilyStruct](#familystruct)
-    - [PolityManager.cs ContextMenus](#politymanagercs-contextmenus)
-      - [Reset Polity Relation Matrix](#reset-polity-relation-matrix)
-      - [Find Duplicate Polity Names](#find-duplicate-polity-names)
-      - [Load Polity Relation Matrix](#load-polity-relation-matrix)
-  - [Families](#families)
-    - [Root Node](#root-node)
-      - [Limitations](#limitations)
-  - [Credits](#credits)
-  - [Glossary](#glossary)
+- [Description](#description)
+- [Quickstart](#quickstart)
+  - [Video Tutorial](#video-tutorial)
+- [Public APIs](#public-apis)
+  - [PolityManager.cs (Polity.Manager)](#politymanagercs-politymanager)
+    - [ChangeRelation()](#changerelation)
+    - [CheckRelation()](#checkrelation)
+    - [SerializeRelationMatrix()](#serializerelationmatrix)
+    - [DeserializeRelationMatrix()](#deserializerelationmatrix)
+  - [PolityFaction.cs (Polity.Faction)](#polityfactioncs-polityfaction)
+  - [Events](#events)
+    - [OnRelationChange](#onrelationchange)
+    - [OnLeaderChange](#onleaderchange)
+    - [OnFactionChange](#onfactionchange)
+- [PolityManager.cs ContextMenus](#politymanagercs-contextmenus)
+  - [Reset Polity Relation Matrix](#reset-polity-relation-matrix)
+  - [Load Polity Relation Matrix](#load-polity-relation-matrix)
+- [Credits](#credits)
 
 ## Description
 
-Polity Manager is an editor based tool designed to manage relations between polities in a centralized matrix, along with individual family relations through a simple node graph.
+Polity Manager is an editor based tool designed to manage relations between polities.
 
-The PolityManager singleton contains a _Polity Relation Matrix_, a grid table that displays the relation of one polity to another based on their matrix position, similar to the Unity physics collision matrix.
-![Polity Relation Matrix](./Assets/Documentation/PolityManager%20Relation%20Matrix.png)
->
->The Red Team is allied to the Blue Team, but are enemies to the Orks and the Shogunate.
+The PolityManager singleton (PM) contains a _Faction Relation Matrix_, a matrix table that displays the relation of one polity to another based on their position, similar to the Unity physics collision matrix.
 
-A Polity<sup>1</sup> also contains a serialized array of Class<sup>2</sup> objects, and each Class object has a List of Faction<sup>3</sup> objects. These serve to departmentalize the various branches or groups of your polity into smaller, more manageable units.
->![Politary Array](./Assets/Documentation/PolityArray.png)
->
->Each political unit, from the Polity to Faction, can be given a name, Texture2D emblem and a leader.
+![Polity Relation Matrix](./Assets/Documentation/Faction%20Relation%20Matrix.png)
 
-To connect these polities to a prefab GameObject, the `PolityMember.cs` component is attached to that GameObject which will now assign it to a created polity, along with their class and faction (note that the class and faction will create an empty selection first, in case the PolityMember does not want to be affiliated with a class or faction).
->![Polity Member](./Assets/Documentation/PolityMember.png)
->
->The Shogunate polity has a Daimyo class, and that class contains a faction called the Nissan Clan.
+>The Red Team is neutral to the Blue Team and allied to the Empire, but the Blue Team are enemies to the Empire and allied to the Shogunate.
 
-The `PolityMember.cs` class utilizes a serializable class called `PolityReader.cs` (introduced in v2.0.0) which generates a structured dropdown field using the polities created from the `PolityManager` contained in the scene. This class can be fitted to other classes such as a spawn system where the reader can be linked to an NPC and set its data to that NPC's `PolityMember` when it is spawned.
+To retrieve these factions from an object, you can attach the `Polity.Member` monobehaviour or have a class implement the `IMember` interface (the latter is recommended). This will provide you with a dropdown field listing all the factions that you have created in the Manager.
+
+These utilizes the `Faction` class which is the main way GameObjects can communicate with Polity Manager. You can utilize this class to build your own classes with this as a field.
 
 Polity Manager is suited for games that needs to manage various groups of NPCs, especially when these relationships are a bit more complex, such as when one NPC needs to react to an enemy of one or more allied NPCs. However, it can also be applicable to simple teams.
+
+It is also designed to be very bare bones so that you can modify it more easily to suit your game's specific needs. It's less of a all encompassing solution and more of a framework.
 
 ## Quickstart
 
 ### [Video Tutorial](https://www.youtube.com/watch?v=f2wm8g-1v8A)
 
-### Demo Tutorial
-
-1. Play the Example Demo.unity Scene
-2. Click on the PolityManager GameObject in the hierarchy
-3. Click on the grid cells in the _Polity Relation Matrix_ to change RelationType<sup>4</sup> between polities.
-   - NPCs will react by targeting enemies or enemies of allies.
-4. Hover your mouse over an NPC to view their selected polity and family.
-
 This should demonstrate a very basic implementation of how the PolityManager can control NavMeshAgents with a PolityMember that can react to relationship changes based on their current polity.
 
-You can open the `NPC.cs` class inside of Example/Scripts to get a better idea of how the class subscribes to events and how it calls public PolityManager methods.
+You can open the `PolityNPC.cs` class inside of Example/Scripts to get a better idea of how the class subscribes to events and how it calls public PolityManager methods.
 
 ## Public APIs
 
-All classes in this package is under the `KL` namespace.
+All classes in this package is under the `Polity` namespace.
 
-### PolityManager.cs
+### PolityManager.cs (Polity.Manager)
 
 All public methods can be called from this PolityManager Singleton, referenced as `PM`, for example PM.ModifyPolityRelation();
 
@@ -90,7 +62,7 @@ If the polities matched, the `OnRelationChange` event will be invoked to notify 
 |--------------------|------------------|-------------|
 | `polityMember`     | `PolityMember`   | The member of the polity initiating the relationship change. |
 | `theirPolityName`  | `string`         | The name of the polity that is targeted for the relationship change, retrieved from `polityName` in `PolityMember`. |
-| `factionRelation`  | `PolityRelation` | The new relation to set; can be `Neutral`, `Allies`, or `Enemies`.|
+| `factionRelation`  | `Polity.Relation` | The new relation to set; can be `Neutral`, `Allies`, or `Enemies`.|
 
 #### CheckRelation()
 
@@ -103,50 +75,7 @@ The overload method replaces the PolityMember parameters as strings representing
 | `theirPolityMember`  | `PolityMember`         | The name of the polity that is targeted for comparison, retrieved from `polityName` in `PolityMember`. |
 
 **Returns**
-The `PolityRelation` enum value, which can be `Neutral`, `Allies` or `Enemies`.
-
-#### GetPolityEmblem()
-
-Gets the current Texture2D emblem of the political unit which you want, depending on whether you provide more than just the polityName.
-Meaning if you also provide a className and factionName, it will return that faction's emblem instead.
-
-| Parameter          | Type             | Description |
-|--------------------|------------------|-------------|
-| `_struct`     | `PolityStruct`   | The PolityStruct which must include a polityName, and optionally a class and faction. |
-
-**Returns**
-The `Texture2D` of that political unit's emblem
-
-#### GetPolityLeader()
-
-Gets the current leader of the political unit which you want, depending on whether you provide more than just the polityName.
-Meaning if you also provide a className, it will return that class leader instead.
-
-| Parameter          | Type             | Description |
-|--------------------|------------------|-------------|
-| `_struct`     | `PolityStruct`   | The PolityStruct which must include a polityName, and optionally a class and faction. |
-
-**Returns**
-The `PolityMember` of that political unit's leader
-
-#### AddFactionToPolity()
-
-Determines the polity and class based on the PolityStruct parameter, and searches through the factions List inside that polity's class, adding one if a faction was not found.
-A Texture2D and PolityMember can be given as overload parameters to set it as the new faction's emblem and leader.
-
-| Parameter          | Type             | Description |
-|--------------------|------------------|-------------|
-| `_struct`     | `PolityStruct`   | The PolityStruct which must include a polityName, className and factionName. |
-| `emblem`  | `Texture2D`         | The image which the new Faction's emblem will be. |
-| `leader`  | `PolityMember` | The leader of this new Faction. |
-
-#### RemoveFactionFromPolity()
-
-Removes a faction of a polity, if the PolityStruct polityName, className and factionName all match.
-
-| Parameter          | Type             | Description |
-|--------------------|------------------|-------------|
-| `_struct`     | `PolityStruct`   | The PolityStruct which must include a polityName, className and factionName. |
+The `Polity.Relation` enum value, which can be `Neutral`, `Allies` or `Enemies`.
 
 #### SerializeRelationMatrix()
 
@@ -154,7 +83,7 @@ Serializes the `PolityRelation[,]` matrix and sets the serialized `polityRelatio
 
 | Parameter          | Type             | Description |
 |--------------------|------------------|-------------|
-| `polityRelationMatrix`     | `PolityRelation[,]`   | The 2D PolityRelation matrix. This can be omitted which will use the Singleton's `polityRelationMatrix`. |
+| `RelationMatrix`     | `Polity.Relation[,]`   | The 2D PolityRelation matrix. This can be omitted which will use the Singleton's `RelationMatrix`. |
 
 **Returns**
 The `string` of that serialized matrix.
@@ -165,18 +94,14 @@ Deserializes a string representing the `PolityRelation[,]` matrix.
 
 | Parameter          | Type             | Description |
 |--------------------|------------------|-------------|
-| `json`     | `string`   | This can be omitted which will then use the Singleton's `polityRelationMatrixString`. |
+| `json`     | `string`   | This can be omitted which will then use the Singleton's `relationMatrixString`. |
 
 **Returns**
-The `PolityRelation[,]` matrix which was deserialized from the string.
+The `Polity.Relation[,]` matrix which was deserialized from the string.
 
-### PolityReader.cs
 
-#### ChangePolity()
+### PolityFaction.cs (Polity.Faction)
 
-| Parameter          | Type             | Description |
-|--------------------|------------------|-------------|
-| `polityReader`/`polityStruct`     | `PolityReader`/`PolityStruct`   | Changes the polity reader's polity. |
 
 ### Events
 
@@ -192,69 +117,16 @@ Invoked whenever a `PolityMember` is set to a new Polity as their leader with `S
 
 Invoked whenever a `Faction` is created or removed with `AddFactionToPolity()` and `RemoveFactionFromPolity()`.
 
-### Structs
 
-#### PolityStruct
+## PolityManager.cs ContextMenus
 
-      public struct PolityStruct
-      {
-         public string polityName;
-         public string className;
-         public string factionName;
-      }
-
-#### FamilyStruct
-
-      public struct FamilyStruct
-      {
-         public List<PolityMember> parents;
-         public List<PolityMember> partners;
-         public List<PolityMember> children;
-      }
-
-### PolityManager.cs ContextMenus
-
-#### Reset Polity Relation Matrix
+### Reset Polity Relation Matrix
 
 Reset every relation to `Neutral`.
 
-#### Find Duplicate Polity Names
-
-Checks the polity names in `Polity[]` array and logs a warning for any duplicate names.
-
-#### Load Polity Relation Matrix
+### Load Polity Relation Matrix
 
 If in some case the serialized polity relation matrix did not load, this can manually deserialize & load it.
-
-## Families
-
-You can set a PolityMember to a polity and create a political relation to another polity if this is all you need. However, you can expand this relationship to each individual PolityMember for them to be connected not just by political affiliation, but by family.
-
-The _Member Family Graph_ is a node based graph which can be accessed by clicking on the  `Member Family Graph` Button under the _Polity Relation Matrix_ inside of `PolityManager`. The family structure that is created in this graph is **relative**, meaning that it will only include the Root Node's parents, partners, and children which is directly related to the root node.
->![Polity Member Family Graph example](./Assets/Documentation/PolityMember%20Graph.png)
->
-> The root node (Root 0) indicates 2 parents indicated by a blue line with blue nodes, a partner indicated by a green line with green nodes, and their child, with the one attaching to the root node being its only parent, and the one attached to partner indicating that the root and that partner are the parents.
-
-The result is a family lineage that is separate from the political affiliations of that PolityMember. Meaning that it could be possible for a parent or child of a PolityMember to be enemies, despite being related.
-
-### Root Node
-
-When the _Polity Member Graph_ is opened, it will render one node, the Root Node, which requires you to place in a prefab with a PolityMember component attached to it.
-Once you have placed in a PolityMember, it will display 3 buttons: Parents, Partners and Children.
-
-![Root Node](./Assets/Documentation/PolityMember%20Root%20Node.png)
-
-You can assign relationships to these other nodes from the Root Node by clicking the respective button, such as **Parents** if you want to create a parent relationship to that node.
-
-While it is not necessary to have 2 parents, there can only have 2 parents per node. However, the root node can have as any partners as possible, and as many children with any of those partners.
-
-#### Limitations
-
-Since the rendered nodes only display immediate family members to the root node, not the entire family tree from the first descendant, there is the possibility of accidentally reassigning the same PolityMember to a more distant but related family member.
-
-Therefore, this _Polity Member Graph_ should **not** be used as a solution for managing and building complex and large family relationships. You should rely on something else to design your family trees, then use the graph to assign the relationships according to that design.
-
-Another factor to consider is having multiple instances of a prefab with a defined family structure, which could cause confliciting references. Generally, you should not spawn more than one `PolityMember` NPC that belongs to a family, and these NPCs should be treated as unique essential NPCs. Conversely, `PolityMembers` who do not belong to any family, or generic NPCs, can be spawned multiple times without issue.
 
 ## Credits
 
@@ -262,10 +134,3 @@ PBR Sand054 texture
 [ambientcg.com](https://ambientcg.com) - CC0 License
 
 **Polity Manager** was developed by Khiem Luong ([github.com/khiemgluong](https://github.com/khiemgluong))
-
-## Glossary
-
-1: Polity - Represents the largest & most important political unit such as a government body, corporation or main team.<br>
-2: Class - Represents a social class, government branch, organization, or any large collective corp.<br>
-3: Faction - Represents a small and temporary political unit, which can be added and removed at runtime.<br>
-4: RelationType - an enum value representing the current relationship between 2 polities; declared as Neutral, Allies and Enemies.

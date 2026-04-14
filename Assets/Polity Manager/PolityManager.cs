@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 namespace Polity
 {
+    [HelpURL("https://github.com/khiemgluong/Polity-Manager/blob/main/README.md")]
+
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {

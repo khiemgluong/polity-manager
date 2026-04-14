@@ -1,4 +1,4 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Polity
@@ -10,9 +10,11 @@ namespace Polity
         public Faction faction;
         protected virtual void OnEnable()
         {
+
         }
         protected virtual void OnDisable()
         {
+
         }
 
         protected virtual void OnFactionChanged()
@@ -21,9 +23,12 @@ namespace Polity
         }
     }
 
+
+
     public interface IMember
     {
-        public Faction Faction { get; set; }
+        public Faction Faction { get; }
+        public Leader Leader { get; set; }
         public Transform transform { get; }
     }
 }

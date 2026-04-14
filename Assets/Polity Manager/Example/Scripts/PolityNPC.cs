@@ -7,7 +7,8 @@ namespace Polity
     public class PolityNPC : MonoBehaviour, IMember
     {
         [field: SerializeField]
-        public Faction Faction { get; set; }
+        public Faction Faction { get; private set; }
+        public Leader Leader { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         public PolityNPC target, ally;
         int health = 25;
@@ -29,7 +30,10 @@ namespace Polity
             target = null; ally = null;
             OnRelationChange += OnRelationChanged;
 
+            Leader.OnSpawn += OnLeaderSpawned;
+            Leader.OnDespawn += OnLeaderDespawned;
         }
+
 
         void Start()
         {
@@ -39,13 +43,34 @@ namespace Polity
         void OnDestroy()
         {
             OnDespawn?.Invoke(this);
+            Leader.OnSpawn -= OnLeaderSpawned;
+            Leader.OnDespawn -= OnLeaderDespawned;
         }
 
-        [ContextMenu("Test")]
-        void Test()
+        #region Callbacks
+        void OnLeaderSpawned(Leader leader)
         {
-            // Polity.Set(2);
+            if (!Leader && leader.Faction.Equals(Faction))
+            {
+                Leader = leader;
+                leader.AddMember(this);
+            }
         }
+
+        void OnLeaderDespawned(Leader leader)
+        {
+            if (Leader == leader)
+            {
+                Leader = null;
+                OnRelationChanged();
+            }
+        }
+
+        public void OnFactionChanged()
+        {
+            Debug.Log($"NPC {name} faction changed to {Faction}");
+        }
+        #endregion
 
         void Update()
         {
@@ -225,9 +250,6 @@ namespace Polity
             Gizmos.DrawWireSphere(transform.position, detectionRadius);
         }
 
-        public void OnFactionChanged()
-        {
-            throw new System.NotImplementedException();
-        }
+
     }
 }

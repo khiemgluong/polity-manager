@@ -7,7 +7,7 @@ namespace Polity
     public class Faction : IEquatable<Faction>
     {
         public string name;
-
+        public static event Action<string> OnNameChange;
         public int RandomFactionIndex()
         {
             if (Manager.PM.factions == null || Manager.PM.factions.Length == 0)
@@ -33,7 +33,13 @@ namespace Polity
                 Debug.LogError($"Invalid faction index: {factionIndex}. No faction set.");
                 return;
             }
+            if(factions[factionIndex].name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                Debug.LogWarning($"Faction index {factionIndex} has the same name '{name}' as the current faction. No change made.");
+                return;
+            }
             name = factions[factionIndex].name;
+            OnNameChange?.Invoke(name);
         }
 
         public void Set(string factionName)

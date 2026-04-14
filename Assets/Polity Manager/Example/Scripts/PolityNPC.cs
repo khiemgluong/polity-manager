@@ -9,6 +9,7 @@ namespace Polity
     {
         [field: SerializeField]
         public Faction Faction { get; private set; }
+        [field: SerializeField]
         public Leader Leader { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         public PolityNPC target, ally;
@@ -43,7 +44,13 @@ namespace Polity
 
         void OnDestroy()
         {
+            if (Leader != null)
+            {
+                Leader.RemoveMember(this);
+                Leader = null;
+            }
             OnDespawn?.Invoke(this);
+
             Leader.OnSpawn -= OnLeaderSpawned;
             Leader.OnDespawn -= OnLeaderDespawned;
         }
@@ -51,7 +58,7 @@ namespace Polity
         #region Callbacks
         void OnLeaderSpawned(Leader leader)
         {
-            if (!Leader && leader.Faction.Equals(Faction))
+            if (Leader != null && leader.Faction.Equals(Faction))
             {
                 Leader = leader;
                 leader.AddMember(this);
@@ -148,7 +155,7 @@ namespace Polity
         {
             while (true)
             {
-                int randomIndex = Random.Range(2, 5); // Random index between 2 and 4 (inclusive)
+                int randomIndex = Random.Range(2, 5);
                 SetMesh(randomIndex);
                 if (randomIndex == 3 || randomIndex == 4)
                 {

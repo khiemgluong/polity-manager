@@ -71,5 +71,20 @@ namespace Polity
             }
             return npcObj;
         }
+
+        public Leader SpawnLeader(Vector3 position, bool fillMembers = true)
+        {
+            GameObject leaderObj = Instantiate(dummy.gameObject, position, Quaternion.identity);
+            Leader leader = leaderObj.AddComponent<Leader>();
+            if (fillMembers)
+                for (int i = 0; i < leader.capacity; i++)
+                {
+                    PolityNPC npc = Instantiate(dummy, leaderObj.transform.position, Quaternion.identity);
+                    leader.AddMember(npc);
+                }
+            return leader;
+        }
+
+
     }
 }

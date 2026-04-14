@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.UI;
 
 namespace Polity
@@ -15,7 +16,7 @@ namespace Polity
         public GameObject cursor;
         Text factionText, selectedMemberText;
         bool isPaused;
-        IMember selectedMember;
+        Leader leader;
         void Awake()
         {
             inputActions = new PolityExampleInputActions();
@@ -67,13 +68,6 @@ namespace Polity
                 {
                     floating.alpha = 1;
                     factionText.text = member.Faction.Name;
-                    if (inputActions.Main.Select.WasPressedThisFrame())
-                    {
-                        if (selectedMember == member)
-                            selectedMember = null;
-                        else
-                            selectedMember = member;
-                    }
                 }
                 else
                 {
@@ -81,6 +75,21 @@ namespace Polity
                     factionText.text = "";
                     if (inputActions.Main.Select.WasPressedThisFrame())
                         spawner.SpawnNPC(hit.point);
+
+                    if (leader == null)
+                    {
+                        if (inputActions.Main.SpawnLeader.WasPressedThisFrame())
+                            leader = spawner.SpawnLeader(hit.point);
+                    }
+                    else
+                    {
+                        if (inputActions.Main.Move.WasPressedThisFrame())
+                        {
+                            NavMeshAgent agent = leader.GetComponent<NavMeshAgent>();
+                            if (agent != null)
+                                agent.SetDestination(hit.point);
+                        }
+                    }
                 }
                 cursor.transform.position = hit.point + Vector3.up * .01f;
             }
@@ -91,10 +100,10 @@ namespace Polity
                 cursor.SetActive(false);
             }
 
-            if (selectedMember != null)
+            if (leader != null)
             {
-                Debug.Log("Selected member: " + selectedMember.transform.name);
-                selectedMemberText.text = selectedMember.transform.name;
+                Debug.Log("Selected member: " + leader.transform.name);
+                selectedMemberText.text = leader.transform.name;
             }
             else
             {

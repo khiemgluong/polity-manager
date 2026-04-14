@@ -9,7 +9,6 @@ namespace Polity
         public static Leaders PL { get; private set; }
         public List<Leader> leaders = new();
         [SerializeField] PolityNPC dummy;
-        [SerializeField] Leader leaderDummy;
         void Awake()
         {
             Leader.OnSpawn += OnLeaderSpawned;
@@ -22,17 +21,6 @@ namespace Polity
                 leaders.Add(leader);
             leader.transform.SetParent(transform);
 
-        }
-
-        public void SpawnLeader(bool fillMembers = true)
-        {
-            Leader leaderObj = Instantiate(leaderDummy, transform.position, Quaternion.identity);
-            if (fillMembers)
-                for (int i = 0; i < leaderObj.capacity; i++)
-                {
-                    PolityNPC npc = Instantiate(dummy, leaderObj.transform.position, Quaternion.identity);
-                    leaderObj.AddMember(npc);
-                }
         }
 
         void OnLeaderDespawned(Leader leader)

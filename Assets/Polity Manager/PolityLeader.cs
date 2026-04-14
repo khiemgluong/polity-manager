@@ -8,7 +8,6 @@ namespace Polity
     public class Leader : MonoBehaviour
     {
         public Faction Faction;
-
         [Range(1, 100)]
         public int capacity = 10;
         public List<IMember> members = new();
@@ -89,14 +88,14 @@ namespace Polity
             member.Leader = this;
             if (!members.Contains(member))
                 members.Add(member);
-            formation.Add(member);
+            formation?.Add(member);
         }
 
         public void RemoveMember(IMember member)
         {
             if (members.Contains(member))
                 members.Remove(member);
-            formation.Remove(member);
+            formation?.Remove(member);
         }
 
         void OnFactionNameChanged(string newFactionName)
@@ -104,19 +103,5 @@ namespace Polity
             foreach (IMember member in members)
                 member.Faction.Set(newFactionName);
         }
-
-        // void OnDrawGizmosSelected()
-        // {
-        //     if (formation != null)
-        //     {
-        //         Gizmos.color = Color.cyan;
-        //         foreach (var (member, offset) in formation.FormationOffsets)
-        //         {
-        //             Vector3 worldTarget = formation.GetPosition(member);
-        //             Gizmos.DrawLine(transform.position, worldTarget);
-        //             Gizmos.DrawSphere(worldTarget, 0.1f);
-        //         }
-        //     }
-        // }
     }
 }

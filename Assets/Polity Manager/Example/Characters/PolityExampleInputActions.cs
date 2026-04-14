@@ -88,7 +88,7 @@ namespace Polity
         {
             asset = InputActionAsset.FromJson(@"{
     ""version"": 1,
-    ""name"": ""Polity Example Input Actions"",
+    ""name"": ""PolityExampleInputActions"",
     ""maps"": [
         {
             ""name"": ""Main"",
@@ -125,6 +125,15 @@ namespace Polity
                     ""name"": ""Pause"",
                     ""type"": ""Button"",
                     ""id"": ""835e3585-0977-4f8a-9250-d7da2ecd7129"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Spawn Leader"",
+                    ""type"": ""Button"",
+                    ""id"": ""f77809e3-be05-40f3-ac20-bc82e0b10d77"",
                     ""expectedControlType"": """",
                     ""processors"": """",
                     ""interactions"": """",
@@ -175,6 +184,17 @@ namespace Polity
                     ""action"": ""Pause"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""be334074-dc79-48d9-88b1-25df6586f87a"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Spawn Leader"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -187,6 +207,7 @@ namespace Polity
             m_Main_Move = m_Main.FindAction("Move", throwIfNotFound: true);
             m_Main_Look = m_Main.FindAction("Look", throwIfNotFound: true);
             m_Main_Pause = m_Main.FindAction("Pause", throwIfNotFound: true);
+            m_Main_SpawnLeader = m_Main.FindAction("Spawn Leader", throwIfNotFound: true);
         }
 
         ~@PolityExampleInputActions()
@@ -271,6 +292,7 @@ namespace Polity
         private readonly InputAction m_Main_Move;
         private readonly InputAction m_Main_Look;
         private readonly InputAction m_Main_Pause;
+        private readonly InputAction m_Main_SpawnLeader;
         /// <summary>
         /// Provides access to input actions defined in input action map "Main".
         /// </summary>
@@ -298,6 +320,10 @@ namespace Polity
             /// Provides access to the underlying input action "Main/Pause".
             /// </summary>
             public InputAction @Pause => m_Wrapper.m_Main_Pause;
+            /// <summary>
+            /// Provides access to the underlying input action "Main/SpawnLeader".
+            /// </summary>
+            public InputAction @SpawnLeader => m_Wrapper.m_Main_SpawnLeader;
             /// <summary>
             /// Provides access to the underlying input action map instance.
             /// </summary>
@@ -336,6 +362,9 @@ namespace Polity
                 @Pause.started += instance.OnPause;
                 @Pause.performed += instance.OnPause;
                 @Pause.canceled += instance.OnPause;
+                @SpawnLeader.started += instance.OnSpawnLeader;
+                @SpawnLeader.performed += instance.OnSpawnLeader;
+                @SpawnLeader.canceled += instance.OnSpawnLeader;
             }
 
             /// <summary>
@@ -359,6 +388,9 @@ namespace Polity
                 @Pause.started -= instance.OnPause;
                 @Pause.performed -= instance.OnPause;
                 @Pause.canceled -= instance.OnPause;
+                @SpawnLeader.started -= instance.OnSpawnLeader;
+                @SpawnLeader.performed -= instance.OnSpawnLeader;
+                @SpawnLeader.canceled -= instance.OnSpawnLeader;
             }
 
             /// <summary>
@@ -427,6 +459,13 @@ namespace Polity
             /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
             /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
             void OnPause(InputAction.CallbackContext context);
+            /// <summary>
+            /// Method invoked when associated input action "Spawn Leader" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+            /// </summary>
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+            /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+            void OnSpawnLeader(InputAction.CallbackContext context);
         }
     }
 }

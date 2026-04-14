@@ -83,8 +83,10 @@ namespace Polity
         void Update()
         {
             if (!agent.enabled) return;
-            if (Leader != null && Leader != this)
+            if (Leader != null)
             {
+                if (Leader.gameObject == gameObject)
+                    return;
                 Vector3 worldTarget = Leader.formation.GetPosition(this);
                 agent.SetDestination(worldTarget);
                 return;

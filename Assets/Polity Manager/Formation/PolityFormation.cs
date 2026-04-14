@@ -7,9 +7,9 @@ namespace Polity
     public class Formation
     {
         // ── Config ───────────────────────────────────────────────────────────────
-        [SerializeField] private int columns = 3;
-        [SerializeField] private int rows = 2;
-        [SerializeField] private float spacing = 1.5f;
+        [SerializeField] int columns = 3;
+        [SerializeField] int rows = 2;
+        [SerializeField] float spacing = 1f;
 
         // ── State ────────────────────────────────────────────────────────────────
         Leader leader;

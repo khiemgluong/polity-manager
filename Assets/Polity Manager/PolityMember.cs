@@ -24,7 +24,6 @@ namespace Polity
     }
 
 
-
     public interface IMember
     {
         public Faction Faction { get; }

@@ -118,7 +118,7 @@ namespace Polity
             int emptyPolityNameCount = 0;
             foreach (var polity in manager.factions)
             {
-                if (string.IsNullOrEmpty(polity.name))
+                if (string.IsNullOrEmpty(polity.Name))
                     emptyPolityNameCount++;
             }
             if (emptyPolityNameCount > 0)
@@ -130,8 +130,8 @@ namespace Polity
             }
 
             var duplicateNames = manager.factions
-                .Where(p => !string.IsNullOrEmpty(p.name))
-                .GroupBy(p => p.name)
+                .Where(p => !string.IsNullOrEmpty(p.Name))
+                .GroupBy(p => p.Name)
                 .Where(g => g.Count() > 1)
                 .Select(g => g.Key)
                 .ToList();

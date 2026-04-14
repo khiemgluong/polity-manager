@@ -29,23 +29,23 @@ namespace Polity
                     for (int j = manager.factions.Length - 1; j >= 0; j--)
                     {
                         GUILayout.Space(-1);
-                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].name),
+                        Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].Name),
                                                                     GUI.skin.label, width,
                                                                     GUILayout.Height(headerWidth));
-                        RotateText(labelRect, manager.factions[j].name, 270);
+                        RotateText(labelRect, manager.factions[j].Name, 270);
                     }
                 EditorGUILayout.EndHorizontal();
 
                 for (int i = 0; i < manager.factions.Length; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(manager.factions[i].name, new GUIStyle(GUI.skin.label)
+                    EditorGUILayout.LabelField(manager.factions[i].Name, new GUIStyle(GUI.skin.label)
                     { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
                     // Create a grid but only for entries above the diagonal
                     for (int j = manager.factions.Length - 1; j > i; j--)
                     {
-                        string tooltipText = manager.factions[i].name +
-                                            " & " + manager.factions[j].name +
+                        string tooltipText = manager.factions[i].Name +
+                                            " & " + manager.factions[j].Name +
                                             " | " + manager.RelationMatrix[i, j];
 
                         GUIContent buttonContent = new("", tooltipText);

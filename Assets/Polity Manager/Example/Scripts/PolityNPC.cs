@@ -4,6 +4,7 @@ using UnityEngine.AI;
 namespace Polity
 {
     using static Manager;
+    [RequireComponent(typeof(NavMeshAgent))]
     public class PolityNPC : MonoBehaviour, IMember
     {
         [field: SerializeField]

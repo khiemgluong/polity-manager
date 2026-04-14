@@ -70,7 +70,7 @@ namespace Polity
                 if (hit.collider.TryGetComponent<IMember>(out var member))
                 {
                     canvasGroup.alpha = 1;
-                    factionText.text = member.Faction.name;
+                    factionText.text = member.Faction.Name;
                 }
                 else
                 {

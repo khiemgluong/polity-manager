@@ -143,15 +143,15 @@ namespace Polity
             return RelationMatrix[factionIndex, theirFactionIndex];
         }
         public Relation CheckRelation(Member member, Member otherMember) =>
-               CheckRelation(member.faction.name, otherMember.faction.name);
+               CheckRelation(member.faction.Name, otherMember.faction.Name);
         public Relation CheckRelation(IMember member, IMember otherMember) =>
-                CheckRelation(member.Faction.name, otherMember.Faction.name);
+                CheckRelation(member.Faction.Name, otherMember.Faction.Name);
         public Relation CheckRelation(Polity.Faction reader, Polity.Faction otherReader) =>
-                CheckRelation(reader.name, otherReader.name);
+                CheckRelation(reader.Name, otherReader.Name);
         public Relation CheckRelation(string factionName, string theirFactionName)
         {
-            return CheckRelation(Array.FindIndex(factions, p => p.name == factionName),
-                            Array.FindIndex(factions, p => p.name == theirFactionName));
+            return CheckRelation(Array.FindIndex(factions, p => p.Name == factionName),
+                            Array.FindIndex(factions, p => p.Name == theirFactionName));
         }
 
         #endregion
@@ -174,7 +174,7 @@ namespace Polity
             RelationMatrix[factionIndex, theirFactionIndex] = newRelation;
             RelationMatrix[theirFactionIndex, factionIndex] = newRelation;
             OnRelationChange?.Invoke();
-            Debug.Log($"Set relation between {factions[factionIndex].name} & {factions[theirFactionIndex].name} to {newRelation}");
+            Debug.Log($"Set relation between {factions[factionIndex].Name} & {factions[theirFactionIndex].Name} to {newRelation}");
         }
         /// <summary>
         /// Sets a new relation of one polity to another by their name, to FactionRelation
@@ -183,19 +183,19 @@ namespace Polity
         /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
         public void ChangeRelation(string factionName, string theirFactionName, Relation newRelation)
         {
-            ChangeRelation(Array.FindIndex(factions, p => p.name == factionName),
-                           Array.FindIndex(factions, p => p.name == theirFactionName),
+            ChangeRelation(Array.FindIndex(factions, p => p.Name == factionName),
+                           Array.FindIndex(factions, p => p.Name == theirFactionName),
                            newRelation);
         }
 
 
         public void RemoveFactionFromPolity(Faction _struct)
         {
-            if (string.IsNullOrEmpty(_struct.name))
+            if (string.IsNullOrEmpty(_struct.Name))
             { Debug.LogError("No Polity Name Provided"); return; }
 
             foreach (var polity in factions)
-                if (_struct.name.Equals(polity.name))
+                if (_struct.Name.Equals(polity.Name))
                 {
 
                     Debug.LogError("No Class Found"); return;

@@ -18,7 +18,7 @@ namespace Polity
                 {
                     names = new string[manager.factions.Length];
                     for (int i = 0; i < manager.factions.Length; i++)
-                        names[i] = manager.factions[i].name;
+                        names[i] = manager.factions[i].Name;
                 }
             }
 
@@ -39,15 +39,25 @@ namespace Polity
             EditorGUI.BeginProperty(position, label, property);
 
             UpdateFactionNames();
-            SerializedProperty factionProp = property.FindPropertyRelative("name");
-            // EditorGUI.BeginChangeCheck();
-            int currentFactionIndex = Mathf.Max(0, System.Array.IndexOf(names, factionProp.stringValue));
+            SerializedProperty nameProp = property.FindPropertyRelative("name");
+            EditorGUI.BeginChangeCheck();
+            int currentFactionIndex = Mathf.Max(0, System.Array.IndexOf(names, nameProp.stringValue));
             GUIContent tooltip = new("", "Faction");
             EditorGUI.LabelField(nameRect, tooltip);
             int factionIndex = EditorGUI.Popup(nameRect, "Faction", currentFactionIndex, names);
-            // if (EditorGUI.EndChangeCheck())
-            factionProp.stringValue = names[factionIndex];
-
+            if (EditorGUI.EndChangeCheck())
+            {
+                Debug.Log($"Faction changed from '{nameProp.stringValue}' to '{names[factionIndex]}'");
+                if (Application.isPlaying)
+                {
+                    var targetObj = property.serializedObject.targetObject;
+                    // Get the actual Faction instance via reflection using the property path
+                    Faction faction = fieldInfo.GetValue(targetObj) as Faction;
+                    if (faction != null)
+                        faction.Name = names[factionIndex];
+                }
+            }
+            nameProp.stringValue = names[factionIndex];
 
             EditorGUI.EndProperty();
         }
@@ -67,32 +77,8 @@ namespace Polity
             Faction[] factions = manager.factions;
             names = new string[factions.Length];
             for (int i = 0; i < factions.Length; i++)
-                names[i] = factions[i].name;
+                names[i] = factions[i].Name;
         }
 
-        // bool GetPolityGroups(string factionName)
-        // {
-        //     Manager.Faction[] factions = manager.factions;
-        //     foreach (Manager.Faction faction in factions)
-        //     {
-        //         if (faction.name.Equals(factionName))
-        //         {
-        //             if (faction.groups == null || faction.groups.Count == 0)
-        //             {
-        //                 groups = new string[0];
-        //                 return false;
-        //             }
-
-        //             groups = new string[faction.groups.Count + 1];
-        //             groups[0] = "\t";
-        //             for (int i = 0; i < faction.groups.Count; i++)
-        //                 groups[i + 1] = faction.groups[i].name;
-        //             return true;
-        //         }
-        //     }
-        //     groups = new string[0];
-        //     // Debug.LogWarning($"Faction '{factionName}' not found. Defaulting to empty unit options.");
-        //     return false;
-        // }
     }
 }

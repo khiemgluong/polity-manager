@@ -8,6 +8,7 @@ namespace Polity
     {
         public static Leaders PL { get; private set; }
         public List<Leader> leaders = new();
+        public PolityNPC polityNPCPrefab;
         // Start is called once before the first execution of Update after the MonoBehaviour is created
         void Awake()
         {
@@ -20,6 +21,12 @@ namespace Polity
             if (!leaders.Contains(leader))
                 leaders.Add(leader);
             leader.transform.SetParent(transform);
+            for (int i = 0; i < leader.maxMembers; i++)
+            {
+                PolityNPC npc = Instantiate(polityNPCPrefab, leader.transform.position, Quaternion.identity);
+                npc.Faction.Set(leader.Faction.Name);
+                leader.AddMember(npc);
+            }
         }
 
         void OnLeaderDespawned(Leader leader)

@@ -6,8 +6,23 @@ namespace Polity
     [Serializable]
     public class Faction : IEquatable<Faction>
     {
-        public string name;
+        [SerializeField] string name;
         public static event Action<string> OnNameChange;
+        public string Name
+        {
+            get => name;
+            set
+            {
+                if (name == value) return;
+                name = value; // ← actually assign it
+                if (value != null)
+                {
+                    Debug.LogError($"Faction name changed to '{value}'"); // ← log new value
+                    OnNameChange?.Invoke(value); // ← invoke with new value
+                }
+            }
+        }
+
         public int RandomFactionIndex()
         {
             if (Manager.PM.factions == null || Manager.PM.factions.Length == 0)
@@ -33,13 +48,12 @@ namespace Polity
                 Debug.LogError($"Invalid faction index: {factionIndex}. No faction set.");
                 return;
             }
-            if(factions[factionIndex].name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            if (factions[factionIndex].name.Equals(name, StringComparison.OrdinalIgnoreCase))
             {
                 Debug.LogWarning($"Faction index {factionIndex} has the same name '{name}' as the current faction. No change made.");
                 return;
             }
             name = factions[factionIndex].name;
-            OnNameChange?.Invoke(name);
         }
 
         public void Set(string factionName)
@@ -62,16 +76,18 @@ namespace Polity
 
         /* --------------------------- Equality Operations -------------------------- */
         public bool Equals(Faction other)
-            => string.Equals(name, other.name, StringComparison.OrdinalIgnoreCase);
-
-        public override bool Equals(object obj) => Equals(obj as Faction);
-
+        {
+            if (other is null) return false; // ← guard here too
+            return string.Equals(name, other.name, StringComparison.OrdinalIgnoreCase);
+        }
+        public override bool Equals(object obj) => obj is Faction f && Equals(f);
         public override int GetHashCode()
             => name?.ToLowerInvariant().GetHashCode() ?? 0;
 
         public static bool operator ==(Faction a, Faction b)
         {
             if (a is null) return b is null;
+            if (b is null) return false;
             return a.Equals(b);
         }
 

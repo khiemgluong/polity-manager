@@ -21,7 +21,7 @@ namespace Polity
         private void OnSpawned(PolityNPC npc)
         {
             Faction reader = npc.Faction;
-            NPCCategories categories = npcs.Find(list => list.reader.name.Equals(reader.name));
+            NPCCategories categories = npcs.Find(list => list.reader.Name.Equals(reader.Name));
             if (categories != null)
             {
                 categories.npcs ??= new List<PolityNPC>();
@@ -33,7 +33,7 @@ namespace Polity
         private void OnDespawned(PolityNPC npc)
         {
             Faction reader = npc.Faction;
-            NPCCategories categories = npcs.Find(list => list.reader.name.Equals(reader.name));
+            NPCCategories categories = npcs.Find(list => list.reader.Name.Equals(reader.Name));
             if (categories != null)
             {
                 categories.npcs.Remove(npc);

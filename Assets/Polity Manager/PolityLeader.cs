@@ -8,6 +8,7 @@ namespace Polity
     public class Leader : MonoBehaviour
     {
         public Faction Faction;
+        public int maxMembers = 10;
         public List<IMember> members = new();
         public static event Action<Leader> OnSpawn, OnDespawn;
         protected virtual void Awake()

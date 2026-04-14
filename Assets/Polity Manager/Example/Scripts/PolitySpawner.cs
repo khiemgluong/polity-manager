@@ -15,13 +15,13 @@ namespace Polity
         void Awake()
         {
             foreach (Faction polity in PM.factions)
-                Debug.Log("Polity: " + polity.name);
+                Debug.Log("Polity: " + polity.Name);
 
             dropdown.ClearOptions();
             List<Dropdown.OptionData> optionList = new();
             foreach (var polity in PM.factions)
             {
-                optionList.Add(new Dropdown.OptionData(polity.name));
+                optionList.Add(new Dropdown.OptionData(polity.Name));
             }
             dropdown.AddOptions(optionList);
             dropdown.onValueChanged.AddListener(OnDropdownValueChanged);

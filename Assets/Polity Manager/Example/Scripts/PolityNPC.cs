@@ -83,6 +83,14 @@ namespace Polity
         void Update()
         {
             if (!agent.enabled) return;
+            if (Leader != null)
+            {
+                Vector3 worldTarget = Leader.formation.GetPosition(this);
+
+                agent.SetDestination(worldTarget);
+                Debug.Log("NPC " + name + " destination " + agent.destination + " world target " + worldTarget);
+                return; 
+            }
             SearchForPolityMembers();
             if (ally != null && target != null)
                 MoveTowardsTarget(ally);

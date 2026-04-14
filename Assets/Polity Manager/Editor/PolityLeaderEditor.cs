@@ -45,10 +45,17 @@ namespace Polity
                     }
                     EditorGUI.indentLevel--;
                 }
-                Formation(leader);
             }
 
         }
+
+        void OnSceneGUI()
+        {
+            Leader leader = (Leader)target;
+            if (leader.formation == null || leader.members.Count == 0) return;
+            Formation(leader);
+        }
+
         private const float RayLength = 1.5f;
         private const float SlotRadius = 0.18f;
         private static readonly Color SlotColor = new Color(0.3f, 0.85f, 1f, 0.9f);
@@ -59,7 +66,7 @@ namespace Polity
             var formation = leader.formation;
             int index = 0;
 
-            foreach (var (member, localOffset) in formation.FormationOffsets)
+            foreach (var (member, localOffset) in formation.Offsets)
             {
                 // Mirror Formation.GetPosition — rotate offset by leader facing
                 Vector3 rotated = leader.transform.rotation * localOffset;
@@ -81,13 +88,13 @@ namespace Polity
                 string label = $"[{index}] {member?.transform?.name ?? "empty"}";
                 Handles.Label(worldTarget + Vector3.up * (RayLength + 0.1f), label,
                     new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = LabelColor } });
-
+                Debug.Log($"Formation slot {index}: {label} at {worldTarget}");
                 index++;
             }
 
             // Outline the whole formation bounding area
             Handles.color = new Color(0.3f, 0.85f, 1f, 0.12f);
-            Handles.DrawWireDisc(leader.transform.position, Vector3.up, formation.FormationOffsets.Count * 0.4f);
+            Handles.DrawWireDisc(leader.transform.position, Vector3.up, formation.Offsets.Count * 0.4f);
         }
     }
 }

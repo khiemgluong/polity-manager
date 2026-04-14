@@ -35,6 +35,12 @@ namespace Polity
             Faction.OnNameChange -= OnFactionNameChanged;
         }
 
+        protected virtual void Update()
+        {
+            Debug.Log("Leader " + name + " updating formation with " + formation.Offsets.Count + " members");
+            formation?.Update();
+        }
+
         public void AddMember(IMember member, bool enforceFaction = false)
         {
             if (enforceFaction && !member.Faction.Equals(Faction))
@@ -63,5 +69,19 @@ namespace Polity
                 member.Faction.Set(newFactionName);
             }
         }
+
+        // void OnDrawGizmosSelected()
+        // {
+        //     if (formation != null)
+        //     {
+        //         Gizmos.color = Color.cyan;
+        //         foreach (var (member, offset) in formation.FormationOffsets)
+        //         {
+        //             Vector3 worldTarget = formation.GetPosition(member);
+        //             Gizmos.DrawLine(transform.position, worldTarget);
+        //             Gizmos.DrawSphere(worldTarget, 0.1f);
+        //         }
+        //     }
+        // }
     }
 }

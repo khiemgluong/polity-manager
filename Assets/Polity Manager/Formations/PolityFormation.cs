@@ -12,13 +12,9 @@ namespace Polity
         [SerializeField] private float spacing = 1.5f;
 
         // ── State ────────────────────────────────────────────────────────────────
-        private Leader leader;
-        private readonly List<IMember> members = new();
-        private readonly Dictionary<IMember, Vector3> offsets = new();
-
-        // Expose read-only view for the editor drawer
-        public IReadOnlyDictionary<IMember, Vector3> FormationOffsets => offsets;
-        public Leader Leader => leader;
+        Leader leader;
+        readonly Dictionary<IMember, Vector3> offsets = new();
+        public IReadOnlyDictionary<IMember, Vector3> Offsets => offsets;
 
         // ── Setup ────────────────────────────────────────────────────────────────
         public Formation(Leader leader, int columns = 3, int rows = 2, float spacing = 1.5f)
@@ -29,20 +25,15 @@ namespace Polity
             this.spacing = spacing;
         }
 
-        // ── Public API ───────────────────────────────────────────────────────────
         public void Add(IMember member)
         {
             if (offsets.ContainsKey(member)) return;
-
-            members.Add(member);
             RebuildOffsets();          // recalculate all slots whenever the count changes
         }
 
         public void Remove(IMember member)
         {
             if (!offsets.ContainsKey(member)) return;
-
-            members.Remove(member);
             offsets.Remove(member);
             RebuildOffsets();
         }
@@ -53,12 +44,6 @@ namespace Polity
         /// </summary>
         public void Update()
         {
-            Debug.Log("Formation position size " + offsets.Count);
-            foreach (var (member, offset) in offsets)
-            {
-                Vector3 worldTarget = GetPosition(member);
-                // member.MoveTowards(worldTarget);   // IMember decides how to move (NavMesh, Rigidbody, etc.)
-            }
         }
 
         /// <summary>
@@ -78,13 +63,14 @@ namespace Polity
         // ── Private ──────────────────────────────────────────────────────────────
         private void RebuildOffsets()
         {
-            List<Vector3> slots = FormationShape.CreateSquareFormation(columns, rows, spacing);
-
+            List<Vector3> slots = FormationShape.CreateSquareFormation(
+                columns,
+                Mathf.CeilToInt((float)leader.members.Count / columns),  // expand rows to fit
+                spacing
+            );
             offsets.Clear();
-            for (int i = 0; i < members.Count && i < slots.Count; i++)
-            {
-                offsets[members[i]] = slots[i];
-            }
+            for (int i = 0; i < leader.members.Count && i < slots.Count; i++)
+                offsets[leader.members[i]] = slots[i];
         }
     }
 }

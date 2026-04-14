@@ -12,12 +12,14 @@ _Pride leads to destruction, and arrogance to downfall._ - DoodleBob
     - [SerializeRelationMatrix()](#serializerelationmatrix)
     - [DeserializeRelationMatrix()](#deserializerelationmatrix)
     - [RandomFactionIndex()](#randomfactionindex)
+    - [Events](#events)
+      - [OnRelationChange](#onrelationchange)
     - [Context Menus](#context-menus)
       - [Reset Relation Matrix](#reset-relation-matrix)
       - [Load Relation Matrix](#load-relation-matrix)
   - [Polity.Faction](#polityfaction)
     - [ChangeName()](#changename)
-    - [Events](#events)
+    - [Events](#events-1)
       - [OnNameChange](#onnamechange)
   - [Polity.Leader](#polityleader)
     - [TransferLeader()](#transferleader)
@@ -31,13 +33,15 @@ Polity Manager is an editor based tool designed to manage relations between poli
 
 The PolityManager singleton (PM) contains a _Faction Relation Matrix_, a matrix table that displays the relation of one polity to another based on their position, similar to the Unity physics collision matrix.
 
-![Polity Relation Matrix](./Assets/Documentation/Faction%20Relation%20Matrix.png)
+![Faction Relation Matrix](./Assets/Documentation/Faction%20Relation%20Matrix.png)
 
 >The Red Team is neutral to the Blue Team and allied to the Empire, but the Blue Team are enemies to the Empire and allied to the Shogunate.
 
 To retrieve these factions from an object, you can attach the `Polity.Member` monobehaviour or have a class implement the `IMember` interface (the latter is recommended). This will provide you with a dropdown field listing all the factions that you have created in the Manager.
 
-These utilizes the `Faction` class which is the main way GameObjects can communicate with Polity Manager. You can utilize this class to build your own classes with this as a field.
+These utilizes the [Faction](#polityfaction) class which is the main way GameObjects can communicate with Polity Manager. You can utilize this class to build your own classes with this as a field.
+
+Introduced in 3.0.0. The [Leader](#polityleader) class can be used to group related `IMember` together and organize them in a `Formation`. The method for which it gets members is up to you to implement.
 
 Polity Manager is suited for games that needs to manage various groups of NPCs, especially when these relationships are a bit more complex, such as when one NPC needs to react to an enemy of one or more allied NPCs. However, it can also be applicable to simple teams.
 
@@ -109,6 +113,12 @@ The `Polity.Relation[,]` matrix which was deserialized from the string.
 
 **Returns**
 A random index within the Polity Manager's factions.
+
+#### Events
+
+##### OnRelationChange
+
+Invoked whenever 2 factions change their `Relation`.
 
 #### Context Menus
 

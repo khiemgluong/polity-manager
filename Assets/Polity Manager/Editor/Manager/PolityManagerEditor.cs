@@ -62,6 +62,10 @@ namespace Polity
             };
             EditorGUILayout.LabelField($"Version {VERSION}", rightAlignedStyle);
             EditorGUILayout.EndHorizontal();
+
+            foreach (Faction faction in manager.factions)
+                faction.Name = faction.Name?.Trim();
+
             // Save changes
             if (GUI.changed)
             {

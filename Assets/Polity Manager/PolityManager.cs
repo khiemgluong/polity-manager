@@ -246,19 +246,6 @@ namespace Polity
                            newRelation);
         }
 
-
-        public void RemoveFactionFromPolity(Faction _struct)
-        {
-            if (string.IsNullOrEmpty(_struct.Name))
-            { Debug.LogError("No Polity Name Provided"); return; }
-
-            foreach (var polity in factions)
-                if (_struct.Name.Equals(polity.Name))
-                {
-
-                    Debug.LogError("No Class Found"); return;
-                }
-        }
         #endregion
     }
 }

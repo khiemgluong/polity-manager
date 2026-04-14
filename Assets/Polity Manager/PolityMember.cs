@@ -17,10 +17,6 @@ namespace Polity
 
         }
 
-        protected virtual void OnFactionChanged()
-        {
-
-        }
     }
 
 

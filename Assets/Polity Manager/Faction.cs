@@ -16,22 +16,11 @@ namespace Polity
                 if (name == value) return;
                 name = value; // ← actually assign it
                 if (value != null)
-                {
-                    Debug.LogError($"Faction name changed to '{value}'"); // ← log new value
-                    OnNameChange?.Invoke(value); // ← invoke with new value
-                }
+                    OnNameChange?.Invoke(value);
             }
         }
 
-        public int RandomFactionIndex()
-        {
-            if (Manager.PM.factions == null || Manager.PM.factions.Length == 0)
-            {
-                Debug.LogError("No factions available in Manager. Cannot assign random faction.");
-                return -1;
-            }
-            return UnityEngine.Random.Range(0, Manager.PM.factions.Length);
-        }
+
         bool IsManagedFaction()
             => Array.Exists(Manager.PM.factions, f => ReferenceEquals(f, this));
 

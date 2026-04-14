@@ -1,22 +1,28 @@
 **Polity Manager - Manage Factions & Formations**
 
+_Pride leads to destruction, and arrogance to downfall._ - DoodleBob
+
 - [Description](#description)
 - [Quickstart](#quickstart)
   - [Video Tutorial](#video-tutorial)
 - [Public APIs](#public-apis)
-  - [PolityManager.cs (Polity.Manager)](#politymanagercs-politymanager)
+  - [Polity.Manager](#politymanager)
     - [ChangeRelation()](#changerelation)
     - [CheckRelation()](#checkrelation)
     - [SerializeRelationMatrix()](#serializerelationmatrix)
     - [DeserializeRelationMatrix()](#deserializerelationmatrix)
-  - [PolityFaction.cs (Polity.Faction)](#polityfactioncs-polityfaction)
-  - [Events](#events)
-    - [OnRelationChange](#onrelationchange)
-    - [OnLeaderChange](#onleaderchange)
-    - [OnFactionChange](#onfactionchange)
-- [PolityManager.cs ContextMenus](#politymanagercs-contextmenus)
-  - [Reset Polity Relation Matrix](#reset-polity-relation-matrix)
-  - [Load Polity Relation Matrix](#load-polity-relation-matrix)
+    - [RandomFactionIndex()](#randomfactionindex)
+    - [Context Menus](#context-menus)
+      - [Reset Relation Matrix](#reset-relation-matrix)
+      - [Load Relation Matrix](#load-relation-matrix)
+  - [Polity.Faction](#polityfaction)
+    - [ChangeName()](#changename)
+    - [Events](#events)
+      - [OnNameChange](#onnamechange)
+  - [Polity.Leader](#polityleader)
+    - [TransferLeader()](#transferleader)
+    - [AddMember()](#addmember)
+    - [RemoveMember()](#removemember)
 - [Credits](#credits)
 
 ## Description
@@ -49,7 +55,7 @@ You can open the `PolityNPC.cs` class inside of Example/Scripts to get a better 
 
 All classes in this package is under the `Polity` namespace.
 
-### PolityManager.cs (Polity.Manager)
+### Polity.Manager
 
 All public methods can be called from this PolityManager Singleton, referenced as `PM`, for example PM.ModifyPolityRelation();
 
@@ -99,34 +105,62 @@ Deserializes a string representing the `PolityRelation[,]` matrix.
 **Returns**
 The `Polity.Relation[,]` matrix which was deserialized from the string.
 
+#### RandomFactionIndex()
 
-### PolityFaction.cs (Polity.Faction)
+**Returns**
+A random index within the Polity Manager's factions.
 
+#### Context Menus
 
-### Events
-
-#### OnRelationChange
-
-Invoked whenever `ModifyPolityRelation()` is called or when the _Polity Relation Matrix_ cell is clicked on.
-
-#### OnLeaderChange
-
-Invoked whenever a `PolityMember` is set to a new Polity as their leader with `SetAsPolityLeader()` or `SetPolityLeader()`.
-
-#### OnFactionChange
-
-Invoked whenever a `Faction` is created or removed with `AddFactionToPolity()` and `RemoveFactionFromPolity()`.
-
-
-## PolityManager.cs ContextMenus
-
-### Reset Polity Relation Matrix
+##### Reset Relation Matrix
 
 Reset every relation to `Neutral`.
 
-### Load Polity Relation Matrix
+##### Load Relation Matrix
 
 If in some case the serialized polity relation matrix did not load, this can manually deserialize & load it.
+
+### Polity.Faction
+
+#### ChangeName()
+
+Sets a new name for the faction. Can be an int representing the index of the faction in the Polity Manager, or a string of that faction name, as long as one exists.
+
+| Parameter          | Type             | Description |
+|--------------------|------------------|-------------|
+| `factionIndex` or `factionName`   | `int` or `string`   |  |
+
+#### Events
+
+##### OnNameChange
+
+Invoked whenever the `Name` property of Faction is changed
+
+### Polity.Leader
+
+#### TransferLeader()
+
+Finds the nearest IMember from the members list and assigns it as the new leader, transferring all its members to it as well. If a Leader parameter is given, then it will be transferred to that Leader.
+
+| Parameter          | Type             | Description |
+|--------------------|------------------|-------------|
+| none or `newLeader`     | `Leader`   | Sets the new leader for the current Leader. Called automatically when the leader is destroyed. |
+
+#### AddMember()
+
+Adds a member to the leader members list.
+
+| Parameter          | Type             | Description |
+|--------------------|------------------|-------------|
+| `member` (optional: `enforceFaction`)    | `IMember` (optional: bool)   | Can use the `enforceFaction` bool to ensure that the member has a matching faction before being added, otherwise it will just override its faction to the one the leader has and add it.|
+
+#### RemoveMember()
+
+Removes a member from the leader members list.
+
+| Parameter          | Type             | Description |
+|--------------------|------------------|-------------|
+| `member`    | `IMember` | |
 
 ## Credits
 

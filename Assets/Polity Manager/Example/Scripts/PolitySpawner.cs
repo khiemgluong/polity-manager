@@ -53,7 +53,7 @@ namespace Polity
                         {
                             GameObject npcObj = SpawnNPC(spawnPoint.position);
                             IMember npc = npcObj.GetComponent<IMember>();
-                            int factionIndex = npc.Faction.RandomFactionIndex();
+                            int factionIndex = npc.Faction.RandomIndex();
                             npc.Faction.Set(factionIndex);
                             // MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
                             // meshRenderer.material = colors[i];

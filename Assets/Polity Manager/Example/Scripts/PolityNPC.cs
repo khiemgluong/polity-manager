@@ -74,10 +74,6 @@ namespace Polity
             }
         }
 
-        public void OnFactionChanged()
-        {
-            Debug.Log($"NPC {name} faction changed to {Faction}");
-        }
         #endregion
 
         void Update()

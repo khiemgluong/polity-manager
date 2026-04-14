@@ -17,7 +17,23 @@ namespace Polity
             manager = (Manager)target;
             if (manager.RelationMatrix == null)
                 manager.LoadRelationMatrix();
+            EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
         }
+
+        void OnDisable()
+        {
+            EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+        }
+
+        void OnPlayModeStateChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.ExitingEditMode && !manager.CheckFactionNames(out string error))
+            {
+                EditorApplication.isPlaying = false;
+                Debug.LogError($"PolityManager: {error}", manager);
+            }
+        }
+
         public override void OnInspectorGUI()
         {
             EditorGUI.BeginChangeCheck();
@@ -115,18 +131,15 @@ namespace Polity
         {
             EditorGUILayout.BeginHorizontal();
 
-            int emptyPolityNameCount = 0;
-            foreach (var polity in manager.factions)
-            {
-                if (string.IsNullOrEmpty(polity.Name))
-                    emptyPolityNameCount++;
-            }
+            int emptyPolityNameCount = manager.factions
+                .Count(p => string.IsNullOrEmpty(p.Name));
+
             if (emptyPolityNameCount > 0)
             {
-                if (emptyPolityNameCount == 1) EditorGUILayout.HelpBox(
-                    $"There is one faction with no name.", MessageType.Error);
-                else EditorGUILayout.HelpBox(
-                    $"There are {emptyPolityNameCount} factions with no name.", MessageType.Error);
+                string msg = emptyPolityNameCount == 1
+                    ? "There is one faction with no name."
+                    : $"There are {emptyPolityNameCount} factions with no name.";
+                EditorGUILayout.HelpBox(msg, MessageType.Error);
             }
 
             var duplicateNames = manager.factions
@@ -142,11 +155,10 @@ namespace Polity
                 string message = duplicateNames.Count == 1
                     ? $"Duplicate faction name: {names}"
                     : $"Duplicate faction names: {names}";
-
                 EditorGUILayout.HelpBox(message, MessageType.Error);
             }
-            EditorGUILayout.EndHorizontal();
 
+            EditorGUILayout.EndHorizontal();
         }
 
     }

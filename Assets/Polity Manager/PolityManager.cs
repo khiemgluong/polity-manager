@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Polity
 {
@@ -24,9 +25,23 @@ namespace Polity
         public static Action OnRelationChange;
         void Awake()
         {
+            if (!CheckFactionNames(out string error))
+            {
+                Debug.LogError($"PolityManager: {error}.", gameObject);
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else                    
+                    Application.Quit(1);
+#endif
+            }
+
             if (PM != null && PM != this)
                 Destroy(gameObject);
             else PM = this;
+
+            foreach (Faction faction in factions)
+                faction.Name = faction.Name?.Trim();
+
             LoadRelationMatrix();
         }
 
@@ -35,6 +50,38 @@ namespace Polity
             ValidateRelationMatrix();
             // SerializeRelationMatrix();
         }
+
+        public bool CheckFactionNames(out string error)
+        {
+            int emptyCount = factions.Count(f => string.IsNullOrEmpty(f.Name));
+            if (emptyCount > 0)
+            {
+                error = emptyCount == 1
+                    ? "There is one faction with no name."
+                    : $"There are {emptyCount} factions with no name";
+                return false;
+            }
+
+            var duplicates = factions
+                .Where(f => !string.IsNullOrEmpty(f.Name))
+                .GroupBy(f => f.Name)
+                .Where(g => g.Count() > 1)
+                .Select(g => g.Key)
+                .ToList();
+
+            if (duplicates.Count > 0)
+            {
+                string names = string.Join(", ", duplicates.Select(n => $"\"{n}\""));
+                error = duplicates.Count == 1
+                    ? $"Duplicate faction name: {names}"
+                    : $"Duplicate faction names: {names}";
+                return false;
+            }
+
+            error = null;
+            return true;
+        }
+
 
         [ContextMenu("Reset Relation Matrix")]
         void ResetRelationMatrix()
@@ -73,7 +120,7 @@ namespace Polity
         }
 
 
-        [ContextMenu("Load Polity Relation Matrix")]
+        [ContextMenu("Load Relation Matrix")]
         public void LoadRelationMatrix()
         {
             if (RelationMatrix == null)
@@ -125,15 +172,6 @@ namespace Polity
             DeserializeRelationMatrix(relationMatrixJSON);
         #region Getters
         /* --------------------------------- GETTERS -------------------------------- */
-        public Faction GetFaction(int index)
-        {
-            if (index < 0 || index >= factions.Length)
-            {
-                Debug.LogError($"Invalid faction index: {index}. Returning default Faction.");
-                return default;
-            }
-            return factions[index];
-        }
         public Relation CheckRelation(int factionIndex, int theirFactionIndex)
         {
             if (factionIndex < 0 || factionIndex >= factions.Length ||
@@ -148,12 +186,34 @@ namespace Polity
                CheckRelation(member.faction.Name, otherMember.faction.Name);
         public Relation CheckRelation(IMember member, IMember otherMember) =>
                 CheckRelation(member.Faction.Name, otherMember.Faction.Name);
-        public Relation CheckRelation(Polity.Faction reader, Polity.Faction otherReader) =>
-                CheckRelation(reader.Name, otherReader.Name);
+        public Relation CheckRelation(Faction faction, Faction otherFaction) =>
+                CheckRelation(faction.Name, otherFaction.Name);
         public Relation CheckRelation(string factionName, string theirFactionName)
         {
             return CheckRelation(Array.FindIndex(factions, p => p.Name == factionName),
                             Array.FindIndex(factions, p => p.Name == theirFactionName));
+        }
+
+        public int RandomFactionIndex()
+        {
+            if (factions == null || factions.Length == 0)
+            {
+                Debug.LogError("No factions available in Manager. Cannot assign random faction.");
+                return -1;
+            }
+            return UnityEngine.Random.Range(0, factions.Length);
+        }
+
+        public string RandomFactionName()
+        {
+            int index = RandomFactionIndex();
+            return index != -1 ? factions[index].Name : null;
+        }
+
+        public Faction GetRandomFaction()
+        {
+            int index = RandomFactionIndex();
+            return index != -1 ? factions[index] : null;
         }
 
         #endregion
@@ -178,11 +238,7 @@ namespace Polity
             OnRelationChange?.Invoke();
             Debug.Log($"Set relation between {factions[factionIndex].Name} & {factions[theirFactionIndex].Name} to {newRelation}");
         }
-        /// <summary>
-        /// Sets a new relation of one polity to another by their name, to FactionRelation
-        /// </summary>
-        /// <param name="theirFactionName">The string of the polity name that is selected.</param>
-        /// <param name="newRelation">The new relation to set; Neutral, Allies or Enemies</param>
+
         public void ChangeRelation(string factionName, string theirFactionName, Relation newRelation)
         {
             ChangeRelation(Array.FindIndex(factions, p => p.Name == factionName),

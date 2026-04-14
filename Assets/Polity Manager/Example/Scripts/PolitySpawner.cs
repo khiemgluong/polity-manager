@@ -6,12 +6,11 @@ namespace Polity
     using static Manager;
     public class PolitySpawner : MonoBehaviour
     {
-        [SerializeField] PolityNPC dummy;
-        public GameObject cursor;
+        public PolityNPC dummy;
         public bool spawn = true;
         HashSet<Transform> usedSpawnPoints = new();
         public Dropdown dropdown;
-     
+
         void Awake()
         {
             foreach (Faction polity in PM.factions)
@@ -29,7 +28,7 @@ namespace Polity
         }
         void OnDropdownValueChanged(int index)
         {
-        //    dropdownValue = dropdown.options[index].text;
+            //    dropdownValue = dropdown.options[index].text;
 
         }
         void Start()
@@ -52,7 +51,7 @@ namespace Polity
                     foreach (var spawnPoint in spawnPoints)
                         if (!usedSpawnPoints.Contains(spawnPoint))
                         {
-                            GameObject npcObj = SpawnNPC(dummy, spawnPoint.position);
+                            GameObject npcObj = SpawnNPC(spawnPoint.position);
                             IMember npc = npcObj.GetComponent<IMember>();
                             int factionIndex = npc.Faction.RandomFactionIndex();
                             npc.Faction.Set(factionIndex);
@@ -62,7 +61,7 @@ namespace Polity
                         }
             Time.timeScale = 1;
         }
-        GameObject SpawnNPC(PolityNPC dummy, Vector3 position)
+        public GameObject SpawnNPC(Vector3 position)
         {
             GameObject npcObj = Instantiate(dummy.gameObject, position, Quaternion.Euler(0, 180, 0));
             if (npcObj.TryGetComponent(out PolityNPC npc))
@@ -71,44 +70,6 @@ namespace Polity
                 npc.Faction.Set(dropdown.value);
             }
             return npcObj;
-        }
-
-        void Update()
-        {
-            if (Time.timeScale == 0)
-            {
-                cursor.SetActive(false);
-                return;
-            }
-            Ray ray = UnityEngine.Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100))
-            {
-                if (hit.collider.TryGetComponent(out Member member))
-                {
-                    cursor.SetActive(false);
-                    // if (Input.GetMouseButtonDown(0))
-                    // {
-                    //     PolityStruct polityStruct = new()
-                    //     {
-                    //         polityName = "Orks"
-                    //     };
-                    //     member.reader.SetPolity(polityStruct);
-                    // }
-                    return;
-                }
-                else
-                {
-                    if (!cursor.activeSelf)
-                        cursor.SetActive(true);
-                }
-
-                cursor.transform.position = hit.point + Vector3.up * .01f;
-                if (Input.GetMouseButtonDown(0))
-                    SpawnNPC(dummy, hit.point);
-
-            }
-            else
-            { if (cursor.activeSelf) cursor.SetActive(false); }
         }
     }
 }

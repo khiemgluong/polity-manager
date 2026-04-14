@@ -28,6 +28,10 @@ namespace Polity
     {
         public Faction Faction { get; }
         public Leader Leader { get; set; }
+#pragma warning disable IDE1006 
         public Transform transform { get; }
+        public GameObject gameObject { get; }
+#pragma warning restore IDE1006
+
     }
 }

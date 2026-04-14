@@ -8,11 +8,15 @@ namespace Polity
     public class Leader : MonoBehaviour
     {
         public Faction Faction;
+
         [Range(1, 100)]
         public int capacity = 10;
         public List<IMember> members = new();
         public Formation formation;
         public static event Action<Leader> OnSpawn, OnDespawn;
+
+        #region Lifecycle
+        /* -------------------------------- Lifecycle ------------------------------- */
         protected virtual void Awake()
         {
             if (TryGetComponent(out IMember member))
@@ -32,13 +36,46 @@ namespace Polity
         protected virtual void OnDestroy()
         {
             OnDespawn?.Invoke(this);
+            TransferLeader();
             Faction.OnNameChange -= OnFactionNameChanged;
         }
 
         protected virtual void Update()
         {
-            Debug.Log("Leader " + name + " updating formation with " + formation.Offsets.Count + " members");
             formation?.Update();
+        }
+        #endregion
+
+        public void TransferLeader()
+        {
+            if (members.Count == 0) return;
+            IMember closest = members[0];
+            float closestDist = Vector3.Distance(transform.position, closest.transform.position);
+            foreach (IMember member in members)
+            {
+                float dist = Vector3.Distance(transform.position, member.transform.position);
+                if (dist < closestDist)
+                {
+                    closest = member;
+                    closestDist = dist;
+                }
+            }
+            if (!closest.transform.gameObject.TryGetComponent(out Leader memberLeader))
+                memberLeader = closest.transform.gameObject.AddComponent<Leader>();
+            memberLeader.Faction = Faction;
+            TransferLeader(memberLeader);
+        }
+
+        public void TransferLeader(Leader newLeader)
+        {
+            foreach (IMember member in members)
+            {
+                member.Faction.Set(newLeader.Faction.Name);
+                member.Leader = newLeader;
+                newLeader.AddMember(member);
+            }
+            members.Clear();
+            formation = null;
         }
 
         public void AddMember(IMember member, bool enforceFaction = false)
@@ -65,9 +102,7 @@ namespace Polity
         void OnFactionNameChanged(string newFactionName)
         {
             foreach (IMember member in members)
-            {
                 member.Faction.Set(newFactionName);
-            }
         }
 
         // void OnDrawGizmosSelected()

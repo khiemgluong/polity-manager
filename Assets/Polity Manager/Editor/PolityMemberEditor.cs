@@ -1,77 +1,30 @@
 using UnityEditor;
 using UnityEngine;
-namespace KL
+
+namespace Polity
 {
-    [CustomEditor(typeof(PolityMember))]
+    [CanEditMultipleObjects]
+    [CustomEditor(typeof(Member))]
     public class PolityMemberEditor : Editor
     {
-        PolityManager polityManager;
-        void OnEnable()
-        {
-            if (polityManager == null) polityManager = FindFirstObjectByType<PolityManager>();
-            PolityMember polityMember = (PolityMember)target;
-            if (string.IsNullOrEmpty(polityMember.ID))
-            {
-                polityMember.GenerateID();
-                EditorUtility.SetDirty(polityMember);
-            }
-        }
         public override void OnInspectorGUI()
         {
-            if (polityManager == null)
-            { GUILayout.Label("No PolityManager found in the Scene.", EditorStyles.boldLabel); return; }
-
             serializedObject.Update();
-            SerializedProperty polityReader = serializedObject.FindProperty("reader");
-            EditorGUILayout.PropertyField(polityReader, true);
-            GUI.enabled = false;
-            SerializedProperty family = serializedObject.FindProperty("family");
-            EditorGUILayout.PropertyField(family, true);
-            GUI.enabled = true;
 
-            SerializedProperty parentsSerializedProp = serializedObject.FindProperty("parents");
-            SerializedProperty partnersSerializedProp = serializedObject.FindProperty("partners");
-            SerializedProperty childrenSerializedProp = serializedObject.FindProperty("children");
+            SerializedProperty prop = serializedObject.GetIterator();
+            bool enterChildren = true;
 
-            ReadOnlyPropertyField(parentsSerializedProp);
-            ReadOnlyPropertyField(partnersSerializedProp);
-            ReadOnlyPropertyField(childrenSerializedProp);
+            while (prop.NextVisible(enterChildren))
+            {
+                // Skip the script field
+                if (prop.name == "m_Script")
+                    continue;
+
+                EditorGUILayout.PropertyField(prop, true);
+                enterChildren = false;
+            }
 
             serializedObject.ApplyModifiedProperties();
-            if (GUI.changed) EditorUtility.SetDirty(target);
-        }
-
-        bool InteractiveFoldout(bool foldout, string content)
-        {
-            Rect rect = GUILayoutUtility.GetRect(16f, 22f, new GUIStyle { fontStyle = FontStyle.Bold });
-            if (Event.current.type == EventType.MouseDown && rect.Contains(Event.current.mousePosition))
-            {
-                foldout = !foldout;
-                Event.current.Use(); // Mark the event as used so it doesn't propagate further
-            }
-            EditorGUI.Foldout(rect, foldout, content, true);
-            return foldout;
-        }
-        void ReadOnlyPropertyField(SerializedProperty listProperty)
-        {
-            if (listProperty != null && listProperty.isArray)
-                if (listProperty.arraySize > 0)
-                {
-                    listProperty.isExpanded = InteractiveFoldout(listProperty.isExpanded, listProperty.displayName);
-                    if (listProperty.isExpanded)
-                    {
-                        EditorGUI.indentLevel++;
-                        // Temporarily disable GUI to make the properties read-only
-                        GUI.enabled = false;
-                        for (int i = 0; i < listProperty.arraySize; i++)
-                        {
-                            SerializedProperty item = listProperty.GetArrayElementAtIndex(i);
-                            EditorGUILayout.PropertyField(item, new GUIContent("Element " + i));
-                        }
-                        GUI.enabled = true; // Re-enable GUI after drawing the properties
-                        EditorGUI.indentLevel--;
-                    }
-                }
         }
     }
 }

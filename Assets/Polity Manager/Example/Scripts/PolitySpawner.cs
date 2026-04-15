@@ -1,28 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static KL.PolityManager;
-namespace KL
+namespace Polity
 {
+    using static Manager;
     public class PolitySpawner : MonoBehaviour
     {
-        [SerializeField] PolityNPC[] dummies;
-        [SerializeField] Material[] colors;
-        [SerializeField] GameObject spawnDummy, cursor;
+        public PolityNPC dummy;
         public bool spawn = true;
-        [SerializeField] PolityReader polityReader = new();
         HashSet<Transform> usedSpawnPoints = new();
         public Dropdown dropdown;
+
         void Awake()
         {
-            foreach (Polity polity in PM.polities)
-                Debug.Log("Polity: " + polity.name);
+            foreach (Faction polity in PM.factions)
+                Debug.Log("Polity: " + polity.Name);
 
             dropdown.ClearOptions();
             List<Dropdown.OptionData> optionList = new();
-            foreach (var polity in PM.polities)
+            foreach (var polity in PM.factions)
             {
-                optionList.Add(new Dropdown.OptionData(polity.name));
+                optionList.Add(new Dropdown.OptionData(polity.Name));
             }
             dropdown.AddOptions(optionList);
             dropdown.onValueChanged.AddListener(OnDropdownValueChanged);
@@ -30,10 +28,8 @@ namespace KL
         }
         void OnDropdownValueChanged(int index)
         {
-            string selectedValue = dropdown.options[index].text;
-            PolityStruct polityStruct = new()
-            { polityName = selectedValue };
-            polityReader.SetPolity(polityStruct);
+            //    dropdownValue = dropdown.options[index].text;
+
         }
         void Start()
         {
@@ -51,64 +47,44 @@ namespace KL
                 spawnPoints[n] = value;
             }
             if (spawn)
-                for (int i = 0; i < dummies.Length; i++)
+                for (int i = 0; i < spawnPoints.Count; i++)
                     foreach (var spawnPoint in spawnPoints)
                         if (!usedSpawnPoints.Contains(spawnPoint))
                         {
-                            GameObject npc = SpawnNPC(dummies[i].gameObject, spawnPoint.position);
-                            MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
-                            meshRenderer.material = colors[i];
+                            GameObject npcObj = SpawnNPC(spawnPoint.position);
+                            IMember npc = npcObj.GetComponent<IMember>();
+                            int factionIndex = PM.RandomFactionIndex();
+                            npc.Faction.Set(factionIndex);
+                            // MeshRenderer meshRenderer = npc.GetComponent<MeshRenderer>();
+                            // meshRenderer.material = colors[i];
                             usedSpawnPoints.Add(spawnPoint); break;
                         }
             Time.timeScale = 1;
         }
-        GameObject SpawnNPC(GameObject prefab, Vector3 position)
+        public GameObject SpawnNPC(Vector3 position)
         {
-            GameObject npc = Instantiate(prefab, position, Quaternion.Euler(0, 180, 0));
-            if (!npc.TryGetComponent(out PolityMember _))
+            GameObject npcObj = Instantiate(dummy.gameObject, position, Quaternion.Euler(0, 180, 0));
+            if (npcObj.TryGetComponent(out PolityNPC npc))
             {
-                PolityMember _member = npc.AddComponent<PolityMember>();
-                _member.reader.SetPolity(polityReader);
+                Debug.Log("Dropdown value: " + dropdown.options[dropdown.value].text);
+                npc.Faction.Set(dropdown.value);
             }
-            return npc;
+            return npcObj;
         }
 
-        void Update()
+        public Leader SpawnLeader(Vector3 position, bool fillMembers = true)
         {
-            if (Time.timeScale == 0)
-            {
-                cursor.SetActive(false);
-                return;
-            }
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 100))
-            {
-                if (hit.collider.TryGetComponent(out PolityMember member))
+            GameObject leaderObj = Instantiate(dummy.gameObject, position, Quaternion.identity);
+            Leader leader = leaderObj.AddComponent<Leader>();
+            if (fillMembers)
+                for (int i = 0; i < leader.capacity; i++)
                 {
-                    cursor.SetActive(false);
-                    // if (Input.GetMouseButtonDown(0))
-                    // {
-                    //     PolityStruct polityStruct = new()
-                    //     {
-                    //         polityName = "Orks"
-                    //     };
-                    //     member.reader.SetPolity(polityStruct);
-                    // }
-                    return;
+                    PolityNPC npc = Instantiate(dummy, leaderObj.transform.position, Quaternion.identity);
+                    leader.AddMember(npc);
                 }
-                else
-                {
-                    if (!cursor.activeSelf)
-                        cursor.SetActive(true);
-                }
-
-                cursor.transform.position = hit.point + Vector3.up * .01f;
-                if (Input.GetMouseButtonDown(0))
-                    SpawnNPC(spawnDummy, hit.point);
-
-            }
-            else
-            { if (cursor.activeSelf) cursor.SetActive(false); }
+            return leader;
         }
+
+
     }
 }

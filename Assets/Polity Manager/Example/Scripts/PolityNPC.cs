@@ -1,14 +1,18 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace KL
+namespace Polity
 {
-    using static KL.PolityManager;
-    public class PolityNPC : MonoBehaviour
+    using static Manager;
+    [RequireComponent(typeof(NavMeshAgent))]
+    public class PolityNPC : MonoBehaviour, IMember
     {
+        [field: SerializeField]
+        public Faction Faction { get; private set; }
+        [field: SerializeField]
+        public Leader Leader { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
-        PolityMember member;
-        public PolityMember target, allyTarget;
+        public PolityNPC target, ally;
         int health = 25;
         NavMeshAgent agent;
         Vector3 spawnPos;
@@ -16,37 +20,82 @@ namespace KL
         readonly float detectionRadius = 8f;
         bool beginAttack = false;
         Coroutine attackCoroutine;
-        /// <summary>
-        /// This PolityMember is retrieved from an Ally's NPC_driver enemyTarget.
-        /// </summary>
-        // public Transform targetArrow;
+
+        public static event System.Action<PolityNPC> OnSpawn, OnDespawn;
+
         void Awake()
         {
             meshFilter = GetComponent<MeshFilter>();
             agent = GetComponent<NavMeshAgent>();
             agent.avoidancePriority = Random.Range(1, 99);
             spawnPos = transform.position;
-            target = null; allyTarget = null;
+            target = null; ally = null;
             OnRelationChange += OnRelationChanged;
+
+            // Leader.OnSpawn += OnLeaderSpawned;
+            // Leader.OnDespawn += OnLeaderDespawned;
         }
+
 
         void Start()
         {
-            member = GetComponent<PolityMember>();
+            OnSpawn?.Invoke(this);
         }
+
+        void OnDestroy()
+        {
+            if (Leader != null)
+            {
+                Leader.RemoveMember(this);
+                Leader = null;
+            }
+            OnDespawn?.Invoke(this);
+
+            // Leader.OnSpawn -= OnLeaderSpawned;
+            // Leader.OnDespawn -= OnLeaderDespawned;
+        }
+
+        #region Callbacks
+        void OnLeaderSpawned(Leader leader)
+        {
+            // if (Leader != null && leader.Faction.Equals(Faction))
+            // {
+            //     Leader = leader;
+            //     leader.AddMember(this, true, false);
+            // }
+        }
+
+        void OnLeaderDespawned(Leader leader)
+        {
+            if (Leader == leader)
+            {
+                Leader = null;
+                OnRelationChanged();
+            }
+        }
+
+        #endregion
 
         void Update()
         {
             if (!agent.enabled) return;
+            if (Leader != null)
+            {
+                if (Leader.gameObject == gameObject)
+                    return;
+                Vector3 worldTarget = Leader.formation.GetPosition(this);
+                agent.SetDestination(worldTarget);
+                return;
+            }
             SearchForPolityMembers();
-            if (allyTarget != null && target != null)
-                MoveTowardsTarget(allyTarget);
+            if (ally != null && target != null)
+                MoveTowardsTarget(ally);
             else if (target != null)
                 MoveTowardsTarget(target);
             else
             {
                 target = null;
-                allyTarget = null;
+                ally = null;
                 beginAttack = false;
                 if (agent.remainingDistance >= agent.stoppingDistance)
                 {
@@ -73,7 +122,7 @@ namespace KL
         }
 
 
-        void MoveTowardsTarget(PolityMember polityMember)
+        void MoveTowardsTarget(PolityNPC polityMember)
         {
             if (agent.remainingDistance < agent.stoppingDistance)
             {
@@ -110,7 +159,7 @@ namespace KL
         {
             while (true)
             {
-                int randomIndex = Random.Range(2, 5); // Random index between 2 and 4 (inclusive)
+                int randomIndex = Random.Range(2, 5);
                 SetMesh(randomIndex);
                 if (randomIndex == 3 || randomIndex == 4)
                 {
@@ -123,25 +172,25 @@ namespace KL
         }
         void OnRelationChanged()
         {
-            if (allyTarget != null)
+            if (ally != null)
             {
-                PolityRelation relation = PM.CheckRelation(member, allyTarget);
+                Relation relation = PM.CheckRelation(Faction, ally.Faction);
                 switch (relation)
                 {
-                    case PolityRelation.Allies:
+                    case Relation.Allies:
                         target = null;
                         agent.SetDestination(spawnPos);
                         break;
-                    case PolityRelation.Neutral:
-                        allyTarget = null;
+                    case Relation.Neutral:
+                        ally = null;
                         SearchForPolityMembers();
                         break;
                 }
             }
             else if (target != null)
             {
-                PolityRelation relation = PM.CheckRelation(member, target);
-                if (relation == PolityRelation.Neutral)
+                Relation relation = PM.CheckRelation(Faction, ally.Faction);
+                if (relation == Relation.Neutral)
                 {
                     target = null;
                     agent.SetDestination(spawnPos);
@@ -155,32 +204,31 @@ namespace KL
         {
             if (target != null) return;
             Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRadius);
-            PolityMember foundMember = null;
+            PolityNPC foundNPC = null;
             foreach (var hitCollider in hitColliders)
-                if (hitCollider.TryGetComponent<PolityMember>(out var polityMember))
-                    if (polityMember.GetComponent<PolityNPC>().health > 0)
-                        if (polityMember != member)
+                if (hitCollider.TryGetComponent<PolityNPC>(out var hitNPC))
+                    if (hitNPC.health > 0)
+                        if (hitNPC != this)
                         {
-                            foundMember = polityMember;
-                            PolityRelation relation = PM.CheckRelation(member, polityMember);
-                            Debug.Log("Found: " + polityMember.name + " Relation: " + relation);
+                            foundNPC = hitNPC;
+                            Relation relation = PM.CheckRelation(Faction, hitNPC.Faction);
                             switch (relation)
                             {
-                                case PolityRelation.Allies:
-                                    PolityNPC allyNPC = polityMember.GetComponent<PolityNPC>();
+                                case Relation.Allies:
+                                    PolityNPC allyNPC = hitNPC.GetComponent<PolityNPC>();
                                     if (allyNPC.target != null)
                                         if (allyNPC.target != null)
-                                            allyTarget = allyNPC.target;
+                                            ally = allyNPC.target;
                                     break;
-                                case PolityRelation.Enemies:
-                                    allyTarget = null;
-                                    target = polityMember;
+                                case Relation.Enemies:
+                                    ally = null;
+                                    target = hitNPC;
                                     agent.updateRotation = false;
                                     agent.SetDestination(target.transform.position);
                                     break;
                             }
                         }
-            if (foundMember == null)
+            if (foundNPC == null)
             {
                 agent.SetDestination(spawnPos);
                 if (attackCoroutine != null)
@@ -204,7 +252,6 @@ namespace KL
                     PolityNPC targetNPC = target.GetComponent<PolityNPC>();
                     targetNPC.target = null;
                 }
-                Destroy(member);
                 Destroy(gameObject, 2f);
             }
         }
@@ -214,6 +261,7 @@ namespace KL
             Gizmos.color = Color.yellow;
             Gizmos.DrawWireSphere(transform.position, detectionRadius);
         }
+
 
     }
 }

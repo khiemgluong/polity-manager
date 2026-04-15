@@ -88,7 +88,7 @@ namespace Polity
                 string label = $"[{index}] {member?.transform?.name ?? "empty"}";
                 Handles.Label(worldTarget + Vector3.up * (RayLength + 0.1f), label,
                     new GUIStyle(EditorStyles.miniLabel) { normal = { textColor = LabelColor } });
-                Debug.Log($"Formation slot {index}: {label} at {worldTarget}");
+                // Debug.Log($"Formation slot {index}: {label} at {worldTarget}");
                 index++;
             }
 

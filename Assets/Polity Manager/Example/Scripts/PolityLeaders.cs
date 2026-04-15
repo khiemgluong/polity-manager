@@ -11,21 +11,27 @@ namespace Polity
         [SerializeField] PolityNPC dummy;
         void Awake()
         {
-            Leader.OnSpawn += OnLeaderSpawned;
-            Leader.OnDespawn += OnLeaderDespawned;
+            PolityNPC.OnSpawn += OnLeaderSpawned;
+            PolityNPC.OnDespawn += OnLeaderDespawned;
         }
 
-        void OnLeaderSpawned(Leader leader)
+        void OnLeaderSpawned(PolityNPC npc)
         {
-            if (!leaders.Contains(leader))
-                leaders.Add(leader);
-            leader.transform.SetParent(transform);
-
+            if (npc.TryGetComponent(out Leader leader))
+            {
+                if (!leaders.Contains(leader))
+                    leaders.Add(leader);
+                leader.transform.SetParent(transform);
+            }
         }
 
-        void OnLeaderDespawned(Leader leader)
+        void OnLeaderDespawned(PolityNPC npc)
         {
-            if (leaders.Contains(leader)) leaders.Remove(leader);
+            if (npc.TryGetComponent(out Leader leader))
+            {
+                if (leaders.Contains(leader))
+                    leaders.Remove(leader);
+            }
         }
 
         // Update is called once per frame

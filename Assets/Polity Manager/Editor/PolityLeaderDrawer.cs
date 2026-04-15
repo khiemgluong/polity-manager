@@ -1,4 +1,3 @@
-// Editor/LeaderDrawer.cs
 using UnityEditor;
 using UnityEngine;
 
@@ -13,31 +12,50 @@ namespace Polity
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
             EditorGUI.BeginProperty(position, label, property);
+
             // if (Application.isPlaying)
+            // {
             if (property.objectReferenceValue == null)
             {
-                // EditorGUI.BeginDisabledGroup(true);
-                // EditorGUI.LabelField(position, label, new GUIContent("— Assign via code only —"));
-                // EditorGUI.EndDisabledGroup();
+                // Do not render anything if not assigned
             }
-            else
+            else if (!IsSelfReference(property))
             {
                 EditorGUI.BeginDisabledGroup(true);
                 EditorGUI.ObjectField(position, property, typeof(Leader), label);
                 EditorGUI.EndDisabledGroup();
             }
+            // }
             // else
             //     EditorGUI.ObjectField(position, property, typeof(Leader), label);
-
 
             EditorGUI.EndProperty();
         }
 
+        bool IsSelfReference(SerializedProperty property)
+        {
+            var leader = property.objectReferenceValue as Leader;
+            if (leader == null)
+                return false;
+
+            var targetObject = property.serializedObject.targetObject;
+
+            // If NPC is a MonoBehaviour
+            if (targetObject is Component comp)
+                return leader.gameObject == comp.gameObject;
+
+            // If NPC is a serialized class inside a MonoBehaviour
+            var mb = property.serializedObject.targetObject as MonoBehaviour;
+            if (mb != null)
+                return leader.gameObject == mb.gameObject;
+
+            return false;
+        }
+
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
-            // if (Application.isPlaying)
-            if (property.objectReferenceValue == null)
-                return 0;
+            if (property.objectReferenceValue == null || IsSelfReference(property))
+                return -EditorGUIUtility.standardVerticalSpacing;
             return EditorGUIUtility.singleLineHeight;
         }
     }

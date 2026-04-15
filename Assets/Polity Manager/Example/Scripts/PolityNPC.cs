@@ -32,8 +32,8 @@ namespace Polity
             target = null; ally = null;
             OnRelationChange += OnRelationChanged;
 
-            Leader.OnSpawn += OnLeaderSpawned;
-            Leader.OnDespawn += OnLeaderDespawned;
+            // Leader.OnSpawn += OnLeaderSpawned;
+            // Leader.OnDespawn += OnLeaderDespawned;
         }
 
 
@@ -51,18 +51,18 @@ namespace Polity
             }
             OnDespawn?.Invoke(this);
 
-            Leader.OnSpawn -= OnLeaderSpawned;
-            Leader.OnDespawn -= OnLeaderDespawned;
+            // Leader.OnSpawn -= OnLeaderSpawned;
+            // Leader.OnDespawn -= OnLeaderDespawned;
         }
 
         #region Callbacks
         void OnLeaderSpawned(Leader leader)
         {
-            if (Leader != null && leader.Faction.Equals(Faction))
-            {
-                Leader = leader;
-                leader.AddMember(this);
-            }
+            // if (Leader != null && leader.Faction.Equals(Faction))
+            // {
+            //     Leader = leader;
+            //     leader.AddMember(this, true, false);
+            // }
         }
 
         void OnLeaderDespawned(Leader leader)

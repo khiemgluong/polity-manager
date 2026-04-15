@@ -18,7 +18,7 @@ _Pride leads to destruction, and arrogance to downfall._ - DoodleBob
       - [Reset Relation Matrix](#reset-relation-matrix)
       - [Load Relation Matrix](#load-relation-matrix)
   - [Polity.Faction](#polityfaction)
-    - [ChangeName()](#changename)
+    - [Set()](#set)
     - [Events](#events-1)
       - [OnNameChange](#onnamechange)
   - [Polity.Leader](#polityleader)
@@ -132,7 +132,7 @@ If in some case the serialized polity relation matrix did not load, this can man
 
 ### Polity.Faction
 
-#### ChangeName()
+#### Set()
 
 Sets a new name for the faction. Can be an int representing the index of the faction in the Polity Manager, or a string of that faction name, as long as one exists.
 
@@ -162,7 +162,7 @@ Adds a member to the leader members list.
 
 | Parameter          | Type             | Description |
 |--------------------|------------------|-------------|
-| `member` (optional: `enforceFaction`)    | `IMember` (optional: bool)   | Can use the `enforceFaction` bool to ensure that the member has a matching faction before being added, otherwise it will just override its faction to the one the leader has and add it.|
+| `member` (optional: `overrideFaction`)    | `IMember` (optional: bool)   | Can use the `enforceFaction` bool to ensure that the member has a matching faction before being added, otherwise it will just override its faction to the one the leader has and add it.|
 
 #### RemoveMember()
 

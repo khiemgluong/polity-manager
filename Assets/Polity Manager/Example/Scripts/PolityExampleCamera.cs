@@ -14,7 +14,7 @@ namespace Polity
         RectTransform floatingRect;
         public Button quitButton;
         public GameObject cursor;
-        Text factionText, selectedMemberText;
+        Text factionText, leaderText;
         bool isPaused;
         Leader leader;
         void Awake()
@@ -50,7 +50,7 @@ namespace Polity
         {
             Transform t = floating.transform;
             factionText = t.Find("Faction").GetComponent<Text>();
-            selectedMemberText = canvas.transform.Find("SelectedMember").GetComponent<Text>();
+            leaderText = canvas.transform.Find("Leader").GetComponent<Text>();
             /* --------------------------- FamilyStruct texts --------------------------- */
 
             overlay.gameObject.SetActive(false);
@@ -103,11 +103,11 @@ namespace Polity
             if (leader != null)
             {
                 Debug.Log("Selected member: " + leader.transform.name);
-                selectedMemberText.text = leader.transform.name;
+                leaderText.text = leader.transform.name;
             }
             else
             {
-                selectedMemberText.text = "";
+                leaderText.text = "";
             }
             Vector2 mousePosition = Input.mousePosition;
             RectTransform parentRect = floatingRect.parent as RectTransform;

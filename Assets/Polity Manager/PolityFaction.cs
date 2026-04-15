@@ -20,7 +20,6 @@ namespace Polity
             }
         }
 
-
         bool IsManagedFaction()
             => Array.Exists(Manager.PM.factions, f => ReferenceEquals(f, this));
 
@@ -28,7 +27,7 @@ namespace Polity
         {
             if (IsManagedFaction())
             {
-                Debug.LogError($"Cannot call Set() on a managed faction '{name}'. Use the Manager to modify factions.");
+                Debug.LogError($"Cannot call Set() on a managed faction '{name}'.");
                 return;
             }
             Faction[] factions = Manager.PM.factions;
@@ -38,10 +37,8 @@ namespace Polity
                 return;
             }
             if (factions[factionIndex].name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            {
-                Debug.LogWarning($"Faction index {factionIndex} has the same name '{name}' as the current faction. No change made.");
                 return;
-            }
+
             name = factions[factionIndex].name;
         }
 
@@ -49,7 +46,7 @@ namespace Polity
         {
             if (IsManagedFaction())
             {
-                Debug.LogError($"Cannot call Set() on a managed faction '{name}'. Use the Manager to modify factions.");
+                Debug.LogError($"Cannot call Set() on a managed faction '{name}'.");
                 return;
             }
             Faction[] factions = Manager.PM.factions;

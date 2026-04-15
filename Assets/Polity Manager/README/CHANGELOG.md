@@ -2,12 +2,11 @@
 
 ## [3.0.0] - 2026-4-14
 
-### BREAKING CHANGES (if upgrading from 0.2.1)
-
 ### Added
 
-- Unity modernization by switching to Unity Input System and URP graphics pipeline
+- Unity modernization by switching to Unity Input System and URP graphics
 - IMember interface which can be used instead of Member
+- Polity.Faction class as the basis for getting faction names and relationships
 - Polity.Leader class to control groups of Polity Members
 - PolityFormation class to organize formations for the Polity Leader
 

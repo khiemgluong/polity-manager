@@ -12,7 +12,6 @@ namespace Polity
         public int capacity = 10;
         public List<IMember> members = new();
         public Formation formation;
-        public static event Action<Leader> OnSpawn, OnDespawn;
 
         #region Lifecycle
         /* -------------------------------- Lifecycle ------------------------------- */
@@ -29,12 +28,10 @@ namespace Polity
 
         protected virtual void Start()
         {
-            OnSpawn?.Invoke(this);
         }
 
         protected virtual void OnDestroy()
         {
-            OnDespawn?.Invoke(this);
             TransferLeader();
             Faction.OnNameChange -= OnFactionNameChanged;
         }
@@ -45,6 +42,7 @@ namespace Polity
         }
         #endregion
 
+        #region Public APIs
         public void TransferLeader()
         {
             if (members.Count == 0) return;
@@ -77,13 +75,16 @@ namespace Polity
             formation = null;
         }
 
-        public void AddMember(IMember member, bool enforceFaction = false)
+        public void AddMember(IMember member, bool overrideFaction = false)
         {
-            if (enforceFaction && !member.Faction.Equals(Faction))
+            if (overrideFaction && !member.Faction.Equals(Faction))
             {
                 Debug.Log("Member belongs to another faction", member.transform);
                 return;
             }
+            if (member.Leader != null)
+                if (member.Leader == this) return;
+
             member.Faction.Set(Faction.Name);
             member.Leader = this;
             if (!members.Contains(member))
@@ -97,11 +98,14 @@ namespace Polity
                 members.Remove(member);
             formation?.Remove(member);
         }
+        #endregion
 
+        #region Callbacks
         void OnFactionNameChanged(string newFactionName)
         {
             foreach (IMember member in members)
                 member.Faction.Set(newFactionName);
         }
+        #endregion
     }
 }

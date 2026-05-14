@@ -11,6 +11,12 @@ namespace Polity
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            if (PrefabUtility.IsPartOfPrefabAsset(property.serializedObject.targetObject))
+            {
+                EditorGUI.LabelField(position, label.text, "Uninstantiated Prefabs cannot set their factions");
+                return;
+            }
+
             if (manager == null)
             {
                 manager = Object.FindFirstObjectByType<Manager>();

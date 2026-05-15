@@ -12,6 +12,7 @@ namespace Polity
         Vector2 scrollPosition;
         Manager manager;
         const float gridSize = 20, headerWidth = 120;
+        int hoverRow = -1, hoverCol = -1;
         void OnEnable()
         {
             manager = (Manager)target;
@@ -76,17 +77,25 @@ namespace Polity
             }
         }
 
-        void RotateText(Rect rect, string text, float angle)
+        GUIStyle _headerStyle;
+        GUIStyle _boldHeaderStyle;
+
+        void RotateText(Rect rect, string text, float angle, bool bold = false)
         {
+            if (_headerStyle == null)
+            {
+                _headerStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleLeft };
+                _boldHeaderStyle = new GUIStyle(_headerStyle) { fontStyle = FontStyle.Bold };
+            }
+
             Matrix4x4 matrixBackup = GUI.matrix;
             // Recalculate pivot point to be at the center bottom of the initial rectangle.
             Vector2 pivotPoint = new(rect.x + rect.height / 2, rect.y + rect.width / 2);
             GUIUtility.RotateAroundPivot(angle, pivotPoint);
             Rect adjustedRect = new(rect.x - 50, rect.y, headerWidth, gridSize);
 
-            // EditorGUI.DrawRect(adjustedRect, new Color(0.8f, 0.8f, 0.8f, 0.5f));
-            GUIStyle style = new(GUI.skin.label) { alignment = TextAnchor.MiddleLeft };
-            GUI.Label(adjustedRect, text, style); GUI.matrix = matrixBackup;
+            GUI.Label(adjustedRect, text, bold ? _boldHeaderStyle : _headerStyle);
+            GUI.matrix = matrixBackup;
         }
 
         void DrawFactionStringFields()

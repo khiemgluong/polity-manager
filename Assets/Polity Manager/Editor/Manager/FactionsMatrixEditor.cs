@@ -17,6 +17,15 @@ namespace Polity
             GUILayoutOption height = GUILayout.Height(gridSize);
             if (manager.factions.Count > 0)
             {
+                // Reset hover state if mouse moves
+                if (Event.current.type == EventType.MouseMove)
+                {
+                    int oldRow = hoverRow, oldCol = hoverCol;
+                    hoverRow = -1;
+                    hoverCol = -1;
+                    if (oldRow != -1 || oldCol != -1) Repaint();
+                }
+
                 GUILayout.BeginVertical();
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
                                                     GUILayout.ExpandHeight(true));
@@ -32,15 +41,44 @@ namespace Polity
                         Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].Name),
                                                                     GUI.skin.label, width,
                                                                     GUILayout.Height(headerWidth));
-                        RotateText(labelRect, manager.factions[j].Name, 270);
+
+                        // Highlight header if it's the hovered column
+                        bool isHovered = (j == hoverCol);
+                        if (isHovered)
+                        {
+                            Rect highlightRect = new(labelRect.x + 50, labelRect.y, labelRect.width, labelRect.height);
+                            EditorGUI.DrawRect(highlightRect, new Color(0.5f, 0.5f, 0.5f, 0.2f));
+
+                            // Draw vertical bar for the column
+                            Rect columnBarRect = new(labelRect.x + 50, labelRect.y + labelRect.height, gridSize, manager.factions.Count * gridSize);
+                            EditorGUI.DrawRect(columnBarRect, new Color(0.5f, 0.5f, 0.5f, 0.35f));
+                        }
+
+                        RotateText(new(labelRect.x, labelRect.y, labelRect.width, labelRect.height), manager.factions[j].Name, 270, isHovered);
                     }
                 EditorGUILayout.EndHorizontal();
+
+                GUIStyle sideLabelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight };
+                GUIStyle boldSideLabelStyle = new GUIStyle(sideLabelStyle) { fontStyle = FontStyle.Bold };
 
                 for (int i = 0; i < manager.factions.Count; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
-                    EditorGUILayout.LabelField(manager.factions[i].Name, new GUIStyle(GUI.skin.label)
-                    { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
+
+                    // Side label highlighting and bolding
+                    Rect sideLabelRect = EditorGUILayout.GetControlRect(GUILayout.Width(headerWidth));
+                    bool isRowHighlight = (i == hoverRow);
+                    if (isRowHighlight)
+                    {
+                        EditorGUI.DrawRect(sideLabelRect, new Color(0.5f, 0.5f, 0.5f, 0.2f));
+
+                        // Draw horizontal bar for the row
+                        Rect rowBarRect = new(sideLabelRect.x + sideLabelRect.width, sideLabelRect.y, (manager.factions.Count - i - 1) * gridSize, gridSize);
+                        EditorGUI.DrawRect(rowBarRect, new Color(0.5f, 0.5f, 0.5f, 0.35f));
+                    }
+
+                    EditorGUI.LabelField(sideLabelRect, manager.factions[i].Name, isRowHighlight ? boldSideLabelStyle : sideLabelStyle);
+
                     // Create a grid but only for entries above the diagonal
                     for (int j = manager.factions.Count - 1; j > i; j--)
                     {
@@ -51,7 +89,22 @@ namespace Polity
                         GUIContent buttonContent = new("", tooltipText);
                         Rect gridRect = EditorGUILayout.GetControlRect(width, height);
 
-                        if (GUI.Button(gridRect, buttonContent))
+                        // Hover detection
+                        if (gridRect.Contains(Event.current.mousePosition))
+                        {
+                            if (hoverRow != i || hoverCol != j)
+                            {
+                                hoverRow = i;
+                                hoverCol = j;
+                                Repaint();
+                            }
+                        }
+
+                        Color color = GetColorForRelationship(manager.RelationMatrix[i, j]);
+                        EditorGUI.DrawRect(gridRect, color);
+
+                        // Use GUIStyle.none to make the button transparent but keep the tooltip and click functionality
+                        if (GUI.Button(gridRect, buttonContent, GUIStyle.none))
                         {
                             switch (Event.current.button)
                             {
@@ -66,10 +119,6 @@ namespace Polity
                             manager.SerializeRelationMatrix();
                             if (Application.isPlaying) Manager.OnRelationChange?.Invoke();
                         }
-
-                        Color color = GetColorForRelationship(manager.RelationMatrix[i, j]);
-                        EditorGUI.DrawRect(gridRect, color);
-                        GUI.Label(gridRect, ""); // Optionally add labels or icons
                     }
                     EditorGUILayout.EndHorizontal();
                 }

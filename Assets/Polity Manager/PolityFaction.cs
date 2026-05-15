@@ -21,7 +21,7 @@ namespace Polity
         }
 
         bool IsManagedFaction()
-            => Array.Exists(Manager.PM.factions, f => ReferenceEquals(f, this));
+            => Manager.PM.factions.Exists(f => ReferenceEquals(f, this));
 
         public void Set(int factionIndex)
         {
@@ -30,8 +30,8 @@ namespace Polity
                 Debug.LogError($"Cannot call Set() on a managed faction '{name}'.");
                 return;
             }
-            Faction[] factions = Manager.PM.factions;
-            if (factionIndex < 0 || factionIndex >= factions.Length)
+            var factions = Manager.PM.factions;
+            if (factionIndex < 0 || factionIndex >= factions.Count)
             {
                 Debug.LogError($"Invalid faction index: {factionIndex}. No faction set.");
                 return;
@@ -49,8 +49,8 @@ namespace Polity
                 Debug.LogError($"Cannot call Set() on a managed faction '{name}'.");
                 return;
             }
-            Faction[] factions = Manager.PM.factions;
-            int factionIndex = Array.FindIndex(factions, f =>
+            var factions = Manager.PM.factions;
+            int factionIndex = factions.FindIndex(f =>
                 string.Equals(f.name, factionName, StringComparison.OrdinalIgnoreCase));
             Set(factionIndex);
         }

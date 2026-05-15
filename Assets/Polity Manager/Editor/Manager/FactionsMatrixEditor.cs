@@ -15,7 +15,7 @@ namespace Polity
             Manager manager = (Manager)target;
             GUILayoutOption width = GUILayout.Width(gridSize);
             GUILayoutOption height = GUILayout.Height(gridSize);
-            if (manager.factions.Length > 0)
+            if (manager.factions.Count > 0)
             {
                 GUILayout.BeginVertical();
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
@@ -25,8 +25,8 @@ namespace Polity
                 EditorGUILayout.BeginHorizontal();
                 GUILayout.Space(-47);
                 EditorGUILayout.LabelField("", GUILayout.Width(headerWidth));
-                if (manager.factions.Length > 0)
-                    for (int j = manager.factions.Length - 1; j >= 0; j--)
+                if (manager.factions.Count > 0)
+                    for (int j = manager.factions.Count - 1; j >= 0; j--)
                     {
                         GUILayout.Space(-1);
                         Rect labelRect = GUILayoutUtility.GetRect(new(manager.factions[j].Name),
@@ -36,13 +36,13 @@ namespace Polity
                     }
                 EditorGUILayout.EndHorizontal();
 
-                for (int i = 0; i < manager.factions.Length; i++)
+                for (int i = 0; i < manager.factions.Count; i++)
                 {
                     EditorGUILayout.BeginHorizontal();
                     EditorGUILayout.LabelField(manager.factions[i].Name, new GUIStyle(GUI.skin.label)
                     { alignment = TextAnchor.MiddleRight }, GUILayout.Width(headerWidth));
                     // Create a grid but only for entries above the diagonal
-                    for (int j = manager.factions.Length - 1; j > i; j--)
+                    for (int j = manager.factions.Count - 1; j > i; j--)
                     {
                         string tooltipText = manager.factions[i].Name +
                                             " & " + manager.factions[j].Name +

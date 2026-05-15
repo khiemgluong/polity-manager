@@ -12,7 +12,7 @@ namespace Polity
     {
         public const string VERSION = "3.0.0";
         public static Manager PM { get; private set; }
-        public Faction[] factions = new Faction[0];
+        public List<Faction> factions = new();
         public Relation[,] RelationMatrix { get; private set; }
         public enum Relation
         {
@@ -28,11 +28,11 @@ namespace Polity
             if (!CheckFactionNames(out string error))
             {
                 Debug.LogError($"PolityManager: {error}.", gameObject);
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
-#else                    
+        #else                    
                     Application.Quit(1);
-#endif
+        #endif
             }
 
             if (PM != null && PM != this)
@@ -86,7 +86,7 @@ namespace Polity
         [ContextMenu("Reset Relation Matrix")]
         void ResetRelationMatrix()
         {
-            int size = factions.Length;
+            int size = factions.Count;
             RelationMatrix = new Relation[size, size];
             for (int i = 0; i < size; i++)
                 for (int j = 0; j < size; j++)
@@ -100,15 +100,15 @@ namespace Polity
         {
             LoadRelationMatrix();
             if (RelationMatrix == null ||
-                RelationMatrix.GetLength(0) != factions.Length ||
-                RelationMatrix.GetLength(1) != factions.Length)
+                RelationMatrix.GetLength(0) != factions.Count ||
+                RelationMatrix.GetLength(1) != factions.Count)
             {
                 // Create a temporary matrix to hold existing data
-                Relation[,] tempMatrix = new Relation[factions.Length, factions.Length];
+                Relation[,] tempMatrix = new Relation[factions.Count, factions.Count];
                 if (RelationMatrix != null)
                 {
-                    int minRows = Mathf.Min(RelationMatrix.GetLength(0), factions.Length);
-                    int minCols = Mathf.Min(RelationMatrix.GetLength(1), factions.Length);
+                    int minRows = Mathf.Min(RelationMatrix.GetLength(0), factions.Count);
+                    int minCols = Mathf.Min(RelationMatrix.GetLength(1), factions.Count);
 
                     for (int i = 0; i < minRows; i++)
                         for (int j = 0; j < minCols; j++)
@@ -125,7 +125,7 @@ namespace Polity
         {
             if (RelationMatrix == null)
             {
-                int ln = factions.Length;
+                int ln = factions.Count;
                 RelationMatrix = new Relation[ln, ln];
                 // Debug.Log($"Initialized new RelationMatrix of size {ln}x{ln}.");
             }
@@ -135,6 +135,84 @@ namespace Polity
         /* -------------------------------------------------------------------------- */
         /*                             PUBLIC API METHODS                             */
         /* -------------------------------------------------------------------------- */
+        public void AddFaction(string name)
+        {
+            if (factions.Any(f => f.Name == name))
+            {
+                Debug.LogWarning($"Faction with name '{name}' already exists.");
+                return;
+            }
+
+            factions.Add(new Faction { Name = name });
+            int newSize = factions.Count;
+            Relation[,] newMatrix = new Relation[newSize, newSize];
+
+            if (RelationMatrix != null)
+            {
+                int oldSize = RelationMatrix.GetLength(0);
+                for (int i = 0; i < oldSize; i++)
+                {
+                    for (int j = 0; j < oldSize; j++)
+                    {
+                        newMatrix[i, j] = RelationMatrix[i, j];
+                    }
+                }
+            }
+
+            RelationMatrix = newMatrix;
+            SerializeRelationMatrix();
+            OnRelationChange?.Invoke();
+        }
+
+        public void RemoveFaction(string name)
+        {
+            int index = factions.FindIndex(f => f.Name == name);
+            if (index == -1)
+            {
+                Debug.LogWarning($"Faction with name '{name}' not found.");
+                return;
+            }
+            RemoveFaction(index);
+        }
+
+        public void RemoveFaction(int index)
+        {
+            if (index < 0 || index >= factions.Count)
+            {
+                Debug.LogError($"Invalid faction index: {index}.");
+                return;
+            }
+
+            factions.RemoveAt(index);
+            int newSize = factions.Count;
+            Relation[,] newMatrix = new Relation[newSize, newSize];
+
+            int oldSize = RelationMatrix.GetLength(0);
+            int rowShift = 0;
+            for (int i = 0; i < oldSize; i++)
+            {
+                if (i == index)
+                {
+                    rowShift = 1;
+                    continue;
+                }
+                int colShift = 0;
+                for (int j = 0; j < oldSize; j++)
+                {
+                    if (j == index)
+                    {
+                        colShift = 1;
+                        continue;
+                    }
+                    newMatrix[i - rowShift, j - colShift] = RelationMatrix[i, j];
+                }
+            }
+
+            RelationMatrix = newMatrix;
+            SerializeRelationMatrix();
+            OnRelationChange?.Invoke();
+        }
+
         class RelationMatrixWrapper
         { public List<Relation> relations = new(); public int rows, columns; }
         [SerializeField] string relationMatrixJSON = "";
@@ -174,8 +252,8 @@ namespace Polity
         /* --------------------------------- GETTERS -------------------------------- */
         public Relation CheckRelation(int factionIndex, int theirFactionIndex)
         {
-            if (factionIndex < 0 || factionIndex >= factions.Length ||
-                theirFactionIndex < 0 || theirFactionIndex >= factions.Length)
+            if (factionIndex < 0 || factionIndex >= factions.Count ||
+                theirFactionIndex < 0 || theirFactionIndex >= factions.Count)
             {
                 Debug.LogError("One or both polity indices are out of range. Returning default relation.");
                 return default;
@@ -190,18 +268,18 @@ namespace Polity
                 CheckRelation(faction.Name, otherFaction.Name);
         public Relation CheckRelation(string factionName, string theirFactionName)
         {
-            return CheckRelation(Array.FindIndex(factions, p => p.Name == factionName),
-                            Array.FindIndex(factions, p => p.Name == theirFactionName));
+            return CheckRelation(factions.FindIndex(p => p.Name == factionName),
+                            factions.FindIndex(p => p.Name == theirFactionName));
         }
 
         public int RandomFactionIndex()
         {
-            if (factions == null || factions.Length == 0)
+            if (factions == null || factions.Count == 0)
             {
                 Debug.LogError("No factions available in Manager. Cannot assign random faction.");
                 return -1;
             }
-            return UnityEngine.Random.Range(0, factions.Length);
+            return UnityEngine.Random.Range(0, factions.Count);
         }
 
         public string RandomFactionName()
@@ -227,8 +305,8 @@ namespace Polity
                 Debug.LogWarning($"Cannot change identical polities at index {factionIndex}.");
                 return;
             }
-            if (factionIndex < 0 || factionIndex >= factions.Length ||
-                theirFactionIndex < 0 || theirFactionIndex >= factions.Length)
+            if (factionIndex < 0 || factionIndex >= factions.Count ||
+                theirFactionIndex < 0 || theirFactionIndex >= factions.Count)
             {
                 Debug.LogError("One or both polity indices are out of range.");
                 return;
@@ -241,8 +319,8 @@ namespace Polity
 
         public void ChangeRelation(string factionName, string theirFactionName, Relation newRelation)
         {
-            ChangeRelation(Array.FindIndex(factions, p => p.Name == factionName),
-                           Array.FindIndex(factions, p => p.Name == theirFactionName),
+            ChangeRelation(factions.FindIndex(p => p.Name == factionName),
+                           factions.FindIndex(p => p.Name == theirFactionName),
                            newRelation);
         }
 

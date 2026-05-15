@@ -13,7 +13,7 @@ namespace Polity
         {
             if (PrefabUtility.IsPartOfPrefabAsset(property.serializedObject.targetObject))
             {
-                EditorGUI.LabelField(position, label.text, "Uninstantiated Prefabs cannot set their factions");
+                EditorGUI.LabelField(position, label.text, "Uninstantiated prefab cannot set faction");
                 return;
             }
 
@@ -22,8 +22,8 @@ namespace Polity
                 manager = Object.FindFirstObjectByType<Manager>();
                 if (manager != null && manager.factions != null)
                 {
-                    names = new string[manager.factions.Length];
-                    for (int i = 0; i < manager.factions.Length; i++)
+                    names = new string[manager.factions.Count];
+                    for (int i = 0; i < manager.factions.Count; i++)
                         names[i] = manager.factions[i].Name;
                 }
             }
@@ -79,10 +79,9 @@ namespace Polity
 
         void UpdateFactionNames()
         {
-
-            Faction[] factions = manager.factions;
-            names = new string[factions.Length];
-            for (int i = 0; i < factions.Length; i++)
+            var factions = manager.factions;
+            names = new string[factions.Count];
+            for (int i = 0; i < factions.Count; i++)
                 names[i] = factions[i].Name;
         }
 

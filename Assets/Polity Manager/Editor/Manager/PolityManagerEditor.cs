@@ -24,6 +24,8 @@ namespace Polity
         void OnDisable()
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            hoverRow = -1;
+            hoverCol = -1;
         }
 
         void OnPlayModeStateChanged(PlayModeStateChange state)

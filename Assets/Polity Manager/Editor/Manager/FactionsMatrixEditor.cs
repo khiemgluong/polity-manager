@@ -50,32 +50,32 @@ namespace Polity
                             EditorGUI.DrawRect(highlightRect, new Color(0.5f, 0.5f, 0.5f, 0.2f));
 
                             // Draw vertical bar for the column
-                            Rect columnBarRect = new(labelRect.x + 50, labelRect.y + labelRect.height, gridSize, manager.factions.Count * gridSize);
+                            Rect columnBarRect = new(labelRect.x + 50, labelRect.y + labelRect.height, gridSize, j * gridSize);
                             EditorGUI.DrawRect(columnBarRect, new Color(0.5f, 0.5f, 0.5f, 0.35f));
                         }
 
                         RotateText(new(labelRect.x, labelRect.y, labelRect.width, labelRect.height), manager.factions[j].Name, 270, isHovered);
-                    }
-                EditorGUILayout.EndHorizontal();
+                        }
+                        EditorGUILayout.EndHorizontal();
 
-                GUIStyle sideLabelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight };
-                GUIStyle boldSideLabelStyle = new GUIStyle(sideLabelStyle) { fontStyle = FontStyle.Bold };
+                        GUIStyle sideLabelStyle = new GUIStyle(GUI.skin.label) { alignment = TextAnchor.MiddleRight };
+                        GUIStyle boldSideLabelStyle = new GUIStyle(sideLabelStyle) { fontStyle = FontStyle.Bold };
 
-                for (int i = 0; i < manager.factions.Count; i++)
-                {
-                    EditorGUILayout.BeginHorizontal();
+                        for (int i = 0; i < manager.factions.Count; i++)
+                        {
+                        EditorGUILayout.BeginHorizontal();
 
-                    // Side label highlighting and bolding
-                    Rect sideLabelRect = EditorGUILayout.GetControlRect(GUILayout.Width(headerWidth));
-                    bool isRowHighlight = (i == hoverRow);
-                    if (isRowHighlight)
-                    {
+                        // Side label highlighting and bolding
+                        Rect sideLabelRect = EditorGUILayout.GetControlRect(GUILayout.Width(headerWidth), GUILayout.Height(gridSize));
+                        bool isRowHighlight = (i == hoverRow);
+                        if (isRowHighlight)
+                        {
                         EditorGUI.DrawRect(sideLabelRect, new Color(0.5f, 0.5f, 0.5f, 0.2f));
 
                         // Draw horizontal bar for the row
                         Rect rowBarRect = new(sideLabelRect.x + sideLabelRect.width, sideLabelRect.y, (manager.factions.Count - i - 1) * gridSize, gridSize);
                         EditorGUI.DrawRect(rowBarRect, new Color(0.5f, 0.5f, 0.5f, 0.35f));
-                    }
+                        }
 
                     EditorGUI.LabelField(sideLabelRect, manager.factions[i].Name, isRowHighlight ? boldSideLabelStyle : sideLabelStyle);
 

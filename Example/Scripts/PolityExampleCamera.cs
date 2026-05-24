@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
-namespace Polity
+namespace Polity.Example
 {
     public class PolityExampleCamera : MonoBehaviour
     {

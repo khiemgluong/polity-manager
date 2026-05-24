@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace Polity
+namespace Polity.Example
 {
     using static Manager;
     [RequireComponent(typeof(NavMeshAgent))]

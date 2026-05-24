@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Polity
+namespace Polity.Example
 {
     public class PolityNPCList : MonoBehaviour
     {

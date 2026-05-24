@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-namespace Polity
+namespace Polity.Example
 {
     using static Manager;
     public class PolitySpawner : MonoBehaviour

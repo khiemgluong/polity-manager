@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Polity
+namespace Polity.Example
 {
     public class Leaders : MonoBehaviour
     {

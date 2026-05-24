@@ -29,7 +29,8 @@ namespace Polity
 
         void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            if (state == PlayModeStateChange.ExitingEditMode && !manager.CheckFactionNames(out string error))
+            if (state == PlayModeStateChange.ExitingEditMode 
+            && !manager.CheckFactionNames(out string error))
             {
                 EditorApplication.isPlaying = false;
                 Debug.LogError($"PolityManager: {error}", manager);
@@ -53,7 +54,6 @@ namespace Polity
 
             DataCheck();
 
-            // if (factions.isExpanded)
             FactionsMatrix();
 
             GUILayout.Space(10);

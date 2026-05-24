@@ -18,6 +18,10 @@ namespace Polity
             if (manager.factions.Count > 0)
             {
                 bool foundHover = false;
+                bool isMiddleMouse = Event.current.button == 2;
+                bool isDragOrDown = Event.current.type == EventType.MouseDown 
+                                || Event.current.type == EventType.MouseDrag;
+                bool isMiddleMouseHeld = isMiddleMouse && isDragOrDown;
 
                 GUILayout.BeginVertical();
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
@@ -82,8 +86,8 @@ namespace Polity
                         GUIContent buttonContent = new("", tooltipText);
                         Rect gridRect = EditorGUILayout.GetControlRect(width, height);
 
-                        // Hover detection
-                        if (gridRect.Contains(Event.current.mousePosition))
+                        // Hover detection (only if middle mouse is held)
+                        if (isMiddleMouseHeld && gridRect.Contains(Event.current.mousePosition))
                         {
                             foundHover = true;
                             if (hoverRow != i || hoverCol != j)
@@ -118,9 +122,11 @@ namespace Polity
                 }
                 EditorGUILayout.EndScrollView(); 
 
-                // Reset hover state if no matrix element was hovered
-                // We check on any event except Layout to ensure it clears when mouse leaves or window loses focus
-                if (Event.current.type != EventType.Layout && !foundHover)
+                // Reset hover state if no matrix element was hovered or if middle mouse was released
+                // We check on any event except Layout/Repaint to ensure it clears when mouse leaves or button is released
+                if (Event.current.type != EventType.Layout && 
+                    Event.current.type != EventType.Repaint && 
+                    (!foundHover || !isMiddleMouseHeld))
                 {
                     if (hoverRow != -1 || hoverCol != -1)
                     {

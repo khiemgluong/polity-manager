@@ -34,8 +34,5 @@
 !**/*.aif
 !**/*.m4a
 
-# Whitelist documentation
-!/Documentation/**
-
 # Explicitly ignore all .meta files (as requested)
 **/*.meta

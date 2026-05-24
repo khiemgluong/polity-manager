@@ -68,6 +68,7 @@ namespace Polity.Example
                 {
                     floating.alpha = 1;
                     factionText.text = member.Faction.Name;
+                    cursor.SetActive(false);
                 }
                 else
                 {
@@ -90,8 +91,9 @@ namespace Polity.Example
                                 agent.SetDestination(hit.point);
                         }
                     }
+                    cursor.SetActive(true);
+                    cursor.transform.position = hit.point + Vector3.up * .01f;
                 }
-                cursor.transform.position = hit.point + Vector3.up * .01f;
             }
             else
             {
@@ -118,7 +120,7 @@ namespace Polity.Example
                 canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera,
                 out Vector2 localPoint);
 
-            floatingRect.anchoredPosition = localPoint;
+            floatingRect.anchoredPosition = localPoint + new Vector2(75, 5);
         }
 
         void OnDestroy()

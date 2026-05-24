@@ -34,5 +34,5 @@
 !**/*.aif
 !**/*.m4a
 
-# Explicitly ignore all .meta files (as requested)
-**/*.meta
+# Explicitly include all .meta files (otherwise it won't import correctly as a package)
+!**/*.meta

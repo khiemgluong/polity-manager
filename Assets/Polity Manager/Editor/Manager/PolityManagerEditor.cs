@@ -13,6 +13,7 @@ namespace Polity
         Manager manager;
         const float gridSize = 20, headerWidth = 120;
         int hoverRow = -1, hoverCol = -1;
+        
         void OnEnable()
         {
             manager = (Manager)target;
@@ -24,8 +25,6 @@ namespace Polity
         void OnDisable()
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
-            hoverRow = -1;
-            hoverCol = -1;
         }
 
         void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -39,6 +38,9 @@ namespace Polity
 
         public override void OnInspectorGUI()
         {
+            // Ensure we repaint when the mouse moves to update highlighting
+            if (Event.current.type == EventType.MouseMove) Repaint();
+            
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);

@@ -19,13 +19,7 @@ namespace Polity
 
             if (manager == null)
             {
-                manager = Object.FindFirstObjectByType<Manager>();
-                if (manager != null && manager.factions != null)
-                {
-                    names = new string[manager.factions.Count];
-                    for (int i = 0; i < manager.factions.Count; i++)
-                        names[i] = manager.factions[i].Name;
-                }
+                manager = Object.FindAnyObjectByType<Manager>();
             }
 
             if (manager == null)
@@ -33,56 +27,77 @@ namespace Polity
                 EditorGUI.LabelField(position, "No PolityManager found in the Scene.");
                 return;
             }
-            if (Application.isPlaying) property.serializedObject.Update();
+
+            UpdateFactionNames();
+
+            if (names == null || names.Length == 0)
+            {
+                EditorGUI.LabelField(position, label.text, "No factions defined in Manager.");
+                return;
+            }
 
             float lineHeight = EditorGUIUtility.singleLineHeight;
             float spacing = EditorGUIUtility.standardVerticalSpacing;
             position.y += spacing;
 
-            Rect nameRect;
-            nameRect = new Rect(position.x, position.y, position.width, lineHeight);
+            Rect nameRect = new Rect(position.x, position.y, position.width, lineHeight);
 
             EditorGUI.BeginProperty(position, label, property);
 
-            UpdateFactionNames();
             SerializedProperty nameProp = property.FindPropertyRelative("name");
+            
             EditorGUI.BeginChangeCheck();
-            int currentFactionIndex = Mathf.Max(0, System.Array.IndexOf(names, nameProp.stringValue));
-            GUIContent tooltip = new("", "Faction");
-            EditorGUI.LabelField(nameRect, tooltip);
-            int factionIndex = EditorGUI.Popup(nameRect, "Faction", currentFactionIndex, names);
+            
+            bool isMixed = nameProp.hasMultipleDifferentValues;
+            int currentFactionIndex = isMixed ? -1 : System.Array.IndexOf(names, nameProp.stringValue);
+            
+            EditorGUI.showMixedValue = isMixed;
+            int newFactionIndex = EditorGUI.Popup(nameRect, "Faction", currentFactionIndex, names);
+            EditorGUI.showMixedValue = false;
+
             if (EditorGUI.EndChangeCheck())
             {
-                Debug.Log($"Faction changed from '{nameProp.stringValue}' to '{names[factionIndex]}'");
-                if (Application.isPlaying)
+                if (newFactionIndex >= 0 && newFactionIndex < names.Length)
                 {
-                    var targetObj = property.serializedObject.targetObject;
-                    // Get the actual Faction instance via reflection using the property path
-                    Faction faction = fieldInfo.GetValue(targetObj) as Faction;
-                    if (faction != null)
-                        faction.Name = names[factionIndex];
+                    string selectedName = names[newFactionIndex];
+                    nameProp.stringValue = selectedName;
+                    
+                    if (Application.isPlaying)
+                    {
+                        foreach (var target in property.serializedObject.targetObjects)
+                        {
+                            // Note: fieldInfo.GetValue only works if the field is a direct member of the target object.
+                            // For nested properties, this reflection logic would need to be more robust.
+                            if (fieldInfo.GetValue(target) is Faction faction)
+                            {
+                                faction.Name = selectedName;
+                            }
+                        }
+                    }
                 }
             }
-            nameProp.stringValue = names[factionIndex];
 
             EditorGUI.EndProperty();
         }
 
-
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
-        {
-            float lineHeight = EditorGUIUtility.singleLineHeight;
-            float spacing = EditorGUIUtility.standardVerticalSpacing;
-
-            return lineHeight + spacing;
-        }
-
         void UpdateFactionNames()
         {
+            if (manager == null || manager.factions == null)
+            {
+                names = new string[0];
+                return;
+            }
+
             var factions = manager.factions;
-            names = new string[factions.Count];
+            if (names == null || names.Length != factions.Count)
+            {
+                names = new string[factions.Count];
+            }
+
             for (int i = 0; i < factions.Count; i++)
+            {
                 names[i] = factions[i].Name;
+            }
         }
 
     }

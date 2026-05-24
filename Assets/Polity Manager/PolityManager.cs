@@ -10,7 +10,7 @@ namespace Polity
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {
-        public const string VERSION = "3.0.0";
+        public const string VERSION = "3.1.0";
         public static Manager PM { get; private set; }
         public List<Faction> factions = new();
         public Relation[,] RelationMatrix { get; private set; }

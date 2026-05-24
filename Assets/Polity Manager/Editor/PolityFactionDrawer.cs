@@ -1,4 +1,6 @@
+#if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 namespace Polity
@@ -11,7 +13,8 @@ namespace Polity
 
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            if (PrefabUtility.IsPartOfPrefabAsset(property.serializedObject.targetObject))
+            Object targetObj = property.serializedObject.targetObject;
+            if (PrefabUtility.IsPartOfPrefabAsset(targetObj) || IsInPrefabStage(targetObj))
             {
                 EditorGUI.LabelField(position, label.text, "Uninstantiated prefab cannot set faction");
                 return;
@@ -45,12 +48,12 @@ namespace Polity
             EditorGUI.BeginProperty(position, label, property);
 
             SerializedProperty nameProp = property.FindPropertyRelative("name");
-            
+
             EditorGUI.BeginChangeCheck();
-            
+
             bool isMixed = nameProp.hasMultipleDifferentValues;
             int currentFactionIndex = isMixed ? -1 : System.Array.IndexOf(names, nameProp.stringValue);
-            
+
             EditorGUI.showMixedValue = isMixed;
             int newFactionIndex = EditorGUI.Popup(nameRect, "Faction", currentFactionIndex, names);
             EditorGUI.showMixedValue = false;
@@ -61,7 +64,7 @@ namespace Polity
                 {
                     string selectedName = names[newFactionIndex];
                     nameProp.stringValue = selectedName;
-                    
+
                     if (Application.isPlaying)
                     {
                         foreach (var target in property.serializedObject.targetObjects)
@@ -100,5 +103,13 @@ namespace Polity
             }
         }
 
+        bool IsInPrefabStage(Object target)
+        {
+            if (target is Component comp) return PrefabStageUtility.GetPrefabStage(comp.gameObject) != null;
+            if (target is GameObject go) return PrefabStageUtility.GetPrefabStage(go) != null;
+            return false;
+        }
+
     }
 }
+#endif

@@ -58,7 +58,7 @@ namespace Polity
             {
                 error = emptyCount == 1
                     ? "There is one faction with no name."
-                    : $"There are {emptyCount} factions with no name";
+                    : $"There are {emptyCount} factions with no name.";
                 return false;
             }
 
@@ -255,7 +255,7 @@ namespace Polity
             if (factionIndex < 0 || factionIndex >= factions.Count ||
                 theirFactionIndex < 0 || theirFactionIndex >= factions.Count)
             {
-                Debug.LogError("One or both polity indices are out of range. Returning default relation.");
+                Debug.LogError("One or both faction indices are out of range. Returning default relation.");
                 return default;
             }
             return RelationMatrix[factionIndex, theirFactionIndex];
@@ -302,19 +302,19 @@ namespace Polity
         {
             if (factionIndex == theirFactionIndex)
             {
-                Debug.LogWarning($"Cannot change identical polities at index {factionIndex}.");
+                Debug.LogWarning($"Cannot change relations for the same faction at index {factionIndex}.");
                 return;
             }
             if (factionIndex < 0 || factionIndex >= factions.Count ||
                 theirFactionIndex < 0 || theirFactionIndex >= factions.Count)
             {
-                Debug.LogError("One or both polity indices are out of range.");
+                Debug.LogError("One or both faction indices are out of range.");
                 return;
             }
             RelationMatrix[factionIndex, theirFactionIndex] = newRelation;
             RelationMatrix[theirFactionIndex, factionIndex] = newRelation;
             OnRelationChange?.Invoke();
-            Debug.Log($"Set relation between {factions[factionIndex].Name} & {factions[theirFactionIndex].Name} to {newRelation}");
+            Debug.Log($"Set relation between {factions[factionIndex].Name} & {factions[theirFactionIndex].Name} to {newRelation}.");
         }
 
         public void ChangeRelation(string factionName, string theirFactionName, Relation newRelation)

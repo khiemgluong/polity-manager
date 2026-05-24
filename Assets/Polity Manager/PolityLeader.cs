@@ -75,11 +75,11 @@ namespace Polity
             formation = null;
         }
 
-        public void AddMember(IMember member, bool overrideFaction = false)
+        public void AddMember(IMember member, bool enforceFaction = false)
         {
-            if (overrideFaction && !member.Faction.Equals(Faction))
+            if (enforceFaction && !member.Faction.Equals(Faction))
             {
-                Debug.Log("Member belongs to another faction", member.transform);
+                Debug.LogWarning("Member belongs to another faction and enforceFaction is true.", member.transform);
                 return;
             }
             if (member.Leader != null)

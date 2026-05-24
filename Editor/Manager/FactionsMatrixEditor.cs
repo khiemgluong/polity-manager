@@ -17,14 +17,7 @@ namespace Polity
             GUILayoutOption height = GUILayout.Height(gridSize);
             if (manager.factions.Count > 0)
             {
-                // Reset hover state if mouse moves
-                if (Event.current.type == EventType.MouseMove)
-                {
-                    int oldRow = hoverRow, oldCol = hoverCol;
-                    hoverRow = -1;
-                    hoverCol = -1;
-                    if (oldRow != -1 || oldCol != -1) Repaint();
-                }
+                bool foundHover = false;
 
                 GUILayout.BeginVertical();
                 scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition,
@@ -92,6 +85,7 @@ namespace Polity
                         // Hover detection
                         if (gridRect.Contains(Event.current.mousePosition))
                         {
+                            foundHover = true;
                             if (hoverRow != i || hoverCol != j)
                             {
                                 hoverRow = i;
@@ -122,7 +116,21 @@ namespace Polity
                     }
                     EditorGUILayout.EndHorizontal();
                 }
-                EditorGUILayout.EndScrollView(); GUILayout.EndVertical();
+                EditorGUILayout.EndScrollView(); 
+
+                // Reset hover state if no matrix element was hovered
+                // We check on any event except Layout to ensure it clears when mouse leaves or window loses focus
+                if (Event.current.type != EventType.Layout && !foundHover)
+                {
+                    if (hoverRow != -1 || hoverCol != -1)
+                    {
+                        hoverRow = -1;
+                        hoverCol = -1;
+                        Repaint();
+                    }
+                }
+                
+                GUILayout.EndVertical();
             }
         }
 

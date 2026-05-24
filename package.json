@@ -1,0 +1,10 @@
+{
+  "name": "com.khiemluong.extension-kit",
+  "version": "3.1.0",
+  "displayName": "Polity Manager",
+  "description": "An editor based tool for Unity designed to manage political relations within a matrix. ",
+  "unity": "2021.3",
+  "author": {
+    "name": "Khiem Luong"
+  }
+}

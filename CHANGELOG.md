@@ -1,5 +1,16 @@
 ## [Unreleased]
 
+## [3.1.0] - 2026-5-24
+
+### Added
+
+- Factions in Polity.Manager can now be added and removed
+
+### Fixed
+
+- Faction field being overriden in multi select mode
+- Faction being set in prefab mode
+
 ## [3.0.0] - 2026-4-14
 
 ### Added

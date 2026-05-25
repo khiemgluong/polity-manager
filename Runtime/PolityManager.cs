@@ -22,18 +22,17 @@ namespace Polity
         }
 
         /* --------------------------------- EVENTS --------------------------------- */
-        public static event Action<Faction> OnFactionCreated;
         public static Action OnRelationChange;
         void Awake()
         {
             if (!CheckFactionNames(out string error))
             {
                 Debug.LogError($"PolityManager: {error}.", gameObject);
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
                 UnityEditor.EditorApplication.isPlaying = false;
-        #else                    
+#else
                     Application.Quit(1);
-        #endif
+#endif
             }
 
             if (PM != null && PM != this)
@@ -41,7 +40,7 @@ namespace Polity
             else PM = this;
 
             foreach (Faction faction in factions)
-                faction.Name = faction.Name?.Trim();
+                faction.Name = new(faction.Name.Trim());
 
             LoadRelationMatrix();
         }
@@ -146,7 +145,6 @@ namespace Polity
 
             var newFaction = new Faction { Name = name };
             factions.Add(newFaction);
-            OnFactionCreated?.Invoke(newFaction);
 
             int newSize = factions.Count;
             Relation[,] newMatrix = new Relation[newSize, newSize];

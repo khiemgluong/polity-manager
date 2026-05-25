@@ -1,6 +1,6 @@
 {
   "name": "com.khiemluong.polity-manager",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "displayName": "Polity Manager",
   "description": "An editor based tool for Unity designed to manage political relations within a matrix. ",
   "unity": "2021.3",

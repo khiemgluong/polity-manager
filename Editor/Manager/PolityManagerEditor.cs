@@ -142,7 +142,7 @@ namespace Polity
                 factionsProp.arraySize++;
                 // Undo.RecordObject(manager, "Add Faction");
                 // manager.AddFaction($"New Faction {manager.factions.Count}");
-                // serializedObject.Update();
+                serializedObject.Update();
             }
         }
 

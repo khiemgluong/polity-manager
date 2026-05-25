@@ -12,34 +12,19 @@ namespace Polity
 
         public static event Action<string> OnNameChange;
 
-        // public Faction()
-        // {
-        //     Manager.OnFactionCreated += f => f.UpdateHash();
-        //     UpdateHash();
-        // }
-
-        // public Faction(string name)
-        // {
-        //     this.name = name;
-        //     Manager.OnFactionCreated += f => f.UpdateHash();
-        //     UpdateHash();
-        // }
-
-
-        void UpdateHash()
-        {
-            hash = GetHashCode();
-            Debug.Log($"Faction '{name}' hash updated: {hash}");
-        }
-
         public string Name
         {
             get => name;
             set
             {
-                if (name == value) return;
-                name = value; // ← actually assign it
-                if (value != null)
+                // ReferenceEquals(name, value) will be false if Awake uses: Name = new(Name.Trim())
+                // This forces a recalculation even if the name content is the same.
+                bool isForced = !ReferenceEquals(name, value);
+                bool isNameDifferent = name != value;
+
+                name = value;
+
+                if (value != null && (isNameDifferent || hash == 0 || isForced))
                 {
                     UpdateHash();
                     OnNameChange?.Invoke(value);
@@ -49,6 +34,16 @@ namespace Polity
 
         bool IsManagedFaction()
             => Manager.PM.factions.Exists(f => ReferenceEquals(f, this));
+
+        void UpdateHash()
+        {
+            if (string.IsNullOrEmpty(name))
+            { hash = 0; return; }
+
+            hash = GetHashCode();
+
+            Debug.Log($"[Faction ID:{GetHashCode()}] '{name}' hash updated to {hash}");
+        }
 
         public void Set(int factionIndex)
         {
@@ -85,6 +80,7 @@ namespace Polity
         public void Set(Faction reader)
         {
             Name = reader.name;
+            UpdateHash();
         }
 
         /* --------------------------- Equality Operations -------------------------- */
@@ -93,7 +89,9 @@ namespace Polity
             if (other is null) return false; // ← guard here too
             return string.Equals(name, other.name, StringComparison.OrdinalIgnoreCase);
         }
+
         public override bool Equals(object obj) => obj is Faction f && Equals(f);
+
         public override int GetHashCode()
             => name?.ToLowerInvariant().GetHashCode() ?? 0;
 

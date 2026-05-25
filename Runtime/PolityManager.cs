@@ -22,6 +22,7 @@ namespace Polity
         }
 
         /* --------------------------------- EVENTS --------------------------------- */
+        public static event Action<Faction> OnFactionCreated;
         public static Action OnRelationChange;
         void Awake()
         {
@@ -143,7 +144,10 @@ namespace Polity
                 return;
             }
 
-            factions.Add(new Faction { Name = name });
+            var newFaction = new Faction { Name = name };
+            factions.Add(newFaction);
+            OnFactionCreated?.Invoke(newFaction);
+
             int newSize = factions.Count;
             Relation[,] newMatrix = new Relation[newSize, newSize];
 

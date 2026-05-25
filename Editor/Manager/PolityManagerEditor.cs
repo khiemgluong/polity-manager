@@ -13,7 +13,7 @@ namespace Polity
         Manager manager;
         const float gridSize = 20, headerWidth = 120;
         int hoverRow = -1, hoverCol = -1;
-        
+
         void OnEnable()
         {
             manager = (Manager)target;
@@ -29,7 +29,7 @@ namespace Polity
 
         void OnPlayModeStateChanged(PlayModeStateChange state)
         {
-            if (state == PlayModeStateChange.ExitingEditMode 
+            if (state == PlayModeStateChange.ExitingEditMode
             && !manager.CheckFactionNames(out string error))
             {
                 EditorApplication.isPlaying = false;
@@ -41,7 +41,7 @@ namespace Polity
         {
             // Ensure we repaint when the mouse moves to update highlighting
             if (Event.current.type == EventType.MouseMove) Repaint();
-            
+
             EditorGUI.BeginChangeCheck();
 
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
@@ -116,7 +116,15 @@ namespace Polity
 
                 EditorGUILayout.BeginHorizontal();
 
-                nameProp.stringValue = EditorGUILayout.TextField($"", nameProp.stringValue);
+                EditorGUI.BeginChangeCheck();
+                string newName = EditorGUILayout.TextField($"", nameProp.stringValue);
+                if (EditorGUI.EndChangeCheck())
+                {
+                    nameProp.stringValue = newName;
+                    // Trigger the event-driven logic by setting the property on the object
+                    if (i < manager.factions.Count)
+                        manager.factions[i].Name = newName;
+                }
 
                 // Remove button
                 if (GUILayout.Button("X", GUILayout.Width(20)))
@@ -130,7 +138,12 @@ namespace Polity
 
             // Add button
             if (GUILayout.Button("Add Faction"))
+            {
                 factionsProp.arraySize++;
+                // Undo.RecordObject(manager, "Add Faction");
+                // manager.AddFaction($"New Faction {manager.factions.Count}");
+                // serializedObject.Update();
+            }
         }
 
         Color GetColorForRelationship(Relation relationship)

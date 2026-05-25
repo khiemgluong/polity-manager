@@ -7,7 +7,31 @@ namespace Polity
     public class Faction : IEquatable<Faction>
     {
         [SerializeField] string name;
+        [SerializeField] int hash;
+        public int Hash => hash;
+
         public static event Action<string> OnNameChange;
+
+        // public Faction()
+        // {
+        //     Manager.OnFactionCreated += f => f.UpdateHash();
+        //     UpdateHash();
+        // }
+
+        // public Faction(string name)
+        // {
+        //     this.name = name;
+        //     Manager.OnFactionCreated += f => f.UpdateHash();
+        //     UpdateHash();
+        // }
+
+
+        void UpdateHash()
+        {
+            hash = GetHashCode();
+            Debug.Log($"Faction '{name}' hash updated: {hash}");
+        }
+
         public string Name
         {
             get => name;
@@ -16,7 +40,10 @@ namespace Polity
                 if (name == value) return;
                 name = value; // ← actually assign it
                 if (value != null)
+                {
+                    UpdateHash();
                     OnNameChange?.Invoke(value);
+                }
             }
         }
 
@@ -39,7 +66,7 @@ namespace Polity
             if (factions[factionIndex].name.Equals(name, StringComparison.OrdinalIgnoreCase))
                 return;
 
-            name = factions[factionIndex].name;
+            Name = factions[factionIndex].name;
         }
 
         public void Set(string factionName)
@@ -57,7 +84,7 @@ namespace Polity
 
         public void Set(Faction reader)
         {
-            name = reader.name;
+            Name = reader.name;
         }
 
         /* --------------------------- Equality Operations -------------------------- */

@@ -20,11 +20,13 @@ namespace Polity
             if (manager.RelationMatrix == null)
                 manager.LoadRelationMatrix();
             EditorApplication.playModeStateChanged += OnPlayModeStateChanged;
+            Tools.hidden = true;
         }
 
         void OnDisable()
         {
             EditorApplication.playModeStateChanged -= OnPlayModeStateChanged;
+            Tools.hidden = false;
         }
 
         void OnPlayModeStateChanged(PlayModeStateChange state)
@@ -47,9 +49,6 @@ namespace Polity
             EditorGUI.BeginDisabledGroup(Application.isPlaying);
             DrawFactionStringFields();
 
-            // SerializedProperty factions = serializedObject.FindProperty("factions");
-            // EditorGUILayout.PropertyField(factions, true);
-
             EditorGUI.EndDisabledGroup();
 
             DataCheck();
@@ -57,7 +56,6 @@ namespace Polity
             FactionsMatrix();
 
             GUILayout.Space(10);
-
 
             EditorGUILayout.BeginHorizontal();
             GUIStyle rightAlignedStyle = new(GUI.skin.label)
@@ -74,8 +72,6 @@ namespace Polity
             // Save changes
             if (GUI.changed)
             {
-                // if (!Application.isPlaying)
-                //     manager.SerializeRelationMatrix();
                 serializedObject.ApplyModifiedProperties();
                 EditorUtility.SetDirty(manager);
             }

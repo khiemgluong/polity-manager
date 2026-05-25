@@ -1,5 +1,11 @@
 ## [Unreleased]
 
+## [3.2.0] - 2026-5-25
+
+### Added
+
+- Hash field in Polity.Faction for easier Jobs integration
+
 ## [3.1.0] - 2026-5-24
 
 ### Added

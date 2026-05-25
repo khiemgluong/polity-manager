@@ -42,7 +42,7 @@ namespace Polity
 
             hash = GetHashCode();
 
-            Debug.Log($"[Faction ID:{GetHashCode()}] '{name}' hash updated to {hash}");
+            Debug.Log($"[Faction '{name}' hash updated to {hash}");
         }
 
         public void Set(int factionIndex)

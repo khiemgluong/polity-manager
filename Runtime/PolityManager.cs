@@ -5,21 +5,15 @@ using System.Linq;
 
 namespace Polity
 {
-    [HelpURL("https://github.com/khiemgluong/Polity-Manager/blob/main/README.md")]
+    [HelpURL("https://github.com/khiemgluong/polity-manager/blob/main/README.md")]
 
     [DisallowMultipleComponent]
     public class Manager : MonoBehaviour
     {
-        public const string VERSION = "3.1.0";
+        public const string VERSION = "3.1.3";
         public static Manager PM { get; private set; }
         public List<Faction> factions = new();
         public Relation[,] RelationMatrix { get; private set; }
-        public enum Relation
-        {
-            Neutral,
-            Allies,
-            Enemies,
-        }
 
         /* --------------------------------- EVENTS --------------------------------- */
         public static Action OnRelationChange;
@@ -257,7 +251,7 @@ namespace Polity
             if (factionIndex < 0 || factionIndex >= factions.Count ||
                 theirFactionIndex < 0 || theirFactionIndex >= factions.Count)
             {
-                Debug.LogError("One or both faction indices are out of range. Returning default relation.");
+                Debug.LogError("One or both faction indices are out of range.");
                 return default;
             }
             return RelationMatrix[factionIndex, theirFactionIndex];
@@ -278,7 +272,7 @@ namespace Polity
         {
             if (factions == null || factions.Count == 0)
             {
-                Debug.LogError("No factions available in Manager. Cannot assign random faction.");
+                Debug.LogError("No factions available in Manager.");
                 return -1;
             }
             return UnityEngine.Random.Range(0, factions.Count);
@@ -316,7 +310,8 @@ namespace Polity
             RelationMatrix[factionIndex, theirFactionIndex] = newRelation;
             RelationMatrix[theirFactionIndex, factionIndex] = newRelation;
             OnRelationChange?.Invoke();
-            Debug.Log($"Set relation between {factions[factionIndex].Name} & {factions[theirFactionIndex].Name} to {newRelation}.");
+            Debug.Log($"Set relation between {factions[factionIndex].Name} " +
+                $" {factions[theirFactionIndex].Name} to {newRelation}.");
         }
 
         public void ChangeRelation(string factionName, string theirFactionName, Relation newRelation)

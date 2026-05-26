@@ -1,4 +1,4 @@
-using System;
+#if UNITY_EDITOR
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -147,8 +147,8 @@ namespace Polity
             return relationship switch
             {
                 Relation.Neutral => Color.yellow,
-                Relation.Allies => Color.green,
-                Relation.Enemies => Color.red,
+                Relation.Ally => Color.green,
+                Relation.Enemy => Color.red,
                 _ => Color.white,
             };
         }
@@ -189,3 +189,4 @@ namespace Polity
 
     }
 }
+#endif

@@ -177,7 +177,7 @@ namespace Polity.Example
                 Relation relation = PM.CheckRelation(Faction, ally.Faction);
                 switch (relation)
                 {
-                    case Relation.Allies:
+                    case Relation.Ally:
                         target = null;
                         agent.SetDestination(spawnPos);
                         break;
@@ -214,13 +214,13 @@ namespace Polity.Example
                             Relation relation = PM.CheckRelation(Faction, hitNPC.Faction);
                             switch (relation)
                             {
-                                case Relation.Allies:
+                                case Relation.Ally:
                                     PolityNPC allyNPC = hitNPC.GetComponent<PolityNPC>();
                                     if (allyNPC.target != null)
                                         if (allyNPC.target != null)
                                             ally = allyNPC.target;
                                     break;
-                                case Relation.Enemies:
+                                case Relation.Enemy:
                                     ally = null;
                                     target = hitNPC;
                                     agent.updateRotation = false;

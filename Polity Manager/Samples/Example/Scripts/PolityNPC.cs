@@ -9,8 +9,8 @@ namespace Polity.Example
     {
         [field: SerializeField]
         public Faction Faction { get; private set; }
-        [field: SerializeField]
-        public Leader Leader { get; set; }
+        // [field: SerializeField]
+        // public Leader Leader { get; set; }
         [SerializeField] Mesh[] npcMeshes = new Mesh[6];
         public PolityNPC target, ally;
         int health = 25;
@@ -44,11 +44,11 @@ namespace Polity.Example
 
         void OnDestroy()
         {
-            if (Leader != null)
-            {
-                Leader.RemoveMember(this);
-                Leader = null;
-            }
+            // if (Leader != null)
+            // {
+            //     Leader.RemoveMember(this);
+            //     Leader = null;
+            // }
             OnDespawn?.Invoke(this);
 
             // Leader.OnSpawn -= OnLeaderSpawned;
@@ -67,11 +67,11 @@ namespace Polity.Example
 
         void OnLeaderDespawned(Leader leader)
         {
-            if (Leader == leader)
-            {
-                Leader = null;
-                OnRelationChanged();
-            }
+            // if (Leader == leader)
+            // {
+            //     Leader = null;
+            //     OnRelationChanged();
+            // }
         }
 
         #endregion
@@ -79,14 +79,14 @@ namespace Polity.Example
         void Update()
         {
             if (!agent.enabled) return;
-            if (Leader != null)
-            {
-                if (Leader.gameObject == gameObject)
-                    return;
-                Vector3 worldTarget = Leader.formation.GetPosition(this);
-                agent.SetDestination(worldTarget);
-                return;
-            }
+            // if (Leader != null)
+            // {
+            //     if (Leader.gameObject == gameObject)
+            //         return;
+            //     Vector3 worldTarget = Leader.formation.GetPosition(this);
+            //     agent.SetDestination(worldTarget);
+            //     return;
+            // }
             SearchForPolityMembers();
             if (ally != null && target != null)
                 MoveTowardsTarget(ally);

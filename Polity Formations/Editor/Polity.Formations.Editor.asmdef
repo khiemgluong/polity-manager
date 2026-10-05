@@ -1,0 +1,19 @@
+{
+    "name": "Polity.Formations.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:6f533c7f9e79f6a4b99403f3d760c3fb",
+        "GUID:327758bd1483001499482e031878308c"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

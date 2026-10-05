@@ -11,7 +11,7 @@ namespace Polity
         [Range(1, 100)]
         public int capacity = 10;
         public List<IMember> members = new();
-        public Formation formation;
+        // public Formation formation;
 
         #region Lifecycle
         /* -------------------------------- Lifecycle ------------------------------- */
@@ -20,9 +20,9 @@ namespace Polity
             if (TryGetComponent(out IMember member))
             {
                 Faction = member.Faction;
-                member.Leader = this;
+                // member.Leader = this;
             }
-            formation = new Formation(this);
+            // formation = new Formation(this);
             Faction.OnNameChange += OnFactionNameChanged;
         }
 
@@ -38,7 +38,7 @@ namespace Polity
 
         protected virtual void Update()
         {
-            formation?.Update();
+            // formation?.Update();
         }
         #endregion
 
@@ -68,11 +68,11 @@ namespace Polity
             foreach (IMember member in members)
             {
                 member.Faction.Set(newLeader.Faction.Name);
-                member.Leader = newLeader;
+                // member.Leader = newLeader;
                 newLeader.AddMember(member);
             }
             members.Clear();
-            formation = null;
+            // formation = null;
         }
 
         public void AddMember(IMember member, bool enforceFaction = false)
@@ -82,21 +82,21 @@ namespace Polity
                 Debug.LogWarning("Member belongs to another faction and enforceFaction is true.", member.transform);
                 return;
             }
-            if (member.Leader != null)
-                if (member.Leader == this) return;
+            // if (member.Leader != null)
+            //     if (member.Leader == this) return;
 
             member.Faction.Set(Faction.Name);
-            member.Leader = this;
+            // member.Leader = this;
             if (!members.Contains(member))
                 members.Add(member);
-            formation?.Add(member);
+            // formation?.Add(member);
         }
 
         public void RemoveMember(IMember member)
         {
             if (members.Contains(member))
                 members.Remove(member);
-            formation?.Remove(member);
+            // formation?.Remove(member);
         }
         #endregion
 

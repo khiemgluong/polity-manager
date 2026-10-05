@@ -1,0 +1,17 @@
+{
+  "name": "com.i-comit.polity.formations",
+  "version": "1.0.0",
+  "displayName": "Polity Formations",
+  "description": "An editor based tool for Unity designed to manage political relations within a matrix. ",
+  "unity": "2021.3",
+  "author": {
+    "name": "Khiem Luong"
+  },
+  "samples": [
+    {
+      "displayName": "Example",
+      "description": "Basic polity matrix example.",
+      "path": "Samples~/Example"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Polity
+namespace Polity.Formations
 {
     [System.Serializable]
-    public class Formation
+    public class Formations
     {
         // ── Config ───────────────────────────────────────────────────────────────
         [SerializeField] int columns = 3;
@@ -17,7 +17,7 @@ namespace Polity
         public IReadOnlyDictionary<IMember, Vector3> Offsets => offsets;
 
         // ── Setup ────────────────────────────────────────────────────────────────
-        public Formation(Leader leader, int columns = 3, int rows = 2, float spacing = 1f)
+        public Formations(Leader leader, int columns = 3, int rows = 2, float spacing = 1f)
         {
             this.leader = leader;
             this.columns = columns;

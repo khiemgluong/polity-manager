@@ -23,7 +23,7 @@ namespace Polity
     public interface IMember
     {
         public Faction Faction { get; }
-        public Leader Leader { get; set; }
+        // public Leader Leader { get; set; }
 #pragma warning disable IDE1006 
         public Transform transform { get; }
 #pragma warning restore IDE1006

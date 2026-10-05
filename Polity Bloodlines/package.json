@@ -1,0 +1,17 @@
+{
+  "name": "com.i-comit.polity.bloodlines",
+  "version": "1.0.0",
+  "displayName": "Polity Bloodlines",
+  "description": "An editor based tool for Unity designed to manage political relations within a matrix. ",
+  "unity": "2021.3",
+  "author": {
+    "name": "Khiem Luong"
+  },
+  "samples": [
+    {
+      "displayName": "Example",
+      "description": "Basic polity matrix example.",
+      "path": "Samples~/Example"
+    }
+  ]
+}

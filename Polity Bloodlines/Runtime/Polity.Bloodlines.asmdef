@@ -1,7 +1,9 @@
 {
     "name": "Polity.Bloodlines",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:6f533c7f9e79f6a4b99403f3d760c3fb"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

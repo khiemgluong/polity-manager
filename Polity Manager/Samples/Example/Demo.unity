@@ -245,15 +245,19 @@ MonoBehaviour:
   npcs:
   - reader:
       name: Red Team
+      hash: 0
     npcs: []
   - reader:
       name: Red Team
+      hash: 0
     npcs: []
   - reader:
       name: Red Team
+      hash: 0
     npcs: []
   - reader:
       name: Red Team
+      hash: 0
     npcs: []
 --- !u!1 &72941519
 GameObject:
@@ -1064,7 +1068,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 8815981602695794682, guid: 966ecb898768f1b48855e7512883c5d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1409778626}
+    - targetCorrespondingSourceObject: {fileID: 8815981602695794682, guid: 966ecb898768f1b48855e7512883c5d3, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 710651534}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 966ecb898768f1b48855e7512883c5d3, type: 3}
 --- !u!1001 &388671477
@@ -1218,7 +1228,7 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 416658060}
   m_Enabled: 1
-  serializedVersion: 12
+  serializedVersion: 13
   m_Type: 1
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 2
@@ -1270,7 +1280,7 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
   m_ForceVisible: 0
-  m_ShadowRadius: 0
+  m_ShapeRadius: 0
   m_ShadowAngle: 0
   m_LightUnit: 1
   m_LuxAtDistance: 1
@@ -1676,6 +1686,53 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &710651533
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 710651534}
+  - component: {fileID: 710651535}
+  m_Layer: 0
+  m_Name: Formations
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &710651534
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710651533}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13.51853, y: 0.87357, z: -47.63525}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1883859380}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &710651535
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710651533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bc300008e9dde44bab5de348b62d2be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Polity.Formations::Polity.Formations.Formations
+  columns: 0
+  rows: 0
+  spacing: 0
 --- !u!1 &848491768
 GameObject:
   m_ObjectHideFlags: 0
@@ -1729,7 +1786,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dummy: {fileID: 1060920808359325883, guid: a75eb4be39baf7240a2e7048e16fc4b1, type: 3}
-  spawn: 1
+  spawn: 0
   dropdown: {fileID: 1165665060}
 --- !u!1 &875601444
 GameObject:
@@ -2379,6 +2436,7 @@ Terrain:
   m_AllowAutoConnect: 1
   m_EnableHeightmapRayTracing: 1
   m_EnableTreesAndDetailsRayTracing: 0
+  m_EnableHeightmapLODFrustumCulling: 1
   m_TreeMotionVectorModeOverride: 3
 --- !u!4 &1386605009
 Transform:
@@ -2396,6 +2454,50 @@ Transform:
   - {fileID: 394233972}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1409778625
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1409778626}
+  - component: {fileID: 1409778627}
+  m_Layer: 0
+  m_Name: Bloodlines
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1409778626
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1409778625}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -14.88648, y: 1.08039, z: -47.72982}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1883859380}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1409778627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1409778625}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bae4725846072b418ef48dc76ddc49c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Polity.Bloodlines::PolityBloodlines
 --- !u!1 &1430366415
 GameObject:
   m_ObjectHideFlags: 0
@@ -2583,6 +2685,7 @@ Canvas:
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
   m_VertexColorAlwaysGammaSpace: 0
+  m_UseReflectionProbes: 0
   m_AdditionalShaderChannelsFlag: 1
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
@@ -3004,6 +3107,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1876138234}
   m_CullTransparentMesh: 1
+--- !u!4 &1883859380 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8815981602695794682, guid: 966ecb898768f1b48855e7512883c5d3, type: 3}
+  m_PrefabInstance: {fileID: 357888120}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1886165921
 GameObject:
   m_ObjectHideFlags: 0

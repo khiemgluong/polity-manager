@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Polity.Formations
 {
     [System.Serializable]
-    public class Formations
+    public class Formations: MonoBehaviour
     {
         // ── Config ───────────────────────────────────────────────────────────────
         [SerializeField] int columns = 3;
